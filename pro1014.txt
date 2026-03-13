@@ -1,0 +1,111 @@
+1		Quản lý tour và sản phẩm du lịch			
+2	Điều hành tour - ADMIN 		Danh mục tour (tour trong nước, quốc tế, tour theo yêu cầu).	"Quản lý, phân loại các loại tour:
+- Tour trong nước: Tour tham quan, du lịch các địa điểm trong nước.
+- Tour quốc tế: Tour tham quan, du lịch các nước ngoài.
+- Tour theo yêu cầu (customized tour): Tour thiết kế riêng dựa trên yêu cầu cụ thể của từng khách hàng/đoàn khách."	Bắt buộc
+3	Điều hành tour - ADMIN 		Thông tin chi tiết tour: lịch trình, hình ảnh, giá, chính sách, nhà cung cấp.	"Lưu trữ đầy đủ các thông tin của từng tour, gồm:
+- Lịch trình: Ngày giờ, các điểm tham quan, hoạt động cụ thể theo từng ngày(bảng liên kết/json).
+- Hình ảnh: Bộ ảnh minh họa cho từng tour.
+- Giá: Giá tour cho từng đối tượng, từng thời điểm, các gói dịch vụ kèm theo.
+- Chính sách: Chính sách đặt tour, hủy tour, đổi lịch, hoàn tiền, các điều khoản riêng.
+- Nhà cung cấp: Thông tin các đối tác cung ứng dịch vụ cho tour (khách sạn, xe, nhà hàng…)."	Bắt buộc
+4	Điều hành tour - ADMIN 		Quản lý phiên bản tour (theo mùa, khuyến mãi, đặc biệt).	"Tạo và quản lý nhiều phiên bản khác nhau cho cùng một tour gốc:
+- Theo mùa: Khác nhau về lịch trình, giá, dịch vụ giữa mùa cao điểm/thấp điểm.
+- Khuyến mãi: Phiên bản tour có giá ưu đãi hoặc dịch vụ bổ sung.
+- Đặc biệt: Phiên bản chỉ dành cho sự kiện đặc biệt, khách VIP, dịp lễ…"	Mở rộng
+5	Điều hành tour - ADMIN 		Tạo nhanh báo giá tour.	Chức năng tạo báo giá cho khách hàng/đoàn khách chỉ bằng vài thao tác (chọn tour, số lượng khách, tùy chọn dịch vụ…), xuất file báo giá nhanh chóng, hỗ trợ gửi trực tiếp qua email/zalo.	Mở rộng
+6	Điều hành tour - ADMIN 		Gắn mã QR/đường dẫn đặt tour online.	"- Mỗi tour có một mã QR và/hoặc đường dẫn riêng.
+- Khách hàng chỉ cần quét QR hoặc bấm link để xem thông tin và đặt tour online, giảm thao tác thủ công cho nhân viên."	Mở rộng
+7	Điều hành tour - ADMIN 		Clone tour cũ để tạo tour mới.	Cho phép sao chép toàn bộ thông tin một tour đã có (lịch trình, giá, dịch vụ…) để tạo nhanh tour mới mà không phải nhập lại từ đầu, thuận tiện khi mở tour cùng tuyến nhưng thay đổi thời gian, giá hoặc điều chỉnh một số chi tiết.	Mở rộng
+8		Bán tour và đặt chỗ 			
+9	Điều hành tour - ADMIN 		Tạo booking mới (khách lẻ/đoàn).	"- Nhân viên hoặc khách hàng có thể đặt tour cho khách lẻ (1–2 người) hoặc cả đoàn (nhiều người, công ty, tổ chức).
+- Nhập thông tin: tên khách, số lượng, loại tour, thời gian, yêu cầu đặc biệt, thông tin liên hệ...
+- Hệ thống tự động kiểm tra chỗ trống, xác nhận tạm thời và lưu lại booking."	Bắt buộc
+10	Điều hành tour - ADMIN 		Quản lý tình trạng booking.	"- Theo dõi, cập nhật trạng thái từng booking:
+              + Chờ xác nhận
+              + Đã cọc
+              + Hoàn tất
+              + Hủy
+- Lịch sử thay đổi tình trạng được lưu lại
+- Hỗ trợ phân quyền chỉnh sửa theo vai trò(mở rộng)."	Bắt buộc
+11	Điều hành tour - ADMIN 		Xuất báo giá/hợp đồng/hóa đơn.	"- Từ dữ liệu booking, hệ thống tự động tạo:
+              + Báo giá chi tiết cho khách
+              + Hợp đồng dịch vụ giữa khách hàng và công ty
+              + Hóa đơn (VAT, hóa đơn điện tử)
+- Cho phép tải về file PDF, gửi qua email, in trực tiếp"	Mở rộng
+12	Điều hành tour - ADMIN 		Lưu lịch sử giao dịch nội bộ	"- Tự động ghi nhận toàn bộ thông tin booking, giao dịch, thanh toán vào hồ sơ khách hàng trên hệ thống.
+- Cho phép nhân viên tra cứu, theo dõi lịch sử mua tour, chăm sóc, tương tác của từng khách hàng hoặc đoàn khách ngay trên phần mềm.
+- Hỗ trợ cá nhân hóa chăm sóc, gửi ưu đãi, nhắc lịch hoặc tái kích hoạt khách hàng từ dữ liệu có sẵn trong hệ thống."	Mở rộng
+13		Quản lý & điều hành tour 			
+14	Điều hành tour - ADMIN 		Quản lý danh sách nhân sự (HDV)	"- Lưu trữ hồ sơ chi tiết từng hướng dẫn viên (HDV): họ tên, ngày sinh, ảnh, liên hệ, chứng chỉ chuyên môn, ngôn ngữ sử dụng, kinh nghiệm, lịch sử dẫn tour, đánh giá năng lực, tình trạng sức khoẻ,...
+- Phân loại HDV theo nhóm (nội địa/quốc tế, chuyên tuyến, chuyên khách đoàn…).
+- Theo dõi lịch làm việc, số tour đã dẫn, phân tích hiệu suất, nhắc nhở sắp xếp lịch phù hợp.(mở rộng)
+- Ghi nhận ngày nghỉ, ngày bận, hỗ trợ tránh phân công trùng lặp, tối ưu sử dụng nhân sự.(mở rộng)"	Bắt buộc
+15	Điều hành tour - ADMIN 		Quản lý lịch khởi hành & phân bổ nhân sự, dịch vụ	"- Lập kế hoạch lịch khởi hành chi tiết cho từng tour: ngày/giờ xuất phát, điểm tập trung, thời gian kết thúc.
+- Phân bổ nhân sự: chọn HDV, tài xế, nhân viên hậu cần cho từng chuyến.
+- Phân bổ dịch vụ: đặt xe, khách sạn, vé máy bay, nhà hàng, điểm tham quan đúng lịch trình, đủ số lượng, đúng yêu cầu từng đoàn.
+- Tự động gửi thông báo/nhắc việc đến từng nhân sự, đối tác, nhà cung cấp khi được phân công.
+- Theo dõi trạng thái xác nhận từng dịch vụ, cập nhật thay đổi khi có phát sinh."	Bắt buộc
+16	Điều hành tour - ADMIN 		Danh sách khách theo tour, in danh sách đoàn, check-in, phân phòng khách sạn.	"- Quản lý thông tin chi tiết từng khách trong đoàn: họ tên, liên hệ, giới tính, năm sinh, số giấy tờ tuỳ thân, tình trạng thanh toán, yêu cầu cá nhân.
+- Cho phép in danh sách đoàn theo mẫu chuẩn để giao cho HDV, nhân viên vận hành.
+- Hỗ trợ check-in, điểm danh khách tại điểm xuất phát, cập nhật trạng thái (đã đến, chưa đến, vắng mặt…).
+- Quản lý, phân bổ phòng khách sạn cho từng khách/nhóm khách, đảm bảo đúng yêu cầu (giường đơn, đôi, phòng riêng/lẻ, ghép phòng…)."	Bắt buộc
+17	Điều hành tour - ADMIN 		Ghi chú đặc biệt (ăn chay, bệnh lý, yêu cầu riêng...).	"- Ghi nhận các yêu cầu cá nhân của khách: ăn chay, dị ứng, bệnh lý cần chú ý, yêu cầu đặc biệt về di chuyển/phòng nghỉ/ăn uống…
+- Tự động cảnh báo cho HDV và nhân sự liên quan về các yêu cầu đặc biệt khi chuẩn bị và vận hành tour.
+- Theo dõi quá trình đáp ứng các yêu cầu này trong suốt hành trình."	Bắt buộc
+18	Điều hành tour - ADMIN 		Theo dõi chi phí thực tế từng tour so với dự toán.	"- Lưu trữ chi tiết dự toán chi phí từng tour: phương tiện, lưu trú, vé vào cửa, ăn uống, dịch vụ bổ sung, chi phí phát sinh dự kiến.
+- Ghi nhận các khoản chi thực tế phát sinh trong quá trình tour diễn ra (có thể do HDV hoặc nhân viên vận hành cập nhật).
+- So sánh chi phí thực tế với dự toán, cảnh báo nếu có khoản vượt ngưỡng, tạo báo cáo lãi/lỗ từng tour."	Mở rộng
+19	Điều hành tour - ADMIN 		Nhật ký tour (ghi nhận sự cố, phản hồi khách, đánh giá HDV).	"- Cho phép HDV, nhân viên điều hành cập nhật diễn biến tour: thời tiết, sự cố phát sinh, tình trạng sức khỏe khách, hoạt động đặc biệt.
+- Ghi chú cách xử lý các tình huống ngoài dự kiến, hỗ trợ rút kinh nghiệm cho lần sau.
+- Lưu lại phản hồi của khách hàng ngay khi kết thúc tour hoặc từng giai đoạn trong tour.
+- Đánh giá chất lượng HDV dựa trên phản hồi khách, sự phối hợp, tinh thần làm việc."	Bắt buộc
+20	Điều hành tour - ADMIN 		Quản lý phản hồi đánh giá về tour, về dịch vụ, nhà cung cấp	"- Thu thập ý kiến, đánh giá của khách hàng về chất lượng tour, dịch vụ nhận được, thái độ phục vụ của nhân sự.
+- Lưu trữ phản hồi, phân loại theo từng tour, từng dịch vụ (xe, khách sạn, nhà hàng…), từng nhà cung cấp.
+- Tổng hợp các phản hồi, đánh giá để phân tích, làm cơ sở cải tiến dịch vụ, chọn lọc hoặc loại bỏ các nhà cung cấp không đạt yêu cầu.
+- Xuất báo cáo đánh giá tổng hợp, thống kê mức độ hài lòng khách hàng, đề xuất khen thưởng hoặc nhắc nhở nhà cung cấp/nhân sự."	Mở rộng
+21		Quản lý đối tác, nhà cung cấp			
+22	Điều hành tour - ADMIN 		Quản lý nhà cung cấp dịch vụ tour: khách sạn, nhà hàng, vận chuyển, vé, visa, bảo hiểm...	"- Lưu trữ danh sách đối tác, nhà cung cấp dịch vụ: khách sạn, nhà hàng, xe vận chuyển, vé máy bay/tàu, công ty visa, đơn vị bảo hiểm…
+- Lưu thông tin chi tiết: tên đơn vị, địa chỉ, liên hệ, mô tả dịch vụ, năng lực cung cấp, danh mục dịch vụ đã từng cung ứng cho các tour."	Mở rộng
+23	Điều hành tour - ADMIN 		Hợp đồng, báo giá, công nợ, lịch sử thanh toán.	"- Lưu hồ sơ hợp đồng đã ký với từng nhà cung cấp, bao gồm file scan hợp đồng, điều khoản, thời hạn áp dụng, giá dịch vụ.
+- Lưu báo giá, so sánh giá giữa các nhà cung cấp, cập nhật khi có thay đổi hoặc đàm phán lại.
+- Theo dõi công nợ phải trả, trạng thái thanh toán từng đơn hàng/dịch vụ.
+- Lưu lịch sử thanh toán (số tiền, ngày trả, phương thức, hóa đơn…) với từng nhà cung cấp để đối soát, kiểm tra."	Mở rộng
+24	Điều hành tour - ADMIN 		Đánh giá chất lượng, quản lý thời hạn hợp đồng, nhắc hạn thanh toán.	"- Ghi nhận và lưu trữ đánh giá chất lượng dịch vụ từng nhà cung cấp (theo tour, theo phản hồi khách hàng/HDV).
+- Tổng hợp kết quả đánh giá để làm căn cứ tiếp tục hợp tác hoặc loại bỏ nhà cung cấp không đạt yêu cầu.
+- Theo dõi thời hạn hợp đồng, cảnh báo sắp hết hạn để chủ động gia hạn/đàm phán mới.
+- Tự động nhắc lịch thanh toán đúng hạn để tránh phát sinh công nợ hoặc ảnh hưởng đến chất lượng phục vụ tour."	Mở rộng
+25		Quản lý tài chính liên quan tour			
+26	Điều hành tour - ADMIN 		Theo dõi thu – chi từng tour.	"- Ghi nhận toàn bộ khoản thu (đặt cọc, thanh toán của khách, thu thêm dịch vụ…) và các khoản chi (chi phí dịch vụ, phương tiện, khách sạn, vé, ăn uống, phát sinh…) của từng tour.
+- Theo dõi dòng tiền thực tế, đối chiếu với dự toán để kiểm soát chi phí, hạn chế thất thoát."	Mở rộng
+27	Điều hành tour - ADMIN 		Công nợ khách hàng/nhà cung cấp.	"- Theo dõi tình trạng công nợ:
+         + Khách hàng: Đã thanh toán, còn nợ, lịch sử thanh toán theo từng hợp đồng/tour.
+         + Nhà cung cấp: Đã thanh toán, còn nợ, chi tiết từng lần thanh toán cho từng đơn vị cung ứng dịch vụ.
+- Hỗ trợ nhắc hạn thu nợ/công nợ phải trả, giảm rủi ro nợ xấu."	Mở rộng
+28	Điều hành tour - ADMIN 		Báo cáo lãi lỗ từng tour.	"- Tổng hợp doanh thu, chi phí, công nợ, chi phí phát sinh… để tính toán lợi nhuận thực tế của từng tour.
+- Xuất báo cáo lãi lỗ chi tiết theo tour, hỗ trợ đánh giá hiệu quả kinh doanh, ra quyết định tổ chức các tour tiếp theo."	Mở rộng
+29		Báo cáo vận hành tour			
+30	Điều hành tour - ADMIN 		Doanh thu, chi phí, lợi nhuận theo tour.	"- Báo cáo tổng hợp số tiền thu được (doanh thu), tổng chi phí phát sinh và lợi nhuận thực tế của từng tour.
+- So sánh hiệu quả các tour với nhau hoặc theo từng giai đoạn (tháng, quý, năm)."	Bắt buộc
+31	Điều hành tour - ADMIN 		Tỷ lệ chuyển đổi booking.	"- Thống kê số lượng khách liên hệ/tư vấn so với số lượng booking thành công.
+- Đo lường hiệu quả bán hàng, hiệu quả từng chiến dịch marketing, từng nhân viên sales."	Mở rộng
+32	Điều hành tour - ADMIN 		Báo cáo tổng quan	"- Dashboard hiển thị số liệu tổng hợp toàn hệ thống: tổng doanh thu, tổng chi phí, tổng lợi nhuận, số tour tổ chức, số khách tham gia, tình trạng booking, hiệu quả nhân sự, các chỉ số KPI quan trọng.
+- Cho phép lọc, xuất file (Excel/PDF), tuỳ chỉnh theo vai trò người dùng (Admin, Sales, Điều hành...)."	Mở rộng
+33		Các tiện ích hỗ trợ vận hành tour			
+34	Điều hành tour - ADMIN 		Giao diện mobile.	- Ứng dụng hoặc giao diện web tối ưu cho điện thoại, giúp nhân viên và khách hàng dễ dàng truy cập, cập nhật thông tin booking, lịch tour, danh sách khách, tin nhắn nội bộ... mọi lúc mọi nơi.	Mở rộng
+35	Điều hành tour - ADMIN 		Chat nội bộ (chat nhóm theo tour, nhóm nhân viên).	"- Cho phép tạo các nhóm chat riêng theo từng tour hoặc theo phòng ban.
+- Nhân viên, HDV, điều hành có thể trao đổi nhanh, chia sẻ file, hình ảnh, cập nhật sự cố, thông báo thay đổi trong quá trình vận hành tour.
+- Lưu trữ lịch sử chat để tra cứu sau này."	Mở rộng
+36	Điều hành tour - ADMIN 		Cổng khách hàng (xem lịch trình, hóa đơn, thanh toán online).	"- Khách hàng đăng nhập để xem chi tiết lịch trình tour, hóa đơn, trạng thái thanh toán, nhận thông báo, cập nhật thông tin cá nhân.
+- Cho phép thanh toán online, gửi yêu cầu hỗ trợ, nhận ưu đãi và đánh giá dịch vụ sau tour."	Mở rộng
+37	Điều hành tour - ADMIN 		Cổng nhà cung cấp (gửi báo giá, xác nhận booking).	"- Nhà cung cấp đăng nhập để gửi báo giá, cập nhật dịch vụ, xác nhận booking, nhận thông tin công nợ, lịch sử hợp tác.
+- Tương tác trực tiếp với công ty để xử lý đơn hàng, nhận phản hồi, gửi hóa đơn, tài liệu liên quan."	Mở rộng
+38	Điều hành tour - ADMIN 		Đa ngôn ngữ (nếu phục vụ khách quốc tế).	"- Hệ thống hỗ trợ chuyển đổi ngôn ngữ giao diện (Việt, Anh, Trung...) phù hợp với khách hàng quốc tế hoặc nhân viên người nước ngoài.
+- Đảm bảo nội dung, thông báo, tài liệu tự động dịch hoặc tùy chọn ngôn ngữ khi sử dụng."	Mở rộng
+39		Vận hành tour			
+40	Hướng dẫn viên (HDV) 		Xem lịch trình tour và lịch làm việc của mình	Hướng dẫn viên (HDV) xem chi tiết các tour được phân công: thời gian, địa điểm, hoạt động từng ngày, nhiệm vụ của mình.	Bắt buộc
+41	Hướng dẫn viên (HDV) 		Xem danh sách khách trong đoàn	Truy cập thông tin khách tham gia tour: họ tên, liên hệ, nhóm, các ghi chú đặc biệt (nếu có).	Bắt buộc
+42	Hướng dẫn viên (HDV) 		Xem/thêm/cập nhật nhật ký tour (ghi chú hành trình, sự cố, phản hồi khách, hình ảnh…)	HDV ghi lại diễn biến thực tế từng ngày: sự kiện, hoạt động nổi bật, sự cố, cách xử lý, phản hồi của khách hàng, ảnh chụp trong tour.	Bắt buộc
+43	Hướng dẫn viên (HDV) 		Xác nhận check-in, điểm danh khách	Đánh dấu khách đã đến/đủ tại các điểm tập trung, cập nhật trạng thái từng thành viên trong đoàn theo từng chặng.	Bắt buộc
+44	Hướng dẫn viên (HDV) 		Cập nhật các yêu cầu đặc biệt (ăn chay, bệnh lý, v.v.) của khách trong tour	Ghi nhận, cập nhật và nhắc lại các nhu cầu riêng biệt của khách để chuẩn bị phục vụ phù hợp suốt tour.	Bắt buộc
+45	Hướng dẫn viên (HDV) 		Gửi phản hồi đánh giá về tour, về dịch vụ, nhà cung cấp	HDV gửi ý kiến, nhận xét về chất lượng dịch vụ tour, khách sạn, nhà hàng, xe vận chuyển… sau mỗi chuyến đi để công ty cải thiện dịch vụ và lựa chọn đối tác phù hợp.	Mở rộng

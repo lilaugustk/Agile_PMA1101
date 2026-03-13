@@ -1,0 +1,402 @@
+  Table users as U {
+    user_id int [pk, increment]
+    full_name varchar
+    email varchar
+    phone varchar
+    role varchar
+    password_hash varchar
+    created_at datetime
+    updated_at datetime
+    avatar varchar
+    is_active tinyint [default: 1]
+  }
+
+  Table tour_categories as TC {
+    id int [pk, increment]
+    name varchar
+    slug varchar
+    description text
+    icon varchar
+    created_at datetime
+    updated_at datetime
+  }
+
+  Table suppliers as S { 
+    id int [pk, increment]
+    name varchar
+    type varchar
+    contact_person varchar
+    phone varchar
+    email varchar
+    address varchar
+    rating float
+    description text
+  }
+
+  Table tour_policies as POL {
+    id int [pk, increment]
+    name varchar
+    slug varchar
+    description text
+    created_at datetime
+    updated_at datetime
+  }
+
+  Table tour_policy_assignments as TPA {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    policy_id int [ref: > POL.id]
+    created_at datetime
+  }
+
+  Table tours as T {
+    id int [pk, increment]
+    name varchar
+    category_id int [ref: > TC.id]
+    supplier_id int [ref: > S.id]
+    description text
+    base_price decimal
+    created_at datetime
+    updated_at datetime
+    duration_days int [default:  1]
+  }
+
+  Table tour_pricing_options as TPO {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    label varchar
+    description text
+    created_at datetime
+  }
+
+  Table version_dynamic_pricing {
+    id int [pk, increment]
+
+    version_id int [ref: > TV.id]          // giá áp dụng theo phiên bản
+    departure_id int [ref: > TD.id, null]  // nếu chỉ áp dụng cho 1 lịch duy nhất
+
+    apply_type enum('discount','surcharge') [default: 'discount']
+
+    amount decimal(15,2)                    // giảm bao nhiêu hoặc phụ thu bao nhiêu
+    amount_type enum('cash','percent')      // tiền mặt / %
+    
+    start_date date
+    end_date date
+
+    notes text
+    created_at datetime
+  }
+
+  Table tour_gallery_images as TGI {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    image_url varchar
+    caption varchar
+    sort_order int
+    created_at datetime
+    main_img tinyint
+  }
+
+  Table tour_partner_services as TPS {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    service_type varchar
+    partner_name varchar
+    contact varchar
+    notes text
+    created_at datetime
+  }
+
+  Table tour_versions as TV {
+    id int [pk, increment]
+    name varchar
+    status enum('active','inactive') [default: 'active']
+    description text
+    created_at datetime
+    updated_at datetime
+  }
+
+  Table tour_version_prices {
+    id int [pk, increment]
+    version_id int [ref: > TV.id]
+    adult_percent decimal
+    child_percent decimal
+    infant_percent decimal
+    child_base_percent decimal
+    infant_base_percent decimal
+    price_adult decimal
+    price_child decimal
+    price_infant decimal
+    created_at datetime
+  }
+
+  Table itineraries as I {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    day_label varchar
+    day_number int
+    time_start time
+    time_end time
+    title varchar
+    description text
+    activities text
+    image_url varchar
+  }
+
+  Table bookings as B {
+    id int [pk, increment]
+
+    // Liên kết chính
+    tour_id int [ref: > T.id]
+    supplier_id int [ref: > S.id]
+    departure_id int [ref: > TD.id, null]        // nếu là tour ghép đoàn
+    version_id int [ref: > TV.id, null]          // phiên bản tour (mùa, khuyến mãi…)
+    customer_id int [ref: > U.user_id, null]
+    driver_id int [ref: > DR.id, null]
+    // Số lượng khách – BẮT BUỘC giữ lại
+    adults      int [default: 0]
+    children    int [default: 0]
+    infants     int [default: 0]
+    foc_pax     int [default: 0]
+
+    // Giá – chỉ cần 2 trường là đủ
+    original_price decimal [null]                // giá tính tự động ban đầu
+    final_price    decimal                       // giá cuối cùng khách trả (sau giảm/tặng/phụ thu)
+
+    // Trạng thái + nguồn
+    status varchar [default: 'pending']          // pending, confirmed, deposited, paid, cancelled, completed
+    source varchar [null]                        // website, zalo, phone, walk_in…
+
+    // Ngày quan trọng
+    booking_date    datetime [default: `now()`]  // ngày tạo booking
+    departure_date  date [null]                  // ngày đi thực tế
+
+    // Ghi chú
+    notes           text [null]
+    discount_note   text [null]                  // admin ghi: "giảm 5tr", "tặng 2 FOC", "phụ thu Tết +8tr"
+
+    // Ai tạo
+    created_by int [ref: > U.user_id]
+    created_at datetime
+    updated_at datetime
+
+    // Index bắt buộc (chỉ 2 cái này là đủ mượt)
+    Indexes {
+      (tour_id, departure_date)
+      status
+    }
+  }
+
+  Table tour_departures as TD {
+    id int [pk, increment]
+    
+    tour_id int [ref: > T.id]
+    version_id int [ref: > TV.id, null]                   // tour nào
+    departure_date date                          // ngày khởi hành
+    max_seats int [default: 40]                  // tổng chỗ
+    booked_seats int [default: 0]                // đã đặt bao nhiêu (cả FOC)
+
+    price_adult decimal [null]                   // giá người lớn cho lịch này (nếu muốn ghi đè)
+    price_child decimal [null]                   // giá trẻ em
+    price_infant decimal [null]                  // giá sơ sinh
+
+    status varchar [default: 'open']             // open, full, guaranteed, closed, cancelled
+    notes text [null]                            // ghi chú nội bộ
+
+    created_at datetime
+    updated_at datetime
+
+    Indexes {
+      (tour_id, departure_date)
+      status
+    }
+  }
+
+  Table attachments {
+    id int [pk, increment]
+    ref_table varchar(50)     // tours / bookings / suppliers / booking_customers / tour_logs...
+    ref_id int                // ID của bảng trên (ví dụ booking_id = 125)
+    file_url varchar          // /storage/attachments/2025/04/contract-125.pdf
+    file_type varchar         // contract, invoice, passport, tour_photo, visa, quote...
+    created_by int [ref: > U.user_id]
+    created_at datetime
+    Indexes { (ref_table, ref_id) }
+  }
+
+  // Bảng điều chỉnh giá – LINH HỒN để admin giảm giá, tặng FOC, phụ thu thoải mái
+  Table booking_price_adjustments {
+    id int [pk, increment]
+    booking_id int [ref: > B.id]
+    adjust_type varchar [note: 'discount_cash | discount_percent | foc | surcharge | gift | other']
+    amount decimal [note: 'giảm thì âm, phụ thu thì dương']
+    description varchar [note: 'VD: Giảm 8tr dịp 2/9, Tặng 1 FOC, Phụ thu lễ 30/4 +5tr...']
+    created_by int [ref: > U.user_id]             // chỉ admin
+    created_at datetime
+  }
+  Table booking_customers as BC {
+    id int [pk, increment]
+    booking_id int [ref: > B.id]                  // bắt buộc
+
+    // Thông tin cơ bản (bắt buộc nhập khi cần passport, phân phòng, check-in)
+    full_name varchar
+    gender varchar [note: 'male/female/other']
+    birth_date date [null]
+    phone varchar [null]
+    id_card varchar [null]                        // CMND/CCCD/passport
+
+    // Loại khách – quan trọng để đối soát với số lượng ở bảng bookings
+    passenger_type enum('adult','child','infant') [default: 'adult']
+    is_foc tinyint [default: 0, note: '1 = khách FOC']
+
+    // Yêu cầu đặc biệt (rất hay dùng)
+    room_type varchar [null, note: 'single/double/twin/triple']
+    special_request text [null, note: 'ăn chay, dị ứng tôm, xe lăn, ghế ngồi đầu...']
+
+    // Check-in thực tế của HDV (mục 43)
+    is_present tinyint [default: 0, note: 'HDV đánh dấu khách đã có mặt']
+
+    created_at datetime
+    updated_at datetime
+
+    payment_status enum('unpaid', 'partial', 'paid') [default: 'unpaid']
+    payment_amount decimal(15,2) [default: 0]
+    payment_date datetime [null]
+    
+    checkin_status enum('not_arrived', 'checked_in', 'absent') [default: 'not_arrived']
+    checkin_time date [null]
+    checkin_location VARCHAR(255) [null]
+    checkin_notes TEXT [null]
+    checked_by INT [null] // 'User ID của HDV check-in';
+    // Index bắt buộc để load danh sách khách của 1 booking siêu nhanh
+    Indexes {
+      booking_id
+      (booking_id, passenger_type)
+    }
+  }
+
+  Table booking_suppliers_assignment as BSA {
+    id int [pk, increment]
+    booking_id int [ref: > B.id]
+    supplier_id int [ref: > S.id]
+    service_type varchar
+    quantity int
+    price decimal
+    notes text
+  }
+
+  Table guides as G {
+    id int [pk, increment]
+    user_id int [ref: > U.user_id]
+    languages varchar
+    experience_years int
+    rating float
+    health_status varchar
+    notes text
+  }
+
+  Table tour_assignments as TA {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    guide_id int [ref: > G.id]
+    driver_name varchar
+    start_date date
+    end_date date
+    status varchar
+  }
+
+  Table supplier_contracts as SC {
+    id int [pk, increment]
+    supplier_id int [ref: > S.id]
+    contract_name varchar
+    start_date date
+    end_date date
+    price_info text
+    status varchar
+    notes text
+  }
+
+  Table tour_feedbacks as TF {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    user_id int [ref: > U.user_id]
+    rating int
+    comment text
+    created_at datetime
+  }
+
+  Table supplier_feedbacks as SF {
+    id int [pk, increment]
+    supplier_id int [ref: > S.id]
+    guide_id int [ref: > G.id]
+    rating int
+    comment text
+    created_at datetime
+  }
+
+  Table transactions as TR {
+    id int [pk, increment]
+    booking_id int [ref: > B.id]
+    amount decimal
+    type varchar
+    method varchar
+    description text
+    date datetime
+  }
+
+  Table financial_reports as FR {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    total_revenue decimal
+    total_expense decimal
+    profit decimal
+    report_date datetime
+  }
+
+  Table tour_logs as TL {
+    id int [pk, increment]
+    tour_id int [ref: > T.id]
+    guide_id int [ref: > G.id]
+    date datetime
+    description text
+    issue text
+    solution text
+    customer_feedback text
+    weather varchar
+    incident text
+    health_status varchar
+    special_activity varchar
+    handling_notes text
+    guide_rating int
+  }
+
+  Table notifications as N {
+    id int [pk, increment]
+    user_id int [ref: > U.user_id]
+    message text
+    link varchar
+    is_read tinyint [default: 0]
+    created_at datetime
+  }
+
+  Table drivers as DR {
+    id int [pk, increment]
+    full_name varchar
+    phone varchar
+    email varchar
+    license_number varchar
+    license_type varchar        // B1, B2, C, D, E...
+    vehicle_type varchar        // 4 chỗ, 7 chỗ, 16 chỗ...
+    vehicle_plate varchar
+    vehicle_brand varchar
+    status enum('active','inactive','busy') [default: 'active']
+    rating decimal
+    notes text
+    created_at datetime
+    updated_at datetime
+
+    Indexes {
+      phone [unique]
+      license_number [unique]
+      status
+    }
+  }
