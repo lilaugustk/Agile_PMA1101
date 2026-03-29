@@ -41,7 +41,7 @@ $statusColors = [
             </nav>
             <h4 class="fw-bold mb-0 mt-1" style="font-size: 1.25rem; letter-spacing: -0.5px;"><?= htmlspecialchars($tour['name'] ?? 'N/A') ?></h4>
             <div class="text-muted small mt-1">
-                <i class="ph ph-calendar-blank me-1"></i> <?= htmlspecialchars($assignment['start_date'] ?? 'N/A') ?> - <?= htmlspecialchars($assignment['end_date'] ?? 'N/A') ?>
+                <i class="ph ph-calendar-blank me-1"></i> <?= htmlspecialchars(is_array($assignment) ? ($assignment['start_date'] ?? 'N/A') : 'N/A') ?> - <?= htmlspecialchars(is_array($assignment) ? ($assignment['end_date'] ?? 'N/A') : 'N/A') ?>
             </div>
         </div>
         <div class="d-flex gap-2">
@@ -70,7 +70,7 @@ $statusColors = [
                   </div>
                   <div>
                     <h6 class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Tổng khách</h6>
-                    <h4 class="mb-0 fw-bold" id="stat-total"><?= $stats['total'] ?? 0 ?></h4>
+                    <h4 class="mb-0 fw-bold" id="stat-total"><?= is_array($stats) ? ($stats['total'] ?? 0) : 0 ?></h4>
                   </div>
                 </div>
               </div>
@@ -85,7 +85,7 @@ $statusColors = [
                   </div>
                   <div>
                     <h6 class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Đã đến</h6>
-                    <h4 class="mb-0 fw-bold" id="stat-checked-in"><?= $stats['checked_in'] ?? 0 ?></h4>
+                    <h4 class="mb-0 fw-bold" id="stat-checked-in"><?= is_array($stats) ? ($stats['checked_in'] ?? 0) : 0 ?></h4>
                   </div>
                 </div>
               </div>
@@ -100,7 +100,7 @@ $statusColors = [
                   </div>
                   <div>
                     <h6 class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Chưa đến</h6>
-                    <h4 class="mb-0 fw-bold" id="stat-not-arrived"><?= $stats['not_arrived'] ?? 0 ?></h4>
+                    <h4 class="mb-0 fw-bold" id="stat-not-arrived"><?= is_array($stats) ? ($stats['not_arrived'] ?? 0) : 0 ?></h4>
                   </div>
                 </div>
               </div>
@@ -115,7 +115,7 @@ $statusColors = [
                   </div>
                   <div>
                     <h6 class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Vắng mặt</h6>
-                    <h4 class="mb-0 fw-bold" id="stat-absent"><?= $stats['absent'] ?? 0 ?></h4>
+                    <h4 class="mb-0 fw-bold" id="stat-absent"><?= is_array($stats) ? ($stats['absent'] ?? 0) : 0 ?></h4>
                   </div>
                 </div>
               </div>
@@ -156,7 +156,7 @@ $statusColors = [
                   <div class="d-flex gap-2">
                     <select class="form-select form-select-sm shadow-none" id="tour-status-select" style="max-width: 200px; border-radius: 8px;">
                       <?php
-                      $currentStatus = $assignment['status'] ?? 'pending';
+                      $currentStatus = is_array($assignment) ? ($assignment['status'] ?? 'pending') : 'pending';
                       $statuses = [
                         'pending' => 'Chưa bắt đầu',
                         'active' => 'Đang diễn ra',
@@ -179,7 +179,7 @@ $statusColors = [
                     <div class="bg-light rounded p-2 text-primary"><i class="ph ph-steering-wheel"></i></div>
                     <div>
                         <div class="text-muted small fw-medium">Tài xế</div>
-                        <div class="fw-bold text-dark"><?= htmlspecialchars($assignment['driver_name'] ?? 'Chưa phân công') ?></div>
+                        <div class="fw-bold text-dark"><?= htmlspecialchars(is_array($assignment) ? ($assignment['driver_name'] ?? 'Chưa phân công') : 'Chưa phân công') ?></div>
                     </div>
                 </div>
               <?php else: ?>

@@ -175,7 +175,7 @@ class Tour extends BaseModel
 
         // Rating filter
         if (!empty($filters['rating_min'])) {
-            $whereConditions[] = "COALESCE(avg_rating, 0) >= :rating_min";
+            $whereConditions[] = "COALESCE(tf.avg_rating, 0) >= :rating_min";
             $params[':rating_min'] = $filters['rating_min'];
         }
 
@@ -209,11 +209,6 @@ class Tour extends BaseModel
         // Count query
         $countSql = "SELECT COUNT(DISTINCT t.id) FROM {$this->table} AS t
                      LEFT JOIN `tour_categories` AS tc ON t.category_id = tc.id
-                     LEFT JOIN (
-                         SELECT tour_id, AVG(rating) as avg_rating
-                         FROM tour_feedbacks
-                         GROUP BY tour_id
-                     ) tf ON t.id = tf.tour_id
                      $whereClause";
 
         $countStmt = self::$pdo->prepare($countSql);
@@ -223,15 +218,14 @@ class Tour extends BaseModel
         $countStmt->execute();
         $total = (int)$countStmt->fetchColumn();
 
-        // Main query with complex joins
+        // Main query with optimized joins and strict-mode compatibility
         $sql = "SELECT
-                    t.*,
                     t.*,
                     tc.name as category_name,
                     COALESCE(tf.avg_rating, 0) as avg_rating,
                     COALESCE(tb.booking_count, 0) as booking_count,
-                    MAX(CASE WHEN tgi.main_img = 1 THEN tgi.image_url END) AS main_image,
-                    GROUP_CONCAT(tgi.image_url ORDER BY tgi.sort_order SEPARATOR ',') as gallery_images,
+                    (SELECT image_url FROM tour_gallery_images WHERE tour_id = t.id AND main_img = 1 LIMIT 1) as main_image,
+                    (SELECT GROUP_CONCAT(image_url ORDER BY sort_order SEPARATOR ',') FROM tour_gallery_images WHERE tour_id = t.id) as gallery_images,
                     0 as availability_percentage
                 FROM {$this->table} AS t
                 LEFT JOIN `tour_categories` AS tc ON t.category_id = tc.id
@@ -245,9 +239,7 @@ class Tour extends BaseModel
                     FROM bookings
                     GROUP BY tour_id
                 ) tb ON t.id = tb.tour_id
-                LEFT JOIN `tour_gallery_images` tgi ON t.id = tgi.tour_id
                 $whereClause
-                GROUP BY t.id, tc.name, tf.avg_rating, tb.booking_count
                 ORDER BY $orderBy
                 LIMIT :limit OFFSET :offset";
 
@@ -576,11 +568,11 @@ class Tour extends BaseModel
         // Total tours
         $stats['total'] = $this->count();
 
-        // Active tours (since status column doesn't exist, use total count as fallback)
-        $stats['active'] = $this->count();
+        // Active tours
+        $stats['active'] = $this->count('status = "active"');
 
-        // Featured tours (since featured column doesn't exist, return 0)
-        $stats['featured'] = 0;
+        // Featured tours
+        $stats['featured'] = $this->count('featured = 1');
 
         // Ongoing tours
         $stats['ongoing'] = $this->getOngoingTours();

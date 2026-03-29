@@ -53,10 +53,6 @@ $policies = $policies ?? [];
                 <div class="step-label">Lịch trình</div>
             </div>
             <div class="step" data-step="4">
-                <div class="step-icon"><i class="ph-fill ph-calendar-plus"></i></div>
-                <div class="step-label">Khởi hành</div>
-            </div>
-            <div class="step" data-step="5">
                 <div class="step-icon"><i class="ph-fill ph-check-circle"></i></div>
                 <div class="step-label">Hoàn tất</div>
             </div>
@@ -68,7 +64,6 @@ $policies = $policies ?? [];
         <!-- Hidden inputs for dynamic data -->
         <input type="hidden" name="tour_itinerary" id="tour_itinerary" value="[]">
         <input type="hidden" name="tour_pricing_options" id="tour_pricing_options" value="[]">
-        <input type="hidden" name="tour_departures" id="tour_departures" value="[]">
         <input type="hidden" name="tour_partners" id="tour_partners" value="[]">
 
         <div class="row g-4">
@@ -98,20 +93,6 @@ $policies = $policies ?? [];
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted fw-medium">Nhà cung cấp (tùy chọn)</label>
-                                    <select name="supplier_id" id="supplier_id" class="form-select">
-                                        <option value="">-- Không chọn --</option>
-                                        <?php if (!empty($suppliers)): ?>
-                                            <?php foreach ($suppliers as $supplier): ?>
-                                                <option value="<?= $supplier['id'] ?>">
-                                                    <?= htmlspecialchars($supplier['name']) ?> - <?= htmlspecialchars($supplier['type'] ?? '') ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </select>
-                                    <small class="text-muted d-block mt-1"><i class="ph-fill ph-info me-1"></i>Chọn NCC chính</small>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-muted fw-medium">Giá cơ bản (VNĐ) <span class="text-danger">*</span></label>
@@ -203,36 +184,8 @@ $policies = $policies ?? [];
                     </div>
                 </div>
 
-                <!-- Step 4: Pricing & Departures -->
+                <!-- Step 4: Final Details -->
                 <div class="form-step d-none" id="step-4">
-                    <!-- Tour Departures -->
-                    <div class="card-premium border-0 shadow-sm bg-white mb-4">
-                        <div class="p-3 px-4 border-bottom border-light d-flex justify-content-between align-items-center">
-                            <h6 class="fw-bold mb-0 text-danger d-flex align-items-center gap-2">
-                                <i class="ph-fill ph-calendar-plus"></i> Lịch khởi hành
-                            </h6>
-                            <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm" onclick="addDeparture()">
-                                <i class="ph ph-plus"></i> Thêm lịch
-                            </button>
-                        </div>
-                        <div class="p-4">
-                            <div id="departures-list" class="departures-list d-flex flex-column gap-3">
-                                <!-- Departures will be added here dynamically -->
-                            </div>
-                            <div class="text-center text-muted py-5 bg-light rounded" id="departures-empty" style="border: 2px dashed var(--border-color);">
-                                <i class="ph-fill ph-calendar-plus text-muted opacity-50 mb-2" style="font-size: 3rem;"></i>
-                                <h6 class="fw-bold text-dark">Chưa có lịch khởi hành nào</h6>
-                                <p class="small">Cung cấp ngày giờ cụ thể chuyến đi diễn ra.</p>
-                                <button type="button" class="btn btn-outline-primary" onclick="addDeparture()">
-                                    <i class="ph ph-plus me-1"></i> Thêm lịch đầu tiên
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 5: Final Details -->
-                <div class="form-step d-none" id="step-5">
                     <!-- Partners -->
                     <div class="card-premium border-0 shadow-sm bg-white mb-4">
                         <div class="p-3 px-4 border-bottom border-light d-flex justify-content-between align-items-center">
@@ -259,30 +212,6 @@ $policies = $policies ?? [];
                             </div>
                         </div>
                         <div class="p-4">
-                            <!-- Supplier Selection -->
-                            <div class="mb-4 p-3 bg-light rounded border border-light">
-                                <div class="row g-3">
-                                    <div class="col-md-12">
-                                        <label class="form-label fw-bold text-dark d-flex align-items-center gap-2">
-                                            <i class="ph-fill ph-buildings text-primary"></i> Chọn Nhà cung cấp
-                                        </label>
-                                        <select class="form-select" name="supplier_id" id="supplier_id">
-                                            <option value="">-- Không chọn nhà cung cấp --</option>
-                                            <?php if (!empty($suppliers)): ?>
-                                                <?php foreach ($suppliers as $supplier): ?>
-                                                    <option value="<?= $supplier['id'] ?>">
-                                                        <?= htmlspecialchars($supplier['name']) ?> (<?= strtoupper($supplier['type'] ?? '') ?>)
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </select>
-                                        <small class="text-muted d-block mt-2"><i class="ph-fill ph-info me-1"></i> Chọn nhà cung cấp chính liên kết thanh toán.</small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr class="my-4 border-light">
-
                             <!-- Partner Services List -->
                             <div id="partners-list" class="partners-list d-flex flex-column gap-3">
                                 <!-- Partners will be added here dynamically -->
@@ -469,32 +398,6 @@ $policies = $policies ?? [];
     </div>
 </template>
 
-<template id="departure-template">
-    <div class="departure-item border border-light rounded bg-light p-4 position-relative">
-        <div class="position-absolute top-0 end-0 p-2">
-            <button type="button" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm" onclick="removeDepartureItem(this)" style="width: 32px; height: 32px; padding:0;">
-                <i class="ph ph-trash"></i>
-            </button>
-        </div>
-        <h6 class="mb-3 fw-bold text-danger">Lịch khởi hành</h6>
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label text-muted fw-medium small">Ngày khởi hành</label>
-                <input type="date" class="form-control departure-date" required>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label text-muted fw-medium small">Trạng thái</label>
-                <select class="form-select departure-status">
-                    <option value="open">Mở</option>
-                    <option value="full">Hết chỗ</option>
-                    <option value="guaranteed">Đảm bảo</option>
-                    <option value="closed">Đóng</option>
-                </select>
-            </div>
-        </div>
-    </div>
-</template>
-
 <template id="partner-template">
     <div class="partner-item border border-light rounded bg-light p-4 position-relative">
         <div class="position-absolute top-0 end-0 p-2">
@@ -530,9 +433,8 @@ $policies = $policies ?? [];
 <script>
     // Include the original behavior logic but adapted to Bootstrap 5 + generic DOM
     let currentStep = 1;
-    const totalSteps = 5;
+    const totalSteps = 4;
     let itineraryCount = 0;
-    let departureCount = 0;
     let partnerCount = 0;
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -646,7 +548,6 @@ $policies = $policies ?? [];
 
     function saveDraft() {
         updateItineraryData();
-        updateDepartureData();
         updatePartnerData();
         showToast('Đã lưu bản nháp lúc ' + new Date().toLocaleTimeString(), 'success');
         document.getElementById('autoSaveIndicator').style.opacity = '1';
@@ -689,30 +590,6 @@ $policies = $policies ?? [];
         document.getElementById('tour_itinerary').value = JSON.stringify(arr);
     }
 
-    function addDeparture() {
-        departureCount++;
-        const template = document.getElementById('departure-template');
-        document.getElementById('departures-list').appendChild(template.content.cloneNode(true));
-        document.getElementById('departures-empty').style.display = 'none';
-        updateDepartureData();
-    }
-    function removeDepartureItem(btn) {
-        btn.closest('.departure-item').remove();
-        departureCount--;
-        if (departureCount === 0) document.getElementById('departures-empty').style.display = 'block';
-        updateDepartureData();
-    }
-    function updateDepartureData() {
-        const arr = [];
-        document.querySelectorAll('.departure-item').forEach(item => {
-            arr.push({
-                departure_date: item.querySelector('.departure-date').value,
-                status: item.querySelector('.departure-status').value
-            });
-        });
-        document.getElementById('tour_departures').value = JSON.stringify(arr);
-    }
-
     function addPartner() {
         partnerCount++;
         const template = document.getElementById('partner-template');
@@ -752,7 +629,6 @@ $policies = $policies ?? [];
 
     document.getElementById('tour-form').addEventListener('submit', function(e) {
         updateItineraryData();
-        updateDepartureData();
         updatePartnerData();
     });
 </script>

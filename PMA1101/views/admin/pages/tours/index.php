@@ -1,7 +1,11 @@
 <?php
-include_once PATH_VIEW_ADMIN . 'default/header.php';
-include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
+if (!isset($isAjax)) {
+    include_once PATH_VIEW_ADMIN . 'default/header.php';
+    include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
+}
 ?>
+
+<?php if (!isset($isAjax)) : ?>
 <main class="content">
     <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
         <div>
@@ -103,7 +107,8 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         </div>
 
         <div class="p-2 bg-white" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
-            <form id="tour-filters" method="GET" action="<?= BASE_URL_ADMIN . '&action=tours' ?>">
+            <form id="tour-filters" method="GET" action="<?= BASE_URL_ADMIN ?>">
+                <input type="hidden" name="mode" value="admin">
                 <input type="hidden" name="action" value="tours">
 
                 <div class="row g-2">
@@ -130,7 +135,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         </select>
                     </div>
 
-                    <div class="col-12 col-sm-6 col-lg-2">
+                    <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Trạng thái</label>
                         <select class="form-select form-select-sm border-light-subtle shadow-sm" name="status" style="border-radius: 8px; height: 35px;">
                             <option value="">Tất cả</option>
@@ -139,7 +144,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         </select>
                     </div>
 
-                    <div class="col-12 col-sm-6 col-lg-2">
+                    <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đánh giá</label>
                         <select class="form-select form-select-sm border-light-subtle shadow-sm" name="rating_min" style="border-radius: 8px; height: 35px;">
                             <option value="">Tất cả</option>
@@ -149,12 +154,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                             <option value="4" <?= (($_GET['rating_min'] ?? '') == '4') ? 'selected' : '' ?>>≥ 4 sao</option>
                             <option value="5" <?= (($_GET['rating_min'] ?? '') == '5') ? 'selected' : '' ?>>≥ 5 sao</option>
                         </select>
-                    </div>
-
-                    <div class="col-12 col-sm-6 col-lg-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" style="border-radius: 8px; height: 35px;">
-                             <i class="ph-fill ph-funnel"></i> Lọc
-                        </button>
                     </div>
                 </div>
 
@@ -223,6 +222,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             </form>
         </div>
     </div>
+<?php endif; ?>
 
 
     <!-- Tours Grid Section -->
@@ -677,17 +677,161 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-<!-- Filter JavaScript bindings (client-side filters) from original file but using standard query selector -->
+<!-- Filter JavaScript bindings (client-side filters) from original file but using standard query selector --><?php if (!isset($isAjax)) : ?>
+    </div>
+</main>
+<?php endif; ?>
+
+<?php if (isset($isAjax)) exit; ?>
 <script>
-    // Keep JS filter functionality if you type and enter
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterForm = document.getElementById('tour-filters');
-        if(filterForm) {
-            document.querySelector('input[name="keyword"]').addEventListener('keyup', function(e) {
-                if(e.key === 'Enter') filterForm.submit();
+// AJAX Search Implementation
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('tour-filters');
+    const targetArea = document.querySelector('.card-premium.min-vh-100');
+
+    if (filterForm && targetArea) {
+        const handleSearch = async (e) => {
+            if (e) e.preventDefault();
+            
+            // Show loading state
+            targetArea.style.opacity = '0.5';
+            targetArea.style.pointerEvents = 'none';
+            
+            try {
+                // Construct URL robustly using URLSearchParams
+                const formData = new FormData(filterForm);
+                const params = new URLSearchParams(formData);
+                params.set('ajax', '1');
+
+                // Construct base URL from action attribute
+                const formAction = filterForm.getAttribute('action') || window.location.href;
+                const baseUrl = formAction.split('?')[0];
+                const url = new URL(baseUrl, window.location.origin);
+                
+                // Merge existing params from formAction (e.g., mode, action)
+                if (formAction.includes('?')) {
+                    const existingParams = new URLSearchParams(formAction.split('?')[1]);
+                    existingParams.forEach((v, k) => url.searchParams.set(k, v));
+                }
+                
+                // Apply params from form inputs (overwrites defaults)
+                params.forEach((v, k) => {
+                    if (v !== '') url.searchParams.set(k, v);
+                    else url.searchParams.delete(k); // Clean up empty params
+                });
+                url.searchParams.set('ajax', '1');
+
+                console.log('Fetching from:', url.toString());
+
+                const response = await fetch(url.toString());
+                const html = await response.text();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.querySelector('.card-premium.min-vh-100');
+                
+                if (newContent) {
+                    targetArea.innerHTML = newContent.innerHTML;
+                    
+                    // Update URL for browser history (without ajax=1)
+                    const historyUrl = new URL(url.toString());
+                    historyUrl.searchParams.delete('ajax');
+                    window.history.pushState({path: historyUrl.toString()}, '', historyUrl.toString());
+                    
+                    // Re-bind all dynamic events
+                    bindDynamicEvents(targetArea);
+                }
+            } catch (error) {
+                console.error('Search failed:', error);
+            } finally {
+                targetArea.style.opacity = '1';
+                targetArea.style.pointerEvents = 'auto';
+            }
+        };
+
+        filterForm.addEventListener('submit', handleSearch);
+        filterForm.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', () => handleSearch());
+        });
+
+        let timeout = null;
+        filterForm.querySelector('input[name="keyword"]').addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(handleSearch, 500);
+        });
+
+        function bindDynamicEvents(container) {
+            container.querySelectorAll('.toggle-status').forEach(t => t.addEventListener('change', handleStatusToggle));
+            container.querySelectorAll('.toggle-featured').forEach(t => t.addEventListener('change', handleFeaturedToggle));
+            container.querySelectorAll('.delete-tour').forEach(b => b.addEventListener('click', handleDeleteClick));
+            container.querySelectorAll('.view-btn').forEach(b => b.addEventListener('click', handleViewToggle));
+            container.querySelectorAll('.btn-qr').forEach(b => b.addEventListener('click', handleQRClick));
+        }
+        
+        // Use existing global handlers or define them here for the dynamic scope
+        function handleStatusToggle() {
+            const tourId = this.dataset.id;
+            const newStatus = this.checked ? 'active' : 'inactive';
+            fetch('<?= BASE_URL_ADMIN ?>&action=tours/toggle-status', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `_method=PATCH&id=${tourId}`
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    const tourCard = this.closest('.tour-card-modern');
+                    const statusBadge = tourCard.querySelector('.badge-status');
+                    if(statusBadge) {
+                        statusBadge.className = `badge badge-status text-white ${newStatus === 'active' ? 'bg-success' : 'bg-secondary'}`;
+                        statusBadge.textContent = newStatus === 'active' ? 'Hoạt động' : 'Tạm ẩn';
+                    }
+                } else {
+                    this.checked = !this.checked;
+                }
             });
         }
-    });
+
+        function handleFeaturedToggle() {
+            const tourId = this.dataset.id;
+            fetch('<?= BASE_URL_ADMIN ?>&action=tours/toggle-featured', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `_method=PATCH&id=${tourId}`
+            }).then(res=>res.json()).then(data => {
+                if(!data.success) this.checked = !this.checked;
+            });
+        }
+
+        function handleDeleteClick() {
+            document.getElementById('delete-tour-id').value = this.dataset.id;
+            document.getElementById('delete-tour-name').textContent = this.dataset.name;
+            document.getElementById('delete-form').action = '<?= BASE_URL_ADMIN ?>&action=tours/delete&id=' + this.dataset.id;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        function handleViewToggle() {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active', 'bg-primary', 'text-white'));
+            this.classList.add('active', 'bg-primary', 'text-white');
+            const view = this.dataset.view;
+            const container = document.querySelector('.tours-grid');
+            if (container) {
+                if (view === 'list') container.classList.add('list-view');
+                else container.classList.remove('list-view');
+            }
+        }
+
+        function handleQRClick() {
+            const tourId = this.dataset.id;
+            const publicUrl = `<?= BASE_URL ?>?action=tour-detail&id=${tourId}`;
+            document.getElementById('qr-tour-name').textContent = this.dataset.name;
+            document.getElementById('tour-link').value = publicUrl;
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, { text: publicUrl, width: 180, height: 180 });
+            new bootstrap.Modal(document.getElementById('qrModal')).show();
+        }
+    }
+});
 </script>
 
 <?php

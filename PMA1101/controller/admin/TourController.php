@@ -14,51 +14,18 @@ class TourController
         $perPage = isset($_GET['per_page']) ? max(5, min(50, (int)$_GET['per_page'])) : 12;
 
         // Build filters from GET parameters
-        $filters = [];
-
-        // Search keyword
-        if (!empty($_GET['keyword'])) {
-            $filters['keyword'] = trim($_GET['keyword']);
-        }
-
-        // Category filter
-        if (!empty($_GET['category_id'])) {
-            $filters['category_id'] = (int)$_GET['category_id'];
-        }
-
-        // Status filter
-        if (!empty($_GET['status'])) {
-            $filters['status'] = trim($_GET['status']);
-        }
-
-
-
-        // Date range filters
-        if (!empty($_GET['date_from'])) {
-            $filters['date_from'] = $_GET['date_from'];
-        }
-        if (!empty($_GET['date_to'])) {
-            $filters['date_to'] = $_GET['date_to'];
-        }
-
-        // Price range filters
-        if (!empty($_GET['price_min'])) {
-            $filters['price_min'] = (float)$_GET['price_min'];
-        }
-        if (!empty($_GET['price_max'])) {
-            $filters['price_max'] = (float)$_GET['price_max'];
-        }
-
-        // Rating filter
-        if (!empty($_GET['rating_min'])) {
-            $filters['rating_min'] = (float)$_GET['rating_min'];
-        }
-
-        // Sorting
-        if (!empty($_GET['sort_by'])) {
-            $filters['sort_by'] = $_GET['sort_by'];
-            $filters['sort_dir'] = $_GET['sort_dir'] ?? 'DESC';
-        }
+        $filters = [
+            'keyword'     => isset($_GET['keyword']) ? trim($_GET['keyword']) : '',
+            'category_id' => isset($_GET['category_id']) && $_GET['category_id'] !== '' ? (int)$_GET['category_id'] : null,
+            'status'      => isset($_GET['status']) ? trim($_GET['status']) : '',
+            'date_from'   => $_GET['date_from'] ?? '',
+            'date_to'     => $_GET['date_to'] ?? '',
+            'price_min'   => isset($_GET['price_min']) && $_GET['price_min'] !== '' ? (float)$_GET['price_min'] : null,
+            'price_max'   => isset($_GET['price_max']) && $_GET['price_max'] !== '' ? (float)$_GET['price_max'] : null,
+            'rating_min'  => isset($_GET['rating_min']) && $_GET['rating_min'] !== '' ? (float)$_GET['rating_min'] : null,
+            'sort_by'     => $_GET['sort_by'] ?? 'created_at',
+            'sort_dir'    => $_GET['sort_dir'] ?? 'DESC'
+        ];
 
         $result = $this->model->getAllTours($page, $perPage, $filters);
         $tours = $result['data'];
@@ -74,6 +41,14 @@ class TourController
 
         // Get statistics for header
         $stats = $this->getTourStatistics();
+
+        // Check if it's an AJAX request for live search
+        if (isset($_GET['ajax'])) {
+            header('Content-Type: text/html');
+            // We only need to render the tour list container
+            // We'll use a special constant or flag in index.php to only output the partial
+            $isAjax = true;
+        }
 
         require_once PATH_VIEW_ADMIN . 'pages/tours/index.php';
     }

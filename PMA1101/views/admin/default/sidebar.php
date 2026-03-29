@@ -140,7 +140,7 @@ $isGuide = $userRole === 'guide';
 
             <li class="menu-item">
                 <a class="menu-link <?= isActive('users') ?>" href="<?= BASE_URL_ADMIN ?>&action=users">
-                    <i class="ph ph-user"></i> User
+                    <i class="ph ph-user"></i> Tài khoản
                 </a>
             </li>
         <?php endif; ?>
