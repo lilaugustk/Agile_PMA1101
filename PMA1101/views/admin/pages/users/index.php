@@ -77,18 +77,20 @@ $currentUserRole = $_SESSION['user']['role'] ?? 'customer';
             </button>
         </div>
         <div class="p-2 bg-white" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
-            <form id="user-filters" onsubmit="return false;" class="row g-2">
+            <form id="user-filters" onsubmit="return false;" class="row g-3 align-items-end">
                 <div class="col-md-6">
-                    <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Tìm kiếm</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-light border-end-0"><i class="ph ph-magnifying-glass"></i></span>
-                        <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Tìm theo tên hoặc email..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                    <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tìm kiếm</label>
+                    <div class="position-relative">
+                        <i class="ph ph-magnifying-glass position-absolute text-muted" style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
+                        <input type="text" name="search" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm" 
+                            placeholder="Tìm theo tên hoặc email..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
+                            style="border-radius: 8px; min-height: 38px;">
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Vai trò</label>
-                    <select name="role" class="form-select form-select-sm">
+                    <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Vai trò</label>
+                    <select name="role" class="form-select form-select-sm border-light-subtle shadow-sm" style="border-radius: 8px; min-height: 38px;">
                         <option value="">Tất cả</option>
                         <option value="customer">Khách hàng</option>
                         <option value="guide">HDV</option>
@@ -96,9 +98,9 @@ $currentUserRole = $_SESSION['user']['role'] ?? 'customer';
                     </select>
                 </div>
 
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="button" onclick="filterUsers()" class="btn btn-primary btn-sm w-100">
-                        Tìm kiếm
+                <div class="col-md-3">
+                    <button type="button" onclick="filterUsers()" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-radius: 8px; min-height: 38px;">
+                        <i class="ph ph-magnifying-glass" style="font-size: 1rem;"></i> Tìm kiếm
                     </button>
                 </div>
             </form>

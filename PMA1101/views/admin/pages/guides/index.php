@@ -128,25 +128,27 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             <div class="p-2 bg-white" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
                 <form id="guide-filters" method="GET" action="<?= BASE_URL_ADMIN . '&action=guides' ?>">
                     <input type="hidden" name="action" value="guides">
-                    <div class="row g-2">
+                    <div class="row g-3 align-items-end">
                         <div class="col-12 col-md-5">
-                            <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Tìm kiếm</label>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-light border-end-0"><i class="ph ph-magnifying-glass"></i></span>
-                                <input type="text" class="form-control border-start-0 ps-0" name="keyword" value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>" placeholder="Tên, email, SĐT...">
+                            <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tìm kiếm</label>
+                            <div class="position-relative">
+                                <i class="ph ph-magnifying-glass position-absolute text-muted" style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
+                                <input type="text" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm" name="keyword" 
+                                    value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>" 
+                                    placeholder="Tên, email, SĐT..." style="border-radius: 8px; min-height: 38px;">
                             </div>
                         </div>
-                        <div class="col-12 col-md-3">
-                            <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Đánh giá tối thiểu</label>
-                            <select class="form-select form-select-sm" name="rating_min">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đánh giá tối thiểu</label>
+                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="rating_min" style="border-radius: 8px; min-height: 38px;">
                                 <option value="">Tất cả</option>
                                 <option value="4" <?= (($_GET['rating_min'] ?? '') == '4') ? 'selected' : '' ?>>≥ 4 sao</option>
                                 <option value="3" <?= (($_GET['rating_min'] ?? '') == '3') ? 'selected' : '' ?>>≥ 3 sao</option>
                             </select>
                         </div>
-                        <div class="col-12 col-md-4 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary btn-sm w-100" style="height: 31px;">
-                                <i class="ph ph-magnifying-glass me-1"></i> Tìm kiếm
+                        <div class="col-12 col-md-3">
+                            <button type="submit" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-radius: 8px; min-height: 38px;">
+                                <i class="ph ph-magnifying-glass" style="font-size: 1rem;"></i> Tìm kiếm
                             </button>
                         </div>
                     </div>

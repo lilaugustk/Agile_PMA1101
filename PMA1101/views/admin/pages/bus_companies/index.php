@@ -102,17 +102,18 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         </div>
         <div class="p-2 bg-white" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
             <form id="bus-company-filters" onsubmit="return false;">
-                <div class="row g-2">
+                <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-5">
-                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Tìm kiếm</label>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light border-end-0"><i class="ph ph-magnifying-glass"></i></span>
-                            <input type="text" class="form-control border-start-0 ps-0" id="keyword" placeholder="Tên nhà xe, mã, SĐT, email...">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tìm kiếm</label>
+                        <div class="position-relative">
+                            <i class="ph ph-magnifying-glass position-absolute text-muted" style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
+                            <input type="text" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm" id="keyword" 
+                                placeholder="Tên nhà xe, mã, SĐT, email..." style="border-radius: 8px; min-height: 38px;">
                         </div>
                     </div>
                     <div class="col-12 col-md-3">
-                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Đánh giá tối thiểu</label>
-                        <select class="form-select form-select-sm" id="rating_min">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đánh giá tối thiểu</label>
+                        <select class="form-select form-select-sm border-light-subtle shadow-sm" id="rating_min" style="border-radius: 8px; min-height: 38px;">
                             <option value="">Tất cả</option>
                             <option value="4.5">4.5+ ⭐</option>
                             <option value="4.0">4.0+ ⭐</option>
@@ -120,9 +121,9 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                             <option value="3.0">3.0+ ⭐</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-4 d-flex align-items-end">
-                        <button type="button" class="btn btn-primary btn-sm w-100" onclick="filterBusCompanies()" style="height: 31px;">
-                            <i class="ph ph-magnifying-glass me-1"></i> Tìm kiếm
+                    <div class="col-12 col-md-4">
+                        <button type="button" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" onclick="filterBusCompanies()" style="border-radius: 8px; min-height: 38px;">
+                            <i class="ph ph-magnifying-glass" style="font-size: 1rem;"></i> Tìm kiếm
                         </button>
                     </div>
                 </div>

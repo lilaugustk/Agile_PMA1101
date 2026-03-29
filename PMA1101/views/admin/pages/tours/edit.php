@@ -145,7 +145,7 @@ $versions = $versions ?? [];
                                 <div class="col-md-6">
                                     <label class="form-label text-muted fw-medium">Giá cơ bản (VNĐ) <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="number" name="base_price" id="base_price" class="form-control" required min="0" step="1000" placeholder="0" value="<?= $tour['base_price'] ?? 0 ?>">
+                                        <input type="number" name="base_price" id="base_price" class="form-control" required min="0" step="1" placeholder="0" value="<?= $tour['base_price'] ?? 0 ?>">
                                         <span class="input-group-text bg-light fw-medium text-muted">VNĐ</span>
                                     </div>
                                 </div>

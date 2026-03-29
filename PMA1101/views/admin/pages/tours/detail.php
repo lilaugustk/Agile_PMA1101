@@ -89,64 +89,55 @@ if (empty($galleryUrls)) {
         <?php endif; ?>
 
         <!-- Statistics Cards -->
-        <div class="row g-3 mb-4">
+        <div class="row g-4 mb-4">
             <!-- Price Card -->
-            <div class="col-12 col-md-3">
-                <div class="card card-premium p-3 border-0 shadow-sm h-100">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center justify-content-center text-primary border border-primary-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--primary-subtle);">
-                            <i class="ph ph-currency-circle-dollar" style="font-size: 1rem;"></i>
-                        </div>
-                    </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
                     <div>
-                        <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Giá gốc</p>
+                        <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Giá cơ bản</p>
                         <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= formatPrice($tour['base_price'] ?? 0) ?></h3>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center text-primary border border-primary-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--primary-subtle);">
+                        <i class="ph ph-currency-circle-dollar"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Departures Card -->
-            <div class="col-12 col-md-3">
-                <div class="card card-premium p-3 border-0 shadow-sm h-100">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center justify-content-center text-success border border-success-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--success-subtle);">
-                            <i class="ph ph-calendar-blank" style="font-size: 1rem;"></i>
-                        </div>
-                        <span class="badge rounded-pill bg-success-subtle text-success" style="font-size: 0.7rem;">Active</span>
-                    </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
                     <div>
-                        <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Lịch khởi hành</p>
+                        <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Lịch khởi hành</p>
                         <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= count($departures) ?> <span style="font-size: 0.9rem; font-weight: 500;">ngày</span></h3>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center text-success border border-success-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--success-subtle);">
+                        <i class="ph ph-calendar-blank"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Duration Card -->
-            <div class="col-12 col-md-3">
-                <div class="card card-premium p-3 border-0 shadow-sm h-100">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center justify-content-center text-warning border border-warning-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--warning-subtle);">
-                            <i class="ph ph-clock" style="font-size: 1rem;"></i>
-                        </div>
-                    </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
                     <div>
-                        <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Số ngày</p>
+                        <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Thời lượng</p>
                         <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= count($itinerarySchedule) ?> <span style="font-size: 0.9rem; font-weight: 500;">ngày</span></h3>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center text-warning border border-warning-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--warning-subtle);">
+                        <i class="ph ph-clock"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Rating Card -->
-            <div class="col-12 col-md-3">
-                <div class="card card-premium p-3 border-0 shadow-sm h-100">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center justify-content-center text-info border border-info-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--info-subtle);">
-                            <i class="ph ph-star" style="font-size: 1rem;"></i>
-                        </div>
-                    </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
                     <div>
-                        <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Đánh giá</p>
-                        <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.5rem; letter-spacing: -0.5px;">4.5 <i class="ph-fill ph-star text-warning" style="font-size: 1.2rem;"></i></h3>
+                        <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Đánh giá</p>
+                        <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.5rem; letter-spacing: -0.5px;">4.5 <i class="ph-fill ph-star text-warning" style="font-size: 1rem;"></i></h3>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center text-info border border-info-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--info-subtle);">
+                        <i class="ph ph-star"></i>
                     </div>
                 </div>
             </div>

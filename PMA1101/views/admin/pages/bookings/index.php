@@ -103,17 +103,19 @@ $isGuide = $userRole === 'guide';
         <div class="p-2 bg-white" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
             <form id="booking-filters" method="GET" action="<?= BASE_URL_ADMIN . '&action=bookings' ?>">
                 <input type="hidden" name="action" value="bookings">
-                <div class="row g-2">
+                <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-3">
-                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Từ khóa</label>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light border-end-0"><i class="ph ph-magnifying-glass"></i></span>
-                            <input type="text" class="form-control border-start-0 ps-0" name="keyword" value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>" placeholder="Mã BK, tên KH, tour...">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tìm kiếm</label>
+                        <div class="position-relative">
+                            <i class="ph ph-magnifying-glass position-absolute text-muted" style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
+                            <input type="text" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm" name="keyword" 
+                                value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>" 
+                                placeholder="Mã BK, tên KH, tour..." style="border-radius: 8px; min-height: 38px;">
                         </div>
                     </div>
                     <div class="col-12 col-md-2">
-                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Trạng thái</label>
-                        <select class="form-select form-select-sm" name="status">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Trạng thái</label>
+                        <select class="form-select form-select-sm border-light-subtle shadow-sm" name="status" style="border-radius: 8px; min-height: 38px;">
                             <option value="">Tất cả</option>
                             <option value="cho_xac_nhan" <?= (($_GET['status'] ?? '') == 'cho_xac_nhan') ? 'selected' : '' ?>>Chờ Xác Nhận</option>
                             <option value="da_coc" <?= (($_GET['status'] ?? '') == 'da_coc') ? 'selected' : '' ?>>Đã Cọc</option>
@@ -122,22 +124,26 @@ $isGuide = $userRole === 'guide';
                         </select>
                     </div>
                     <div class="col-12 col-md-2">
-                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Từ ngày</label>
-                        <input type="date" class="form-control form-control-sm" name="date_from" value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Từ ngày</label>
+                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_from" 
+                            value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;">
                     </div>
                     <div class="col-12 col-md-2">
-                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Đến ngày</label>
-                        <input type="date" class="form-control form-control-sm" name="date_to" value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đến ngày</label>
+                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_to" 
+                            value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;">
                     </div>
                     <div class="col-12 col-md-3 d-flex align-items-end gap-2">
                         <div class="flex-grow-1">
-                            <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Sắp xếp</label>
-                            <select class="form-select form-select-sm" name="sort_by">
+                            <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Sắp xếp</label>
+                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="sort_by" style="border-radius: 8px; min-height: 38px;">
                                 <option value="booking_date">Ngày đặt</option>
                                 <option value="total_price">Tổng tiền</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm px-3" style="height: 31px;">Lọc</button>
+                        <button type="submit" class="btn btn-primary btn-sm px-3 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-radius: 8px; min-height: 38px;">
+                            <i class="ph ph-magnifying-glass" style="font-size: 1rem;"></i> Lọc
+                        </button>
                     </div>
                 </div>
             </form>

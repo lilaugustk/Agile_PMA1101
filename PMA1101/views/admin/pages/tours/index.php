@@ -118,13 +118,13 @@ if (!isset($isAjax)) {
                             <i class="ph ph-magnifying-glass position-absolute text-muted" style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
                             <input type="text" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm" name="keyword" 
                                 value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>" 
-                                placeholder="Tên tour, mô tả..." style="border-radius: 8px; height: 35px;">
+                                placeholder="Tên tour, mô tả..." style="border-radius: 8px; min-height: 38px;">
                         </div>
                     </div>
 
                     <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Loại Tour</label>
-                        <select class="form-select form-select-sm border-light-subtle shadow-sm" name="category_id" style="border-radius: 8px; height: 35px;">
+                        <select class="form-select form-select-sm border-light-subtle shadow-sm" name="category_id" style="border-radius: 8px; min-height: 38px;">
                             <option value="">Tất cả</option>
                             <?php foreach ($categories ?? [] as $category): ?>
                                 <option value="<?= $category['id'] ?>"
@@ -137,7 +137,7 @@ if (!isset($isAjax)) {
 
                     <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Trạng thái</label>
-                        <select class="form-select form-select-sm border-light-subtle shadow-sm" name="status" style="border-radius: 8px; height: 35px;">
+                        <select class="form-select form-select-sm border-light-subtle shadow-sm" name="status" style="border-radius: 8px; min-height: 38px;">
                             <option value="">Tất cả</option>
                             <option value="active" <?= (($_GET['status'] ?? '') == 'active') ? 'selected' : '' ?>>Đang hoạt động</option>
                             <option value="inactive" <?= (($_GET['status'] ?? '') == 'inactive') ? 'selected' : '' ?>>Tạm ẩn</option>
@@ -146,7 +146,7 @@ if (!isset($isAjax)) {
 
                     <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đánh giá</label>
-                        <select class="form-select form-select-sm border-light-subtle shadow-sm" name="rating_min" style="border-radius: 8px; height: 35px;">
+                        <select class="form-select form-select-sm border-light-subtle shadow-sm" name="rating_min" style="border-radius: 8px; min-height: 38px;">
                             <option value="">Tất cả</option>
                             <option value="1" <?= (($_GET['rating_min'] ?? '') == '1') ? 'selected' : '' ?>>≥ 1 sao</option>
                             <option value="2" <?= (($_GET['rating_min'] ?? '') == '2') ? 'selected' : '' ?>>≥ 2 sao</option>
@@ -162,25 +162,25 @@ if (!isset($isAjax)) {
                     <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Giá từ (VNĐ)</label>
                         <input type="number" class="form-control form-control-sm border-light-subtle shadow-sm" name="price_min"
-                            value="<?= htmlspecialchars($_GET['price_min'] ?? '') ?>" placeholder="0" style="border-radius: 8px; height: 35px;">
+                            value="<?= htmlspecialchars($_GET['price_min'] ?? '') ?>" placeholder="0" style="border-radius: 8px; min-height: 38px;">
                     </div>
 
                     <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Giá đến (VNĐ)</label>
                         <input type="number" class="form-control form-control-sm border-light-subtle shadow-sm" name="price_max"
-                            value="<?= htmlspecialchars($_GET['price_max'] ?? '') ?>" placeholder="Không giới hạn" style="border-radius: 8px; height: 35px;">
+                            value="<?= htmlspecialchars($_GET['price_max'] ?? '') ?>" placeholder="Không giới hạn" style="border-radius: 8px; min-height: 38px;">
                     </div>
 
                     <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Từ ngày</label>
                         <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_from"
-                            value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>" style="border-radius: 8px; height: 35px;" />
+                            value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;" />
                     </div>
 
                     <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đến ngày</label>
                         <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_to"
-                            value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>" style="border-radius: 8px; height: 35px;" />
+                            value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;" />
                     </div>
                 </div>
 
@@ -188,7 +188,7 @@ if (!isset($isAjax)) {
                     <div class="col-12 col-lg-8 d-flex gap-3">
                         <div class="flex-grow-1">
                             <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Sắp xếp theo</label>
-                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="sort_by" style="border-radius: 8px; height: 35px;">
+                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="sort_by" style="border-radius: 8px; min-height: 38px;">
                                 <option value="">Mặc định</option>
                                 <option value="name" <?= (($_GET['sort_by'] ?? '') == 'name') ? 'selected' : '' ?>>Tên tour</option>
                                 <option value="price" <?= (($_GET['sort_by'] ?? '') == 'price') ? 'selected' : '' ?>>Giá</option>
@@ -198,14 +198,14 @@ if (!isset($isAjax)) {
                         </div>
                         <div style="width: 130px;">
                             <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Thứ tự</label>
-                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="sort_dir" style="border-radius: 8px; height: 35px;">
+                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="sort_dir" style="border-radius: 8px; min-height: 38px;">
                                 <option value="DESC" <?= (($_GET['sort_dir'] ?? '') == 'DESC') ? 'selected' : '' ?>>Giảm dần</option>
                                 <option value="ASC" <?= (($_GET['sort_dir'] ?? '') == 'ASC') ? 'selected' : '' ?>>Tăng dần</option>
                             </select>
                         </div>
                         <div style="width: 100px;">
                             <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Hiển thị</label>
-                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="per_page" style="border-radius: 8px; height: 35px;">
+                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="per_page" style="border-radius: 8px; min-height: 38px;">
                                 <option value="12" <?= (($_GET['per_page'] ?? '') == '12') ? 'selected' : '' ?>>12</option>
                                 <option value="24" <?= (($_GET['per_page'] ?? '') == '24') ? 'selected' : '' ?>>24</option>
                                 <option value="48" <?= (($_GET['per_page'] ?? '') == '48') ? 'selected' : '' ?>>48</option>
