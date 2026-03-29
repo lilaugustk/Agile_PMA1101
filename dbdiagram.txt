@@ -21,7 +21,7 @@
     updated_at datetime
   }
 
-  Table suppliers as S { 
+  Table suppliers as S {
     id int [pk, increment]
     name varchar
     type varchar
@@ -55,6 +55,7 @@
     category_id int [ref: > TC.id]
     supplier_id int [ref: > S.id]
     description text
+    status enum('active','inactive') [default: 'active']
     base_price decimal
     created_at datetime
     updated_at datetime
@@ -149,10 +150,10 @@
     // Liên kết chính
     tour_id int [ref: > T.id]
     supplier_id int [ref: > S.id]
+    bus_company_id int [ref: > BusC.id]
     departure_id int [ref: > TD.id, null]        // nếu là tour ghép đoàn
     version_id int [ref: > TV.id, null]          // phiên bản tour (mùa, khuyến mãi…)
     customer_id int [ref: > U.user_id, null]
-    driver_id int [ref: > DR.id, null]
     // Số lượng khách – BẮT BUỘC giữ lại
     adults      int [default: 0]
     children    int [default: 0]
@@ -298,7 +299,7 @@
     id int [pk, increment]
     tour_id int [ref: > T.id]
     guide_id int [ref: > G.id]
-    driver_name varchar
+    bus_company_id int [ref: > BusC.id]
     start_date date
     end_date date
     status varchar
@@ -378,25 +379,37 @@
     created_at datetime
   }
 
-  Table drivers as DR {
+  Table bus_companies as BusC {
     id int [pk, increment]
-    full_name varchar
-    phone varchar
-    email varchar
-    license_number varchar
-    license_type varchar        // B1, B2, C, D, E...
-    vehicle_type varchar        // 4 chỗ, 7 chỗ, 16 chỗ...
-    vehicle_plate varchar
-    vehicle_brand varchar
-    status enum('active','inactive','busy') [default: 'active']
-    rating decimal
-    notes text
-    created_at datetime
-    updated_at datetime
+    company_code varchar
+    company_name varchar
+    contact_person varchar [default: null]
+    phone varchar [default: null]
+    email varchar [default: null]
+    address text [default: null]
+     business_license VARCHAR(100) [default: null]
+    vehicle_type TEXT [default: null]
+    vehicle_brand VARCHAR(100) [default: null]
+    total_vehicles INT [default: 0]
+    status enum('active', 'inactive') [default: 'active']
+    rating decimal(3,2) [default: 5.00]
+    notes text [default: null]
+    created_at timestamp
+    updated_at timestamp
+  }
 
-    Indexes {
-      phone [unique]
-      license_number [unique]
-      status
-    }
+  Table tour_vehicles as TVH {
+    id int [pk, increment]
+    tour_assignment_id int
+    bus_company_id int
+    vehicle_plate varchar
+    vehicle_type varchar [default: null]
+    vehicle_brand varchar [default: null]
+    driver_name varchar [default: null]
+    driver_phone varchar(20) [default: null]
+    driver_license varchar(50) [default: null]
+    notes text [default: null]
+    status enum('assigned', 'confirmed', 'completed', 'cancelled') [default: 'assigned']
+    created_at timestamp
+    updated_at timestamp
   }
