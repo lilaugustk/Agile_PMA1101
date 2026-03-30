@@ -97,7 +97,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Gửi AJAX request
             const formData = new FormData();
             formData.append('booking_id', bookingId);
             formData.append('status', newStatus);

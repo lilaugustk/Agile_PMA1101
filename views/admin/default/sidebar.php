@@ -40,7 +40,7 @@ $isGuide = $userRole === 'guide';
 
 <aside class="sidebar">
     <div class="sidebar-brand">
-        <i class="ph-fill ph-paper-plane-tilt me-3 text-primary"></i> TravelAdmin
+        <i class="ph-fill ph-paper-plane-tilt me-3 text-primary"></i> Nhóm 7 Agile
     </div>
     <ul class="sidebar-menu overflow-y-auto" style="overflow-x: hidden;">
         <!-- <?php if ($isAdmin): ?>
