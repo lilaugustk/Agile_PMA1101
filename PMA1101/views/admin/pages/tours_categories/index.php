@@ -115,15 +115,8 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                 <tr>
                                     <td class="ps-4 fw-bold text-muted">#<?= $category['id'] ?></td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded" style="width: 40px; height: 40px;">
-                                                <i class="<?= !empty($category['icon']) ? htmlspecialchars($category['icon']) : 'ph ph-folder' ?> fs-5"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark"><?= htmlspecialchars($category['name']) ?></div>
-                                                <div class="small text-muted font-monospace"><?= htmlspecialchars($category['slug'] ?? '') ?></div>
-                                            </div>
-                                        </div>
+                                        <div class="fw-bold text-dark fs-6"><?= htmlspecialchars($category['name']) ?></div>
+                                        <div class="small text-muted font-monospace opacity-75"><?= htmlspecialchars($category['slug'] ?? '') ?></div>
                                     </td>
                                     <td>
                                         <div class="text-muted small" style="max-width: 250px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="<?= htmlspecialchars($category['description']) ?>">
