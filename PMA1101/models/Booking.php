@@ -190,6 +190,24 @@ class Booking extends BaseModel
     }
 
     /**
+     * Lấy tất cả bookings của một khách hàng
+     * @param int $customerId
+     * @return array
+     */
+    public function getByCustomerId($customerId)
+    {
+        $sql = "SELECT B.*, T.name AS tour_name, T.base_price AS tour_base_price
+                FROM {$this->table} AS B
+                LEFT JOIN tours AS T ON B.tour_id = T.id
+                WHERE B.customer_id = :customer_id
+                ORDER BY B.booking_date DESC, B.id DESC";
+
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute(['customer_id' => $customerId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Lấy thông tin booking chi tiết kèm tour và customer
      * @param int $id
      * @return array|false

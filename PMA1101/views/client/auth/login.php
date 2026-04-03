@@ -1,0 +1,84 @@
+<?php include_once PATH_VIEW_CLIENT . 'default/header.php'; ?>
+
+<div class="container-fluid p-0">
+    <div class="row g-0 auth-wrapper min-vh-100">
+        <!-- Split Layout Image -->
+        <div class="col-lg-6 d-none d-lg-block position-relative">
+            <img src="https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=2070&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Travel Banner">
+            <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+            <div class="position-absolute top-50 start-50 translate-middle text-center w-75 z-2" data-aos="fade-up">
+                <h2 class="display-5 fw-bold text-white mb-3 tracking-tight">Cùng AgileTravel Khám Phá Thế Giới</h2>
+                <p class="lead text-white-50">Đăng nhập để nhận ưu đãi lên đến 15% cho lần đặt tour đầu tiên.</p>
+            </div>
+        </div>
+
+        <!-- Form Layout -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center bg-white py-5">
+            <div class="auth-form-container w-100 px-4 px-md-5" style="max-width: 550px;" data-aos="fade-up" data-aos-delay="100">
+                <div class="text-center mb-5">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="ph-fill ph-sign-in fs-1"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark tracking-tight">Chào Mừng Trở Lại!</h2>
+                    <p class="text-muted">Vui lòng nhập thông tin để đăng nhập</p>
+                </div>
+
+                <?php if (isset($error)): ?>
+                    <div class="alert alert-danger border-0 bg-danger-subtle text-danger rounded-3 p-3 mb-4 d-flex align-items-center">
+                        <i class="ph-fill ph-warning-circle fs-4 me-2"></i> <?= htmlspecialchars($error) ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($success)): ?>
+                    <div class="alert alert-success border-0 bg-success-subtle text-success rounded-3 p-3 mb-4 d-flex align-items-center">
+                        <i class="ph-fill ph-check-circle fs-4 me-2"></i> <?= htmlspecialchars($success) ?>
+                    </div>
+                <?php endif; ?>
+
+                <form action="<?= BASE_URL ?>?action=login-submit" method="POST">
+                    <div class="form-floating mb-4">
+                        <input type="email" class="form-control focus-ring-primary bg-light border-0" id="email" name="email" placeholder="name@example.com" required>
+                        <label for="email" class="text-muted"><i class="ph-fill ph-envelope-simple me-1"></i> Email của bạn</label>
+                    </div>
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control focus-ring-primary bg-light border-0" id="password" name="password" placeholder="Password" required>
+                        <label for="password" class="text-muted"><i class="ph-fill ph-lock-key me-1"></i> Mật khẩu</label>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                        <div class="form-check custom-checkbox">
+                            <input class="form-check-input focus-ring-primary" type="checkbox" value="" id="rememberMe">
+                            <label class="form-check-label text-muted small" for="rememberMe">Ghi nhớ đăng nhập</label>
+                        </div>
+                        <a href="#" class="text-primary text-decoration-none small fw-medium transition-all hover-text-dark">Quên mật khẩu?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold hover-lift mb-4 shadow-sm">
+                        Đăng Nhập <i class="ph-bold ph-arrow-right ms-1"></i>
+                    </button>
+                    
+                    <div class="position-relative mb-4 text-center">
+                        <hr class="text-secondary opacity-25">
+                        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">hoặc</span>
+                    </div>
+
+                    <button type="button" class="btn btn-outline-dark w-100 py-2 rounded-pill hover-lift mb-4 d-flex align-items-center justify-content-center gap-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="20">
+                        Đăng nhập bằng Google
+                    </button>
+
+                    <p class="text-center text-muted mt-4 mb-0">
+                        Chưa có tài khoản? <a href="<?= BASE_URL ?>?action=register" class="text-primary text-decoration-none fw-bold hover-text-dark transition-all">Đăng ký ngay</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    header, footer { display: none !important; } /* Hide layout components in auth view */
+    .navbar-spacer { display: none !important; }
+</style>
+
+<?php // include_once PATH_VIEW_CLIENT . 'default/footer.php'; ?>
