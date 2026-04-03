@@ -6,35 +6,23 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 <main class="dashboard booking-create-page">
     <div class="dashboard-container">
         <!-- Modern Page Header -->
-        <header class="dashboard-header">
-            <div class="header-content">
+        <header class="dashboard-header mb-4">
+            <div class="header-content d-flex justify-content-between align-items-end">
                 <div class="header-left">
-                    <div class="breadcrumb-modern">
-                        <a href="<?= BASE_URL_ADMIN ?>&action=/" class="breadcrumb-link">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                        <span class="breadcrumb-separator">
-                            <i class="fas fa-chevron-right"></i>
-                        </span>
-                        <a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="breadcrumb-link">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Quản lý Booking</span>
-                        </a>
-                        <span class="breadcrumb-separator">
-                            <i class="fas fa-chevron-right"></i>
-                        </span>
-                        <span class="breadcrumb-current">Tạo Booking Mới</span>
-                    </div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0" style="font-size: 0.8rem; letter-spacing: 0.02em;">
+                            <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=/" class="text-muted text-decoration-none d-flex align-items-center gap-1"><i class="ph-fill ph-house"></i> Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="text-muted text-decoration-none d-flex align-items-center gap-1"><i class="ph-fill ph-calendar-check"></i> Quản lý Booking</a></li>
+                            <li class="breadcrumb-item active text-primary fw-600" aria-current="page">Tạo mới</li>
+                        </ol>
+                    </nav>
                 </div>
-                <div class="header-right">
-                    <a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="btn btn-modern btn-secondary">
-                        <i class="fas fa-times me-2"></i>
-                        Hủy bỏ
+                <div class="header-right d-flex gap-2">
+                    <a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="btn btn-light border-0 shadow-sm px-3 py-2 bg-white">
+                        <i class="ph ph-arrow-left me-1"></i> Quay lại
                     </a>
-                    <button type="submit" form="booking-form" class="btn btn-modern btn-primary">
-                        <i class="fas fa-save me-2"></i>
-                        Lưu Booking
+                    <button type="submit" form="booking-form" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 shadow-primary">
+                        <i class="ph-fill ph-floppy-disk"></i> Lưu Booking
                     </button>
                 </div>
             </div>
@@ -44,7 +32,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         <?php if (isset($_SESSION['error'])): ?>
             <div class="alert-modern alert-danger alert-dismissible fade show" role="alert">
                 <div class="alert-content">
-                    <i class="fas fa-exclamation-circle alert-icon"></i>
+                    <i class="ph-bold ph-warning-circle alert-icon"></i>
                     <span><?= $_SESSION['error'] ?></span>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -55,7 +43,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         <?php if (isset($_SESSION['success'])): ?>
             <div class="alert-modern alert-success alert-dismissible fade show" role="alert">
                 <div class="alert-content">
-                    <i class="fas fa-check-circle alert-icon"></i>
+                    <i class="ph-bold ph-check-circle alert-icon"></i>
                     <span><?= $_SESSION['success'] ?></span>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -63,19 +51,53 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             </div>
         <?php endif; ?>
 
-        <!-- Progress Steps -->
-        <div class="progress-steps-wrapper mb-4" style="display: none;">
-            <div class="progress-steps">
-                <div class="step active" data-step="1">
-                    <div class="step-number">1</div>
-                    <div class="step-label">Thông tin booking</div>
+        <!-- Progress Stepper Modern -->
+        <div class="progress-stepper-container mb-5">
+            <div class="progress-stepper">
+                <div class="stepper-item active" data-step="1" onclick="goToStep(1)">
+                    <div class="stepper-dot">1</div>
+                    <span class="stepper-label">Thông tin Booking</span>
                 </div>
-                <div class="step" data-step="2">
-                    <div class="step-number">2</div>
-                    <div class="step-label">Xác nhận</div>
+                <div class="stepper-item" data-step="2" onclick="goToStep(2)">
+                    <div class="stepper-dot">2</div>
+                    <span class="stepper-label">Xác nhận đơn</span>
                 </div>
             </div>
         </div>
+
+        <style>
+            .form-step {
+                display: none;
+                animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .form-step.active {
+                display: block;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .shadow-primary {
+                box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39) !important;
+            }
+            .progress-stepper-container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .card-header-premium {
+                background: linear-gradient(to right, rgba(248, 250, 252, 0.5), transparent);
+            }
+            .form-floating > label {
+                font-weight: 500;
+                color: var(--text-muted);
+            }
+            .form-floating > .form-control:focus ~ label,
+            .form-floating > .form-control:not(:placeholder-shown) ~ label,
+            .form-floating > .form-select ~ label {
+                color: var(--primary);
+                font-weight: 600;
+            }
+        </style>
 
         <!-- Booking Form -->
         <form method="POST" action="<?= BASE_URL_ADMIN ?>&action=bookings/store" id="booking-form">
@@ -85,53 +107,53 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                     <!-- Step 1: Booking Information -->
                     <div class="form-step active" id="step-1">
                         <!-- Customer Information -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-user text-primary me-2"></i>
-                                    Thông tin khách hàng
-                                </h5>
+                        <div class="card-premium mb-4 border-0 shadow-sm bg-white">
+                            <div class="card-header-premium p-3 px-4 border-bottom border-light">
+                                <h6 class="fw-bold mb-0 text-primary d-flex align-items-center gap-2">
+                                    <i class="ph-fill ph-user-circle"></i> Thông tin khách hàng
+                                </h6>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body-premium p-4">
                                 <div class="row g-3">
                                     <div class="col-12">
-                                        <label for="customer_id" class="form-label">Khách hàng <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <select class="form-select" id="customer_id" name="customer_id" required>
-                                                <option value="">-- Chọn khách hàng --</option>
-                                                <?php if (!empty($customers)): ?>
-                                                    <?php foreach ($customers as $c): ?>
-                                                        <option value="<?= htmlspecialchars($c['user_id']) ?>">
-                                                            <?= htmlspecialchars($c['full_name']) ?> (<?= htmlspecialchars($c['email']) ?>)
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
-                                            <a href="<?= BASE_URL_ADMIN ?>&action=users/create" target="_blank" class="btn btn-outline-primary" title="Tạo khách hàng mới">
-                                                <i class="fas fa-plus"></i>
+                                            <div class="form-floating flex-grow-1">
+                                                <select class="form-select" id="customer_id" name="customer_id" required>
+                                                    <option value="">-- Chọn khách hàng --</option>
+                                                    <?php if (!empty($customers)): ?>
+                                                        <?php foreach ($customers as $c): ?>
+                                                            <option value="<?= htmlspecialchars($c['user_id']) ?>">
+                                                                <?= htmlspecialchars($c['full_name']) ?> (<?= htmlspecialchars($c['email']) ?>)
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                                <label for="customer_id">Khách hàng chính <span class="text-danger">*</span></label>
+                                            </div>
+                                            <a href="<?= BASE_URL_ADMIN ?>&action=users/create" target="_blank" class="btn btn-outline-primary d-flex align-items-center px-3" title="Tạo khách hàng mới">
+                                                <i class="ph-fill ph-user-plus fs-5"></i>
                                             </a>
                                         </div>
-                                        <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>Chọn khách hàng từ danh sách hoặc click nút "+" để tạo mới
-                                        </small>
+                                        <div class="mt-2 text-muted small px-1">
+                                            <i class="ph ph-info me-1"></i>Chọn khách hàng hoặc click "+" để thêm mới người dùng.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Tour Information -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-route text-success me-2"></i>
-                                    Thông tin tour
-                                </h5>
+                        <div class="card-premium mb-4 border-0 shadow-sm bg-white">
+                            <div class="card-header-premium p-3 px-4 border-bottom border-light">
+                                <h6 class="fw-bold mb-0 text-success d-flex align-items-center gap-2">
+                                    <i class="ph-fill ph-map-pin"></i> Chi tiết Tour & Giá
+                                </h6>
                             </div>
-                            <div class="card-body">
-                                <div class="row g-3">
+                            <div class="card-body-premium p-4">
+                                <div class="row g-4">
                                     <div class="col-12">
                                         <div class="form-floating">
-                                            <select class="form-select" id="tour_id" name="tour_id" required>
+                                            <select class="form-select text-dark fw-medium" id="tour_id" name="tour_id" required>
                                                 <option value="">-- Chọn tour --</option>
                                                 <?php if (!empty($tours)): ?>
                                                     <?php foreach ($tours as $t): ?>
@@ -141,7 +163,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </select>
-                                            <label for="tour_id">Tour <span class="text-danger">*</span></label>
+                                            <label for="tour_id">Tour lựa chọn <span class="text-danger">*</span></label>
                                         </div>
                                     </div>
 
@@ -152,23 +174,14 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                                 <?php if (!empty($versions)): ?>
                                                     <?php foreach ($versions as $v): ?>
                                                         <option value="<?= htmlspecialchars($v['id']) ?>"
-                                                            data-price-adult="<?= htmlspecialchars($v['price_adult'] ?? 0) ?>"
-                                                            data-price-child="<?= htmlspecialchars($v['price_child'] ?? 0) ?>"
-                                                            data-price-infant="<?= htmlspecialchars($v['price_infant'] ?? 0) ?>">
+                                                            data-price-adult="<?= htmlspecialchars($v['price_adult'] ?? 0) ?>">
                                                             <?= htmlspecialchars($v['name']) ?>
-                                                            <?php if (!empty($v['description'])): ?>
-                                                                - <?= htmlspecialchars($v['description']) ?>
-                                                            <?php endif; ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </select>
-                                            <label for="version_id">Phiên bản Tour</label>
+                                            <label for="version_id">Phiên bản / Sự kiện</label>
                                         </div>
-                                        <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            Chọn phiên bản để áp dụng giá theo mùa/sự kiện (tùy chọn)
-                                        </small>
                                     </div>
 
                                     <div class="col-md-6">
@@ -176,104 +189,92 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                             <select class="form-select" id="departure_id" name="departure_id" required>
                                                 <option value="">-- Chọn ngày khởi hành --</option>
                                             </select>
-                                            <label for="departure_id">Ngày khởi hành <span class="text-danger">*</span></label>
+                                            <label for="departure_id">Lịch khởi hành <span class="text-danger">*</span></label>
                                         </div>
-                                        <small class="text-muted d-block mt-2" id="departure-info"></small>
+                                        <small class="text-muted d-block mt-2 px-1" id="departure-info"></small>
                                         <input type="hidden" id="booking_date" name="booking_date">
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="number" class="form-control" id="total_price" name="total_price" min="0" step="50000" placeholder=" " required>
-                                            <label for="total_price">Tổng giá tiền (VNĐ) <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="total_price" name="total_price" min="0" step="1000" placeholder=" " required>
+                                            <label for="total_price">Tổng tiền đặt (VNĐ) <span class="text-danger">*</span></label>
                                         </div>
-                                        <small class="text-muted d-block mt-2">Sẽ tự động cập nhật từ giá tour</small>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <select class="form-select" id="status" name="status" required>
-                                                <option value="">-- Chọn trạng thái --</option>
+                                                <option value="">-- Trạng thái --</option>
                                                 <option value="cho_xac_nhan">Chờ xác nhận</option>
                                                 <option value="da_coc">Đã cọc</option>
                                                 <option value="hoan_tat">Hoàn tất</option>
                                                 <option value="da_huy">Đã hủy</option>
                                             </select>
-                                            <label for="status">Trạng thái <span class="text-danger">*</span></label>
+                                            <label for="status">Trạng thái Booking <span class="text-danger">*</span></label>
                                         </div>
                                     </div>
 
-                                    <div class="col-12">
-                                        <div class="alert alert-info mb-0">
-                                            <i class="fas fa-building me-2"></i>
-                                            <strong>Nhà cung cấp:</strong>
-                                            <span id="supplier_display">Chọn tour để xem nhà cung cấp</span>
-                                        </div>
-                                        <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            Nhà cung cấp sẽ tự động lấy từ tour. Có thể thay đổi sau khi tạo booking.
-                                        </small>
-                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Notes -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-comment text-warning me-2"></i>
-                                    Ghi chú
-                                </h5>
+                        <div class="card-premium mb-4 border-0 shadow-sm bg-white">
+                            <div class="card-header-premium p-3 px-4 border-bottom border-light">
+                                <h6 class="fw-bold mb-0 text-warning d-flex align-items-center gap-2">
+                                    <i class="ph-fill ph-note-pencil"></i> Ghi chú & Yêu cầu
+                                </h6>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body-premium p-4">
                                 <div class="form-floating">
-                                    <textarea class="form-control" id="notes" name="notes" style="height: 120px" placeholder=" "></textarea>
-                                    <label for="notes">Ghi chú thêm về đơn đặt</label>
+                                    <textarea class="form-control fw-medium" id="notes" name="notes" style="height: 120px" placeholder=" "></textarea>
+                                    <label for="notes" class="text-muted small">Yêu cầu đặc biệt từ khách hàng</label>
                                 </div>
-                                <small class="text-muted d-block mt-2">Yêu cầu đặc biệt, thông tin khách hàng...</small>
                             </div>
                         </div>
                     </div>
 
                     <!-- Step 2: Confirmation -->
                     <div class="form-step" id="step-2">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    Xác nhận thông tin
-                                </h5>
+                        <div class="card-premium mb-4 border-0 shadow-sm bg-white">
+                            <div class="card-header-premium p-3 px-4 border-bottom border-light">
+                                <h6 class="fw-bold mb-0 text-success d-flex align-items-center gap-2">
+                                    <i class="ph-fill ph-check-circle"></i> Xác nhận đơn hàng
+                                </h6>
                             </div>
-                            <div class="card-body">
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    Vui lòng kiểm tra lại thông tin trước khi tạo booking
+                            <div class="card-body-premium p-4">
+                                <div class="alert-modern alert-info mb-4 py-3 border-0 bg-primary-subtle text-primary rounded-3 d-flex align-items-center gap-3">
+                                    <i class="ph-fill ph-info fs-4"></i>
+                                    <span class="small fw-medium">Vui lòng kiểm tra kỹ các thông tin trước khi hoàn tất lưu trữ hệ thống.</span>
                                 </div>
 
-                                <div class="booking-summary">
-                                    <div class="row mb-3">
-                                        <div class="col-4"><strong>Khách hàng:</strong></div>
-                                        <div class="col-8" id="summary-customer">--</div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-4"><strong>Tour:</strong></div>
-                                        <div class="col-8" id="summary-tour">--</div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-4"><strong>Ngày đặt:</strong></div>
-                                        <div class="col-8" id="summary-date">--</div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-4"><strong>Trạng thái:</strong></div>
-                                        <div class="col-8" id="summary-status">--</div>
-                                    </div>
-                                    <hr>
-                                    <div class="row">
-                                        <div class="col-4"><strong>Tổng giá:</strong></div>
-                                        <div class="col-8">
-                                            <span class="text-danger fw-bold fs-5" id="summary-price">0 ₫</span>
+                                <div class="booking-summary-premium">
+                                    <div class="summary-section mb-4">
+                                        <h6 class="text-muted small fw-bold text-uppercase mb-3 letter-spacing-05">Thông tin tóm lược</h6>
+                                        <div class="summary-grid row g-3">
+                                            <div class="col-sm-6 summary-item">
+                                                <span class="label text-muted small d-block">Ngày khởi hành</span>
+                                                <span class="value fw-bold" id="summary-date">--</span>
+                                            </div>
+                                            <div class="col-12 summary-item">
+                                                <span class="label text-muted small d-block">Khách hàng chính</span>
+                                                <span class="value fw-bold" id="summary-customer">--</span>
+                                            </div>
+                                            <div class="col-12 summary-item">
+                                                <span class="label text-muted small d-block">Tour đăng ký</span>
+                                                <span class="value fw-bold" id="summary-tour">--</span>
+                                            </div>
+                                            <div class="col-sm-6 summary-item">
+                                                <span class="label text-muted small d-block">Trạng thái ban đầu</span>
+                                                <span class="value fw-bold" id="summary-status">--</span>
+                                            </div>
                                         </div>
+                                    </div>
+
+                                    <div class="summary-total-box bg-danger-subtle p-4 rounded-3 d-flex justify-content-between align-items-center border border-danger border-opacity-10 mt-5">
+                                        <span class="fw-bold text-danger text-uppercase small">Tổng cộng thanh toán</span>
+                                        <span class="text-danger fw-800 fs-3" id="summary-price">0 ₫</span>
                                     </div>
                                 </div>
                             </div>
@@ -283,59 +284,72 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 
                 <!-- Sidebar -->
                 <div class="col-lg-4">
-                    <!-- Form Actions -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Thao tác</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <button type="submit" form="booking-form" class="btn btn-primary">
-                                    <i class="fas fa-check me-2"></i>
-                                    Tạo Booking
-                                </button>
-                                <a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="btn btn-secondary">
-                                    <i class="fas fa-times me-2"></i>
-                                    Hủy bỏ
-                                </a>
-                            </div>
+                    <div class="sticky-top" style="top: 90px; z-index: 100;">
+                        <!-- Action Card -->
+                        <div class="card-premium mb-4 border-0 shadow-sm bg-white overflow-hidden">
+                            <div class="p-4">
+                                <h6 class="fw-bold mb-4 d-flex align-items-center gap-2 text-dark">
+                                    <i class="ph-duotone ph-lightning text-warning fs-5"></i> Thao tác nhanh
+                                </h6>
+                                
+                                <div class="d-grid gap-3 mb-4">
+                                    <button type="submit" form="booking-form" class="btn btn-primary d-flex align-items-center justify-content-center gap-2 py-3 fw-bold shadow-primary rounded-3 border-0">
+                                        <i class="ph-fill ph-plus-circle fs-5"></i>
+                                        Tạo Booking Mới
+                                    </button>
+                                    
+                                    <a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="btn btn-light shadow-none w-100 justify-content-center py-2 rounded-3 text-muted border-0 bg-light">
+                                        <i class="ph ph-x me-1"></i> Hủy bỏ
+                                    </a>
+                                </div>
 
-                            <hr class="my-3">
-
-                            <div class="d-flex justify-content-between">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="previousStep()" id="prev-btn" style="display: none;">
-                                    <i class="fas fa-chevron-left me-1"></i>
-                                    Quay lại
-                                </button>
-                                <button type="button" class="btn btn-sm btn-primary" onclick="nextStep()" id="next-btn">
-                                    Tiếp theo
-                                    <i class="fas fa-chevron-right ms-1"></i>
-                                </button>
+                                <div class="step-navigation-box border-top pt-4 mt-2 d-flex justify-content-between align-items-center">
+                                    <button type="button" class="btn btn-link text-decoration-none text-muted p-0 d-flex align-items-center gap-2 fw-600" onclick="previousStep()" id="prev-btn" style="display: none;">
+                                        <i class="ph-bold ph-arrow-left"></i> Quay lại
+                                    </button>
+                                    <button type="button" class="btn btn-dark d-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm ms-auto fw-600" onclick="nextStep()" id="next-btn">
+                                        Tiếp tục <i class="ph-bold ph-arrow-right"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Quick Summary -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-receipt me-2"></i>
-                                Tóm tắt
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Tour:</span>
-                                <span id="quick-tour">--</span>
+                        <!-- Quick Recap Card -->
+                        <div class="card-premium border-0 shadow-sm bg-white overflow-hidden rounded-4">
+                            <div class="p-3 px-4 bg-light bg-opacity-50 border-bottom d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-0 text-muted small d-flex align-items-center gap-2 text-uppercase letter-spacing-1">
+                                    <i class="ph-fill ph-receipt text-primary"></i> Tóm tắt mới
+                                </h6>
                             </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Khách hàng:</span>
-                                <span id="quick-customer">--</span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <strong>Tổng:</strong>
-                                <strong class="text-danger" id="quick-price">0 ₫</strong>
+                            <div class="p-4">
+                                <div class="recap-list mb-4">
+                                    <div class="recap-item d-flex justify-content-between mb-3">
+                                        <div class="text-muted small d-flex align-items-center gap-2">
+                                            <i class="ph ph-navigation-arrow text-primary"></i> Sản phẩm:
+                                        </div>
+                                        <span id="quick-tour" class="text-end small fw-bold text-dark text-truncate ms-2" style="max-width: 150px;">--</span>
+                                    </div>
+                                    <div class="recap-item d-flex justify-content-between mb-3">
+                                        <div class="text-muted small d-flex align-items-center gap-2">
+                                            <i class="ph ph-user-focus text-primary"></i> Khách hàng:
+                                        </div>
+                                        <span id="quick-customer" class="text-end small fw-bold text-dark text-truncate ms-2" style="max-width: 150px;">--</span>
+                                    </div>
+                                    <div class="recap-item d-flex justify-content-between">
+                                        <div class="text-muted small d-flex align-items-center gap-2">
+                                            <i class="ph ph-shield-check text-primary"></i> Trạng thái:
+                                        </div>
+                                        <span id="quick-status-badge" class="badge-premium small">--</span>
+                                    </div>
+                                </div>
+                                <div class="pt-4 border-top">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="small fw-bold text-muted text-uppercase letter-spacing-1">Dự tính:</span>
+                                        <div class="text-end">
+                                            <div class="text-danger fs-3 fw-800 line-height-1" id="quick-price">0 ₫</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -519,23 +533,41 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         }
     }
 
+    function goToStep(step) {
+        if (step > currentStep) {
+            if (!validateCurrentStep()) return;
+        }
+        currentStep = step;
+        updateStepDisplay();
+        updateNavigationButtons();
+        updateSummary();
+    }
+
     function updateStepDisplay() {
-        // Update progress steps
-        document.querySelectorAll('.step').forEach(step => {
+        // Update progress stepper (Premium style)
+        document.querySelectorAll('.stepper-item').forEach(step => {
             step.classList.remove('active', 'completed');
             const stepNum = parseInt(step.dataset.step);
             if (stepNum === currentStep) {
                 step.classList.add('active');
             } else if (stepNum < currentStep) {
                 step.classList.add('completed');
+                const dot = step.querySelector('.stepper-dot');
+                if (dot) dot.innerHTML = '<i class="ph-bold ph-check"></i>';
+            } else {
+                const dot = step.querySelector('.stepper-dot');
+                if (dot) dot.innerHTML = stepNum;
             }
         });
 
-        // Update form sections
+        // Update form sections with fade effect
         document.querySelectorAll('.form-step').forEach(step => {
             step.classList.remove('active');
         });
-        document.getElementById(`step-${currentStep}`).classList.add('active');
+        const current = document.getElementById(`step-${currentStep}`);
+        current.classList.add('active');
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function updateNavigationButtons() {
@@ -570,21 +602,29 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         const statusSelect = document.getElementById('status');
         const priceInput = document.getElementById('total_price');
 
-        // Update quick summary
         const customerText = customerSelect.options[customerSelect.selectedIndex]?.text || '--';
         const tourText = tourSelect.options[tourSelect.selectedIndex]?.text || '--';
         const price = priceInput.value || '0';
+        const statusValue = statusSelect.value;
+        const statusText = statusSelect.options[statusSelect.selectedIndex]?.text || '--';
 
-        document.getElementById('quick-customer').textContent = customerText.split('(')[0].trim();
-        document.getElementById('quick-tour').textContent = tourText.split('-')[0].trim();
-        document.getElementById('quick-price').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
+        // Update quick summary
+        if (document.getElementById('quick-customer')) document.getElementById('quick-customer').textContent = customerText.split('(')[0].trim();
+        if (document.getElementById('quick-tour')) document.getElementById('quick-tour').textContent = tourText.split('-')[0].trim();
+        if (document.getElementById('quick-price')) document.getElementById('quick-price').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
+        
+        const quickStatusBadge = document.getElementById('quick-status-badge');
+        if (quickStatusBadge) {
+            quickStatusBadge.textContent = statusText;
+            quickStatusBadge.className = `badge-premium badge-${statusValue} small`;
+        }
 
         // Update confirmation summary
-        document.getElementById('summary-customer').textContent = customerText;
-        document.getElementById('summary-tour').textContent = tourText;
-        document.getElementById('summary-date').textContent = dateInput.value || '--';
-        document.getElementById('summary-status').textContent = statusSelect.options[statusSelect.selectedIndex]?.text || '--';
-        document.getElementById('summary-price').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
+        if (document.getElementById('summary-customer')) document.getElementById('summary-customer').textContent = customerText;
+        if (document.getElementById('summary-tour')) document.getElementById('summary-tour').textContent = tourText;
+        if (document.getElementById('summary-date')) document.getElementById('summary-date').textContent = dateInput.value || '--';
+        if (document.getElementById('summary-status')) document.getElementById('summary-status').textContent = statusText;
+        if (document.getElementById('summary-price')) document.getElementById('summary-price').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
     }
 </script>
 

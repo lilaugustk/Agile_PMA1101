@@ -223,56 +223,219 @@ if (empty($galleryUrls)) {
 
                 <!-- Departures Card -->
                 <div class="card card-premium mb-4 border-0 shadow-sm">
-                    <div class="card-header bg-white border-bottom border-light py-3">
+                    <div class="card-header bg-white border-bottom border-light py-3 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0 fw-bold d-flex align-items-center gap-2" style="font-size: 1rem;">
                             <i class="ph-fill ph-calendar text-info"></i>
                             Lịch khởi hành
                         </h5>
+                        <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#addDepartureModal">
+                            <i class="ph ph-plus-circle"></i> Thêm ngày
+                        </button>
                     </div>
-                    <div class="card-body p-0">
-                        <?php if (!empty($departures)): ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
-                                    <thead class="bg-light text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-                                        <tr>
-                                            <th class="ps-3 border-0">Ngày khởi hành</th>
-                                            <th class="border-0">Trạng thái</th>
-                                            <th class="border-0 text-end pe-3">Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($departures as $departure): ?>
-                                            <tr>
-                                                <td class="ps-3 fw-semibold text-dark">
-                                                    <i class="ph ph-calendar-check text-muted me-2"></i>
-                                                    <?= date('d/m/Y', strtotime($departure['departure_date'])) ?>
-                                                </td>
-                                                <td>
-                                                    <?php 
-                                                    $status = $departure['status'] ?? 'unknown';
-                                                    $badgeClass = $status === 'open' ? 'success' : ($status === 'full' ? 'danger' : 'warning');
-                                                    ?>
-                                                    <span class="badge bg-<?= $badgeClass ?>-subtle text-<?= $badgeClass ?> fw-bold">
-                                                        <?= ucfirst($status) ?>
-                                                    </span>
-                                                </td>
-                                                <td class="text-end pe-3">
-                                                    <button class="btn btn-sm btn-light border p-1 rounded d-inline-flex align-items-center justify-content-center" title="Chi tiết">
-                                                        <i class="ph ph-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                    <div class="card-body p-0" id="departures-container">
+                        <?php
+                        // Build departure lookup: 'YYYY-MM-DD' => departure data
+                        $departureLookup = [];
+                        foreach ($departures as $dep) {
+                            $key = date('Y-m-d', strtotime($dep['departure_date']));
+                            $departureLookup[$key] = $dep;
+                        }
+                        // Extract unique months with departures
+                        $availableMonths = [];
+                        foreach ($departures as $dep) {
+                            $m = date('Y-m', strtotime($dep['departure_date']));
+                            $availableMonths[$m] = true;
+                        }
+                        ksort($availableMonths);
+                        $availableMonths = array_keys($availableMonths);
+                        $defaultMonth = !empty($availableMonths) ? $availableMonths[0] : date('Y-m');
+
+                        // Build range of months to show in sidebar
+                        $monthsToShow = [];
+                        $startDate = new DateTime('first day of this month');
+                        $startDate->modify('-2 month');
+                        for ($i = 0; $i < 18; $i++) {
+                            $monthsToShow[] = $startDate->format('Y-m');
+                            $startDate->modify('+1 month');
+                        }
+                        ?>
+
+                        <div class="d-flex" style="min-height: 440px;">
+                            <!-- Month Sidebar -->
+                            <div class="p-3" style="width: 130px; min-width: 130px; max-height: 520px; overflow-y: auto; background: #f8fafc; border-right: 1.5px solid #e2e8f0;">
+                                <p class="text-muted fw-bold text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.8px;">Chọn tháng</p>
+                                <div class="d-flex flex-column gap-2" id="month-sidebar-list">
+                                    <?php foreach ($monthsToShow as $ym):
+                                        $isActive = ($ym === $defaultMonth);
+                                        $hasDep = in_array($ym, $availableMonths);
+                                        [$y, $m] = explode('-', $ym);
+                                    ?>
+                                    <button class="btn month-pill text-start py-2 px-3 fw-bold w-100 <?= $isActive ? 'btn-primary text-white' : 'btn-light border' ?>"
+                                            data-month="<?= $ym ?>"
+                                            style="font-size: 0.82rem; border-radius: 10px; position: relative;"
+                                            onclick="switchMonth('<?= $ym ?>')">
+                                        <?= $m ?>/<?= $y ?>
+                                        <?php if ($hasDep): ?>
+                                            <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-success" style="font-size: 0.55rem; padding: 3px 5px;">●</span>
+                                        <?php endif; ?>
+                                    </button>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
-                        <?php else: ?>
-                            <div class="text-center text-muted py-5">
-                                <i class="ph ph-calendar-x fa-3x mb-3 op-2"></i>
-                                <h6>Chưa có lịch khởi hành</h6>
-                                <p class="mb-0 small">Hiện chưa có lịch khởi hành nào cho tour này.</p>
+
+                            <!-- Calendar Grid -->
+                            <div class="flex-grow-1 p-4">
+                                <!-- Month Navigation -->
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <button class="btn btn-light border rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:36px;height:36px;" onclick="prevMonth()">
+                                        <i class="ph ph-caret-left"></i>
+                                    </button>
+                                    <h5 id="calendar-month-title" class="fw-bold mb-0 text-primary" style="font-size: 1.1rem; letter-spacing: 0.5px;"></h5>
+                                    <button class="btn btn-light border rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:36px;height:36px;" onclick="nextMonth()">
+                                        <i class="ph ph-caret-right"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Day of week headers -->
+                                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px;">
+                                    <?php foreach (['T2','T3','T4','T5','T6','T7','CN'] as $wi => $wd): ?>
+                                    <div class="text-center fw-bold <?= $wi >= 5 ? 'text-danger' : 'text-muted' ?>" style="font-size:0.8rem; padding:6px 0;"><?= $wd ?></div>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <!-- Calendar cells (rendered by JS) -->
+                                <div id="calendar-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;"></div>
+
+                                <!-- Legend -->
+                                <div class="mt-4 pt-3 border-top border-light d-flex align-items-center gap-4 flex-wrap" style="font-size:0.78rem; color:#64748b;">
+                                    <span class="d-flex align-items-center gap-1"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;"></span> Còn chỗ</span>
+                                    <span class="d-flex align-items-center gap-1"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;"></span> Hết chỗ</span>
+                                    <span class="d-flex align-items-center gap-1"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;"></span> Đã đóng</span>
+                                </div>
                             </div>
-                        <?php endif; ?>
+                        </div>
+
+                        <!-- JS Calendar Logic -->
+                        <script>
+                            const departureLookupData = <?= json_encode($departureLookup) ?>;
+                            let currentCalMonth = '<?= $defaultMonth ?>';
+
+                            function switchMonth(ym) {
+                                currentCalMonth = ym;
+                                document.querySelectorAll('.month-pill').forEach(btn => {
+                                    const active = btn.dataset.month === ym;
+                                    btn.classList.toggle('btn-primary', active);
+                                    btn.classList.toggle('text-white', active);
+                                    btn.classList.toggle('btn-light', !active);
+                                    btn.classList.toggle('border', !active);
+                                });
+                                renderCalendar(ym);
+                            }
+
+                            function prevMonth() {
+                                const d = new Date(currentCalMonth + '-01');
+                                d.setMonth(d.getMonth() - 1);
+                                switchMonth(d.toISOString().slice(0, 7));
+                            }
+
+                            function nextMonth() {
+                                const d = new Date(currentCalMonth + '-01');
+                                d.setMonth(d.getMonth() + 1);
+                                switchMonth(d.toISOString().slice(0, 7));
+                            }
+
+                            function renderCalendar(ym) {
+                                const [year, month] = ym.split('-').map(Number);
+                                const firstDay = new Date(year, month - 1, 1);
+                                const lastDay = new Date(year, month, 0);
+                                const totalDays = lastDay.getDate();
+
+                                // Monday-based: JS Sunday=0 → offset 6
+                                let startDow = firstDay.getDay();
+                                startDow = startDow === 0 ? 6 : startDow - 1;
+
+                                document.getElementById('calendar-month-title').textContent = 'THÁNG ' + month + '/' + year;
+
+                                const grid = document.getElementById('calendar-grid');
+                                grid.innerHTML = '';
+
+                                // Leading filler from previous month
+                                const prevLast = new Date(year, month - 1, 0).getDate();
+                                for (let i = startDow - 1; i >= 0; i--) {
+                                    grid.appendChild(makeDayCell(prevLast - i, null, true, false, null));
+                                }
+
+                                // Days of current month
+                                for (let d = 1; d <= totalDays; d++) {
+                                    const dateStr = year + '-' + String(month).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                                    const dep = departureLookupData[dateStr] || null;
+                                    const jsDay = new Date(year, month - 1, d).getDay();
+                                    const dow = jsDay === 0 ? 6 : jsDay - 1;
+                                    grid.appendChild(makeDayCell(d, dep, false, dow >= 5, dateStr));
+                                }
+
+                                // Trailing filler
+                                const totalCells = Math.ceil((startDow + totalDays) / 7) * 7;
+                                for (let d = 1; d <= totalCells - startDow - totalDays; d++) {
+                                    grid.appendChild(makeDayCell(d, null, true, false, null));
+                                }
+                            }
+
+                            function makeDayCell(dayNum, dep, isOther, isWeekend, dateStr) {
+                                const el = document.createElement('div');
+                                el.style.cssText = 'min-height:64px; border-radius:10px; padding:8px 6px 6px; display:flex; flex-direction:column; align-items:center; transition:transform 0.15s;';
+
+                                if (isOther) {
+                                    el.style.opacity = '0.3';
+                                    el.innerHTML = '<span style="font-size:0.88rem;color:#94a3b8;">' + dayNum + '</span>';
+                                } else if (dep) {
+                                    const C = {
+                                        open:   {bg:'#dcfce7', bd:'#22c55e', txt:'#15803d', lbl:'Open'},
+                                        full:   {bg:'#fee2e2', bd:'#ef4444', txt:'#b91c1c', lbl:'Full'},
+                                        closed: {bg:'#fef9c3', bd:'#f59e0b', txt:'#92400e', lbl:'Closed'}
+                                    }[dep.status] || {bg:'#dcfce7', bd:'#22c55e', txt:'#15803d', lbl:'Open'};
+
+                                    el.style.background = C.bg;
+                                    el.style.border = '1.5px solid ' + C.bd;
+                                    el.style.cursor = 'pointer';
+                                    el.title = '📅 ' + dateStr + '  |  ' + C.lbl + (dep.max_seats ? '  |  ' + dep.max_seats + ' chỗ' : '');
+
+                                    const price = dep.price_adult ? Number(dep.price_adult).toLocaleString('vi-VN') + 'đ' : '';
+                                    el.innerHTML =
+                                        '<span style="font-size:0.9rem;font-weight:700;color:#1e293b;">' + dayNum + '</span>' +
+                                        (price ? '<span style="font-size:0.63rem;color:' + C.txt + ';font-weight:600;margin-top:2px;text-align:center;">' + price + '</span>' : '') +
+                                        '<span style="font-size:0.58rem;font-weight:700;color:' + C.txt + ';margin-top:auto;background:rgba(255,255,255,0.7);border-radius:4px;padding:1px 5px;">' + C.lbl + '</span>';
+
+                                    el.addEventListener('mouseenter', () => el.style.transform = 'translateY(-2px)');
+                                    el.addEventListener('mouseleave', () => el.style.transform = '');
+                                } else {
+                                    el.innerHTML = '<span style="font-size:0.88rem;color:' + (isWeekend ? '#ef4444' : '#374151') + ';">' + dayNum + '</span>';
+                                }
+
+                                return el;
+                            }
+
+                            // First render
+                            renderCalendar(currentCalMonth);
+
+                            // Called by AJAX form handler to refresh calendar
+                            function addDepartureToCalendar(dateStr, depData) {
+                                departureLookupData[dateStr] = depData;
+                                const targetMonth = dateStr.slice(0, 7);
+                                switchMonth(targetMonth);
+                                const btn = document.querySelector('.month-pill[data-month="' + targetMonth + '"]');
+                                if (btn) {
+                                    if (!btn.querySelector('.badge')) {
+                                        const badge = document.createElement('span');
+                                        badge.className = 'position-absolute top-0 end-0 translate-middle badge rounded-pill bg-success';
+                                        badge.style.cssText = 'font-size:0.55rem;padding:3px 5px;';
+                                        badge.textContent = '●';
+                                        btn.appendChild(badge);
+                                    }
+                                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                }
+                            }
+                        </script>
                     </div>
                 </div>
 
@@ -493,6 +656,53 @@ if (empty($galleryUrls)) {
                 </div>
             </div>
         </div>
+
+        <!-- Add Departure Modal -->
+        <div class="modal fade" id="addDepartureModal" tabindex="-1" aria-labelledby="addDepartureModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+                    <form id="addDepartureForm">
+                        <div class="modal-header border-bottom border-light px-4 py-3">
+                            <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="addDepartureModalLabel">
+                                <i class="ph-fill ph-calendar-plus text-primary"></i>
+                                Thêm ngày khởi hành
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body px-4 py-4">
+                            <input type="hidden" name="tour_id" value="<?= $tour['id'] ?>">
+                            
+                            <div class="mb-3">
+                                <label for="departureDate" class="form-label text-muted fw-medium small mb-1">Ngày khởi hành <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="departureDate" name="departure_date" required min="<?= date('Y-m-d') ?>">
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label for="maxSeats" class="form-label text-muted fw-medium small mb-1">Số chỗ tối đa</label>
+                                    <input type="number" class="form-control" id="maxSeats" name="max_seats" value="40" min="1">
+                                </div>
+                                <div class="col-6">
+                                    <label for="status" class="form-label text-muted fw-medium small mb-1">Trạng thái</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="open">Open</option>
+                                        <option value="full">Full</option>
+                                        <option value="closed">Closed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top border-light px-4 py-3 bg-light bg-opacity-50" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                            <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+                                <i class="ph ph-floppy-disk"></i> Lưu ngày
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div> <!-- /content -->
 </main>
 
@@ -850,6 +1060,39 @@ if (empty($galleryUrls)) {
                     function showAllImages() {
                         const galleryItems = document.querySelectorAll('.gallery-item-wrapper');
                         galleryItems.forEach(item => item.style.display = 'block');
+                    }
+
+                    // Handle add departure form submission
+                    const addDepartureForm = document.getElementById('addDepartureForm');
+                    if (addDepartureForm) {
+                        addDepartureForm.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(this);
+                            const submitBtn = this.querySelector('button[type="submit"]');
+                            const originalBtnContent = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Đang xử lý...';
+                            fetch('<?= BASE_URL_ADMIN ?>&action=tours/add-departure', { method: 'POST', body: formData })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Update the calendar view
+                                    addDepartureToCalendar(data.data.departure_date, data.data);
+                                    // Close modal & reset
+                                    const modal = bootstrap.Modal.getInstance(document.getElementById('addDepartureModal'));
+                                    if (modal) modal.hide();
+                                    addDepartureForm.reset();
+                                    // Toast
+                                    const t = `<div class="position-fixed top-0 end-0 p-3 mt-5" style="z-index:1090"><div class="toast show align-items-center text-bg-success border-0 shadow-lg"><div class="d-flex"><div class="toast-body d-flex align-items-center gap-2 fw-medium"><i class="ph-fill ph-check-circle fs-5"></i>${data.message}</div><button type="button" class="btn-close btn-close-white me-3 m-auto" data-bs-dismiss="toast"></button></div></div></div>`;
+                                    document.body.insertAdjacentHTML('beforeend', t);
+                                    setTimeout(() => document.body.lastElementChild?.remove(), 4000);
+                                } else {
+                                    alert(data.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+                                }
+                            })
+                            .catch(() => alert('Có lỗi mạng hoặc máy chủ. Vui lòng thử lại.'))
+                            .finally(() => { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnContent; });
+                        });
                     }
                 </script>
 

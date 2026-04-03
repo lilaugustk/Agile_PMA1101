@@ -892,4 +892,68 @@ class TourController
             echo json_encode(['success' => false, 'message' => 'Internal server error']);
         }
     }
+
+    /**
+     * Thêm ngày khởi hành mới (AJAX endpoint)
+     */
+    public function addDeparture()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
+
+        $tourId = $_POST['tour_id'] ?? null;
+        $departureDate = $_POST['departure_date'] ?? null;
+        $maxSeats = $_POST['max_seats'] ?? 40;
+        $status = $_POST['status'] ?? 'open';
+
+        if (!$tourId || !$departureDate) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Thiếu thông tin bắt buộc.']);
+            return;
+        }
+
+        try {
+            // Lấy giá mặc định từ tour gốc để dễ dàng khởi tạo giá cho departure mới
+            $tour = $this->model->find('*', 'id = :id', ['id' => $tourId]);
+            $basePrice = $tour['base_price'] ?? 0;
+
+            $departureModel = new class extends BaseModel {
+                protected $table = 'tour_departures';
+            };
+
+            $departureId = $departureModel->insert([
+                'tour_id' => $tourId,
+                'departure_date' => $departureDate,
+                'max_seats' => $maxSeats,
+                'price_adult' => $basePrice,
+                'price_child' => $basePrice * 0.7, // Giả định trẻ em 70% giá
+                'status' => $status,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            if ($departureId) {
+                // Formatting date to return to front-end for display
+                $formattedDate = date('d/m/Y', strtotime($departureDate));
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Thêm ngày khởi hành thành công',
+                    'data' => [
+                        'id' => $departureId,
+                        'departure_date' => $departureDate,
+                        'formatted_date' => $formattedDate,
+                        'status' => $status
+                    ]
+                ]);
+            } else {
+                throw new Exception('Không thể lưu ngày khởi hành');
+            }
+        } catch (Exception $e) {
+            error_log('Error adding departure: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
+        }
+    }
 }

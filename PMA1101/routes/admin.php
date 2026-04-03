@@ -51,6 +51,7 @@ match ($action) {
     'tours/bulk-delete'                     => (new TourController)->bulkDelete(),
     'tours/search'                          => (new TourController)->search(),
     'tours/by-status'                       => (new TourController)->getByStatus(),
+    'tours/add-departure'                   => (new TourController)->addDeparture(),
 
     // Tour Category
     'tours_categories'                      => (new TourCategoryController)->index(),
