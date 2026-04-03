@@ -569,7 +569,7 @@ class ReportController
         $typeLabels = [
             'tour' => 'Tour',
             'supplier' => 'Nhà cung cấp',
-            'guide' => 'HDV'
+            'guide' => 'Guide'
         ];
 
         foreach ($data as &$item) {

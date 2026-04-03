@@ -126,7 +126,7 @@ $isGuide = $userRole === 'guide';
                     <ul class="sidebar-menu pb-0 pt-2 ps-3 m-0" style="border-left: 1px solid var(--border-light); margin-left: 0.8rem !important; padding-right: 0;">
                         <li class="menu-item">
                             <a class="menu-link py-2 <?= isActive('guides') ?>" href="<?= BASE_URL_ADMIN ?>&action=guides">
-                                <i class="ph ph-user-focus" style="font-size: 1.1rem;"></i> Quản lý HDV
+                                <i class="ph ph-user-focus" style="font-size: 1.1rem;"></i> Quản lý Guide
                             </a>
                         </li>
                         <li class="menu-item">

@@ -295,7 +295,6 @@ class FeedbackReport extends BaseModel
 
         $serviceWords = [
             'hướng dẫn viên',
-            'hdv',
             'guide',
             'khách sạn',
             'hotel',

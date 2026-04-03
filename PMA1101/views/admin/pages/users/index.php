@@ -93,7 +93,7 @@ $currentUserRole = $_SESSION['user']['role'] ?? 'customer';
                     <select name="role" class="form-select form-select-sm border-light-subtle shadow-sm" style="border-radius: 8px; min-height: 38px;">
                         <option value="">Tất cả</option>
                         <option value="customer">Khách hàng</option>
-                        <option value="guide">HDV</option>
+                        <option value="guide">Guide</option>
                         <option value="admin">Admin</option>
                     </select>
                 </div>
@@ -150,7 +150,7 @@ $currentUserRole = $_SESSION['user']['role'] ?? 'customer';
                                             <?php
                                             $roleMap = [
                                                 'customer' => ['text' => 'Khách hàng', 'color' => 'success'],
-                                                'guide' => ['text' => 'HDV', 'color' => 'info'],
+                                                'guide' => ['text' => 'Guide', 'color' => 'info'],
                                                 'admin' => ['text' => 'Admin', 'color' => 'danger']
                                             ];
                                             $roleInfo = $roleMap[$user['role']] ?? ['text' => $user['role'], 'color' => 'secondary'];
