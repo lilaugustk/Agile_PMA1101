@@ -250,7 +250,7 @@ $versions = $versions ?? [];
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="form-label fw-medium text-muted small">Mô tả chi tiết</label>
-                                                    <textarea class="form-control itinerary-description" style="height: 100px"><?= htmlspecialchars($itinerary['activities']) ?></textarea>
+                                                    <textarea class="form-control itinerary-description" style="height: 100px"><?= htmlspecialchars($itinerary['description'] ?? '') ?></textarea>
                                                 </div>
                                                 <?php if (!empty($itinerary['image_url'])): ?>
                                                     <div class="col-12">
@@ -515,6 +515,7 @@ $versions = $versions ?? [];
     }
 
     function nextStep() {
+        updateItineraryData(); // Capture data on step change
         if (validateCurrentStep()) {
             if (currentStep < totalSteps) {
                 currentStep++;
@@ -600,14 +601,21 @@ $versions = $versions ?? [];
     function updateItineraryData() {
         const arr = [];
         document.querySelectorAll('.itinerary-item').forEach((item, index) => {
-            arr.push({
-                day_number: index + 1,
-                day_label: `Ngày ${index + 1}`,
-                title: item.querySelector('.itinerary-title').value,
-                activities: item.querySelector('.itinerary-description').value
-            });
+            const titleInput = item.querySelector('.itinerary-title');
+            const descInput = item.querySelector('.itinerary-description');
+            if (titleInput && descInput) {
+                arr.push({
+                    day_number: index + 1,
+                    day_label: `Ngày ${index + 1}`,
+                    title: titleInput.value.trim(),
+                    description: descInput.value.trim()
+                });
+            }
         });
-        document.getElementById('tour_itinerary').value = JSON.stringify(arr);
+        const hiddenInput = document.getElementById('tour_itinerary');
+        if (hiddenInput) {
+            hiddenInput.value = JSON.stringify(arr);
+        }
     }
 
     document.getElementById('tour-edit-form').addEventListener('submit', function(e) {

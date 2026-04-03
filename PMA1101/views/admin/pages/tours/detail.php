@@ -188,13 +188,25 @@ if (empty($galleryUrls)) {
                                         </div>
                                         <div class="timeline-content">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <h6 class="fw-bold text-dark mb-0" style="font-size: 1rem;">
+                                                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size: 1rem;">
                                                     <?= htmlspecialchars($item['title'] ?? 'Lịch trình ngày ' . ($index + 1)) ?>
                                                 </h6>
+                                                <button class="btn btn-xs p-0 text-muted itinerary-toggle-btn shadow-none border-0" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#itinerary-collapse-<?= $index ?>" 
+                                                        aria-expanded="false" 
+                                                        aria-controls="itinerary-collapse-<?= $index ?>">
+                                                    <i class="ph ph-caret-down fs-5"></i>
+                                                </button>
                                             </div>
-                                            <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
-                                                <?= htmlspecialchars($item['description'] ?? '') ?>
-                                            </p>
+                                            <div class="collapse" id="itinerary-collapse-<?= $index ?>">
+                                                <div class="itinerary-description-wrapper pt-2">
+                                                    <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6; text-align: justify;">
+                                                        <?= nl2br(htmlspecialchars($item['description'] ?? '')) ?>
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -598,7 +610,37 @@ if (empty($galleryUrls)) {
 
     .lightbox-close:hover {
         background: #ef4444;
-        transform: rotate(90deg);
+        color: #fff;
+        transform: scale(1.1) rotate(90deg);
+    }
+
+    /* Itinerary Collapse Styles */
+    .itinerary-toggle-btn {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 4px;
+        border-radius: 4px;
+        color: #94a3b8;
+    }
+    .itinerary-toggle-btn:hover {
+        background-color: #f1f5f9;
+        color: var(--primary-color);
+    }
+    .itinerary-toggle-btn i {
+        transition: transform 0.3s ease;
+    }
+    .itinerary-toggle-btn[aria-expanded="false"] i {
+        transform: rotate(180deg);
+    }
+    .itinerary-toggle-btn:focus, .itinerary-toggle-btn:active {
+        text-decoration: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    .itinerary-description-wrapper {
+        border-left: 2px solid #f1f5f9;
+        padding-left: 15px;
+        margin-left: 5px;
     }
 
     .lightbox-nav {

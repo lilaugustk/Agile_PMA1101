@@ -341,19 +341,19 @@ class Tour extends BaseModel
                 foreach ($itineraries as $index => $item) {
                     // Tính day_number từ day_label (VD: "Ngày 1" → 1)
                     $dayNumber = $index + 1;
-                    if (preg_match('/Ngày\s+(\d+)/i', $item['day'], $matches)) {
+                    if (!empty($item['day_label']) && preg_match('/Ngày\s+(\d+)/i', $item['day_label'], $matches)) {
                         $dayNumber = (int)$matches[1];
                     }
 
                     $itineraryModel->insert([
                         'tour_id' => $tourId,
-                        'day_label' => $item['day'] ?? '',
+                        'day_label' => $item['day_label'] ?? '',
                         'day_number' => $dayNumber,
                         'time_start' => $item['time_start'] ?? null,
                         'time_end' => $item['time_end'] ?? null,
                         'title' => $item['title'] ?? '',
                         'description' => $item['description'] ?? '',
-                        'activities' => '', // Có thể mở rộng sau
+                        'activities' => $item['description'] ?? '',
                         'image_url' => '', // Có thể mở rộng sau
                     ]);
                 }

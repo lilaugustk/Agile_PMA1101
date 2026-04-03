@@ -401,6 +401,7 @@ $policies = $policies ?? [];
     }
 
     function nextStep() {
+        if (currentStep === 3) updateItineraryData(); // Capture itinerary before leaving step 3
         if (validateCurrentStep()) {
             if (currentStep < totalSteps) {
                 currentStep++;
@@ -497,14 +498,21 @@ $policies = $policies ?? [];
     function updateItineraryData() {
         const arr = [];
         document.querySelectorAll('.itinerary-item').forEach((item, index) => {
-            arr.push({
-                day_number: index + 1,
-                day_label: `Ngày ${index + 1}`,
-                title: item.querySelector('.itinerary-title').value,
-                description: item.querySelector('.itinerary-description').value
-            });
+            const titleInput = item.querySelector('.itinerary-title');
+            const descInput = item.querySelector('.itinerary-description');
+            if (titleInput && descInput) {
+                arr.push({
+                    day_number: index + 1,
+                    day_label: `Ngày ${index + 1}`,
+                    title: titleInput.value.trim(),
+                    description: descInput.value.trim()
+                });
+            }
         });
-        document.getElementById('tour_itinerary').value = JSON.stringify(arr);
+        const hiddenInput = document.getElementById('tour_itinerary');
+        if (hiddenInput) {
+            hiddenInput.value = JSON.stringify(arr);
+        }
     }
 
     document.getElementById('tour-form').addEventListener('submit', function(e) {
