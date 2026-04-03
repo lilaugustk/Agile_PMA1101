@@ -941,10 +941,13 @@ class TourController
                     'success' => true,
                     'message' => 'Thêm ngày khởi hành thành công',
                     'data' => [
-                        'id' => $departureId,
+                        'id'             => $departureId,
                         'departure_date' => $departureDate,
                         'formatted_date' => $formattedDate,
-                        'status' => $status
+                        'status'         => $status,
+                        'price_adult'    => $basePrice,
+                        'price_child'    => $basePrice * 0.7,
+                        'max_seats'      => (int)$maxSeats,
                     ]
                 ]);
             } else {

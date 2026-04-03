@@ -250,11 +250,10 @@ if (empty($galleryUrls)) {
                         $availableMonths = array_keys($availableMonths);
                         $defaultMonth = !empty($availableMonths) ? $availableMonths[0] : date('Y-m');
 
-                        // Build range of months to show in sidebar
+                        // Build range of months: current month + next 12 (13 total)
                         $monthsToShow = [];
                         $startDate = new DateTime('first day of this month');
-                        $startDate->modify('-2 month');
-                        for ($i = 0; $i < 18; $i++) {
+                        for ($i = 0; $i < 13; $i++) {
                             $monthsToShow[] = $startDate->format('Y-m');
                             $startDate->modify('+1 month');
                         }
@@ -262,22 +261,18 @@ if (empty($galleryUrls)) {
 
                         <div class="d-flex" style="min-height: 440px;">
                             <!-- Month Sidebar -->
-                            <div class="p-3" style="width: 130px; min-width: 130px; max-height: 520px; overflow-y: auto; background: #f8fafc; border-right: 1.5px solid #e2e8f0;">
+                            <div class="p-3" style="width: 150px; min-width: 150px; max-height: 520px; overflow-y: auto; background: #f8fafc; border-right: 1.5px solid #e2e8f0;">
                                 <p class="text-muted fw-bold text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 0.8px;">Chọn tháng</p>
                                 <div class="d-flex flex-column gap-2" id="month-sidebar-list">
                                     <?php foreach ($monthsToShow as $ym):
                                         $isActive = ($ym === $defaultMonth);
-                                        $hasDep = in_array($ym, $availableMonths);
                                         [$y, $m] = explode('-', $ym);
                                     ?>
-                                    <button class="btn month-pill text-start py-2 px-3 fw-bold w-100 <?= $isActive ? 'btn-primary text-white' : 'btn-light border' ?>"
+                                    <button class="btn month-pill text-center py-2 px-2 fw-bold w-100 <?= $isActive ? 'btn-primary text-white' : 'btn-light border' ?>"
                                             data-month="<?= $ym ?>"
-                                            style="font-size: 0.82rem; border-radius: 10px; position: relative;"
+                                            style="font-size: 0.82rem; border-radius: 10px; white-space: nowrap; overflow: hidden;"
                                             onclick="switchMonth('<?= $ym ?>')">
                                         <?= $m ?>/<?= $y ?>
-                                        <?php if ($hasDep): ?>
-                                            <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-success" style="font-size: 0.55rem; padding: 3px 5px;">●</span>
-                                        <?php endif; ?>
                                     </button>
                                     <?php endforeach; ?>
                                 </div>
@@ -400,10 +395,8 @@ if (empty($galleryUrls)) {
                                     el.style.cursor = 'pointer';
                                     el.title = '📅 ' + dateStr + '  |  ' + C.lbl + (dep.max_seats ? '  |  ' + dep.max_seats + ' chỗ' : '');
 
-                                    const price = dep.price_adult ? Number(dep.price_adult).toLocaleString('vi-VN') + 'đ' : '';
                                     el.innerHTML =
                                         '<span style="font-size:0.9rem;font-weight:700;color:#1e293b;">' + dayNum + '</span>' +
-                                        (price ? '<span style="font-size:0.63rem;color:' + C.txt + ';font-weight:600;margin-top:2px;text-align:center;">' + price + '</span>' : '') +
                                         '<span style="font-size:0.58rem;font-weight:700;color:' + C.txt + ';margin-top:auto;background:rgba(255,255,255,0.7);border-radius:4px;padding:1px 5px;">' + C.lbl + '</span>';
 
                                     el.addEventListener('mouseenter', () => el.style.transform = 'translateY(-2px)');
@@ -425,13 +418,6 @@ if (empty($galleryUrls)) {
                                 switchMonth(targetMonth);
                                 const btn = document.querySelector('.month-pill[data-month="' + targetMonth + '"]');
                                 if (btn) {
-                                    if (!btn.querySelector('.badge')) {
-                                        const badge = document.createElement('span');
-                                        badge.className = 'position-absolute top-0 end-0 translate-middle badge rounded-pill bg-success';
-                                        badge.style.cssText = 'font-size:0.55rem;padding:3px 5px;';
-                                        badge.textContent = '●';
-                                        btn.appendChild(badge);
-                                    }
                                     btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                                 }
                             }
@@ -686,7 +672,6 @@ if (empty($galleryUrls)) {
                                     <label for="status" class="form-label text-muted fw-medium small mb-1">Trạng thái</label>
                                     <select class="form-select" id="status" name="status">
                                         <option value="open">Open</option>
-                                        <option value="full">Full</option>
                                         <option value="closed">Closed</option>
                                     </select>
                                 </div>
