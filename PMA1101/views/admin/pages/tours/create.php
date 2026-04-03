@@ -509,7 +509,6 @@ $policies = $policies ?? [];
 
     document.getElementById('tour-form').addEventListener('submit', function(e) {
         updateItineraryData();
-        updatePartnerData();
     });
 </script>
 

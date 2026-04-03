@@ -407,7 +407,6 @@ $versions = $versions ?? [];
     let currentStep = 1;
     const totalSteps = 4;
     let itineraryCount = <?= count($itinerarySchedule ?? []) ?>;
-    let itineraryCount = <?= count($itinerarySchedule ?? []) ?>;
 
     document.addEventListener('DOMContentLoaded', function() {
         updateStepDisplay();

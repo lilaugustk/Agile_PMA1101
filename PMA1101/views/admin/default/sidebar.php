@@ -43,12 +43,12 @@ $isGuide = $userRole === 'guide';
         <i class="ph-fill ph-paper-plane-tilt me-3 text-primary"></i> TravelAdmin
     </div>
     <ul class="sidebar-menu overflow-y-auto" style="overflow-x: hidden;">
-        <!-- <?php if ($isAdmin): ?>
+        <?php if ($isAdmin): ?>
             <li class="menu-item">
                 <a class="menu-link <?= $currentAction === 'dashboard' || empty($currentAction) ? 'active' : '' ?>" href="<?= BASE_URL_ADMIN ?>&action=/">
                     <i class="ph ph-squares-four"></i> Tổng quan
                 </a>
-            </li> -->
+            </li>
 
             <li class="menu-item">
                 <a class="menu-link dropdown-toggles d-flex justify-content-between align-items-center <?= isParentActive(['tours', 'policies', 'suppliers', 'tours_categories', 'tours_versions', 'tours_history']) ?>"
@@ -113,7 +113,7 @@ $isGuide = $userRole === 'guide';
                 </ul>
             </div>
         </li>
-<!-- 
+
         <?php if ($isAdmin): ?>
             <li class="menu-item">
                 <a class="menu-link dropdown-toggles d-flex justify-content-between align-items-center <?= isParentActive(['guides', 'bus-companies']) ?>"
@@ -200,6 +200,6 @@ $isGuide = $userRole === 'guide';
                     </ul>
                 </div>
             </li>
-        <?php endif; ?> -->
+        <?php endif; ?>
     </ul>
 </aside>
