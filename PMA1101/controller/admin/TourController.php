@@ -202,11 +202,10 @@ class TourController
             $pricingOptions = json_decode($_POST['tour_pricing_options'] ?? '[]', true);
             $dynamicPricing = json_decode($_POST['version_dynamic_pricing'] ?? '[]', true);
             $itineraries = json_decode($_POST['tour_itinerary'] ?? '[]', true);
-            $partners = json_decode($_POST['tour_partners'] ?? '[]', true);
             $policyIds = $_POST['policies'] ?? [];
 
             // Create tour with all related data including versions
-            $tourId = $this->model->createTour($tourData, $pricingOptions, $dynamicPricing, $itineraries, $partners, $uploadedImages, $policyIds);
+            $tourId = $this->model->createTour($tourData, $pricingOptions, $dynamicPricing, $itineraries, $uploadedImages, $policyIds);
 
             $_SESSION['success'] = 'Tour đã được tạo thành công!';
             header('Location: ' . BASE_URL_ADMIN . '&action=tours');
@@ -260,8 +259,6 @@ class TourController
         $itineraryModel = new TourItinerary();
         $itinerarySchedule = $itineraryModel->select('*', 'tour_id = :tid', ['tid' => $id], 'day_number ASC');
 
-        $partnerModel = new TourPartner();
-        $partnerServices = $partnerModel->getByTourId($id);
 
         $departureModel = new TourDeparture();
         $departures = $departureModel->getByTourId($id);
@@ -503,17 +500,15 @@ class TourController
                 error_log("No gallery images detected for upload");
             }
 
-            // Parse JSON arrays for pricing/itineraries/partners and update related tables
+            // Parse JSON arrays for pricing/itineraries and update related tables
             $pricingOptions = json_decode($_POST['tour_pricing_options'] ?? '[]', true);
             $dynamicPricing = json_decode($_POST['version_dynamic_pricing'] ?? '[]', true);
             $itineraries = json_decode($_POST['tour_itinerary'] ?? '[]', true);
-            $partners = json_decode($_POST['tour_partners'] ?? '[]', true);
 
             // For simplicity: delete existing related rows and re-insert
             $pricingModel = new TourPricing();
             $dynamicPricingModel = new TourDynamicPricing();
             $itineraryModel = new TourItinerary();
-            $partnerModel = new TourPartner();
 
             $pricingModel->delete('tour_id = :tid', ['tid' => $id]);
             foreach ($pricingOptions as $opt) {
@@ -560,17 +555,6 @@ class TourController
                 ]);
             }
 
-            $partnerModel->delete('tour_id = :tid', ['tid' => $id]);
-            foreach ($partners as $p) {
-                $partnerModel->insert([
-                    'tour_id' => $id,
-                    'service_type' => $p['service_type'] ?? 'other',
-                    'partner_name' => $p['partner_name'] ?? '',
-                    'contact' => $p['partner_contact'] ?? '',
-                    'notes' => $p['notes'] ?? '',
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]);
-            }
 
             // Update policies
             $policyAssignmentModel = new TourPolicyAssignment();

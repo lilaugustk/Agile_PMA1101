@@ -186,46 +186,6 @@ $policies = $policies ?? [];
 
                 <!-- Step 4: Final Details -->
                 <div class="form-step d-none" id="step-4">
-                    <!-- Partners -->
-                    <div class="card-premium border-0 shadow-sm bg-white mb-4">
-                        <div class="p-3 px-4 border-bottom border-light d-flex justify-content-between align-items-center">
-                            <h6 class="fw-bold mb-0 text-info d-flex align-items-center gap-2">
-                                <i class="ph-fill ph-handshake"></i> Đối tác dịch vụ
-                            </h6>
-                            <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="supplier-select" style="width: 250px;">
-                                    <option value="">-- Chọn nhà cung cấp --</option>
-                                    <?php if (!empty($suppliers)): ?>
-                                        <?php foreach ($suppliers as $supplier): ?>
-                                            <option value="<?= $supplier['id'] ?>"
-                                                data-name="<?= htmlspecialchars($supplier['name']) ?>"
-                                                data-type="<?= $supplier['type'] ?? '' ?>"
-                                                data-contact="<?= htmlspecialchars($supplier['phone'] ?? $supplier['email'] ?? '') ?>">
-                                                <?= htmlspecialchars($supplier['name']) ?> (<?= strtoupper($supplier['type'] ?? '') ?>)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                                <button type="button" class="btn btn-sm btn-primary shadow-sm" onclick="addPartnerFromSupplier()">
-                                    <i class="ph ph-plus"></i> Thêm
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <!-- Partner Services List -->
-                            <div id="partners-list" class="partners-list d-flex flex-column gap-3">
-                                <!-- Partners will be added here dynamically -->
-                            </div>
-                            <div class="text-center text-muted py-5 bg-light rounded" id="partners-empty" style="border: 2px dashed var(--border-color);">
-                                <i class="ph-fill ph-users text-muted opacity-50 mb-2" style="font-size: 3rem;"></i>
-                                <h6 class="fw-bold text-dark">Chưa có đối tác (xe, khách sạn...)</h6>
-                                <p class="small">Liệt kê các đối tác vệ tinh.</p>
-                                <button type="button" class="btn btn-outline-primary" onclick="addPartner()">
-                                    <i class="ph ph-plus me-1"></i> Thêm đối tác
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Policies -->
                     <div class="card-premium border-0 shadow-sm bg-white">
@@ -390,44 +350,12 @@ $policies = $policies ?? [];
     </div>
 </template>
 
-<template id="partner-template">
-    <div class="partner-item border border-light rounded bg-light p-4 position-relative">
-        <div class="position-absolute top-0 end-0 p-2">
-            <button type="button" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm" onclick="removePartnerItem(this)" style="width: 32px; height: 32px; padding:0;">
-                <i class="ph ph-trash"></i>
-            </button>
-        </div>
-        <h6 class="mb-3 fw-bold text-info">Đối tác dịch vụ</h6>
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label text-muted fw-medium small">Loại dịch vụ</label>
-                <select class="form-select partner-service-type" required>
-                    <option value="">-- Loại dịch vụ --</option>
-                    <option value="hotel">Khách sạn</option>
-                    <option value="transport">Vận chuyển</option>
-                    <option value="restaurant">Nhà hàng</option>
-                    <option value="guide">Hướng dẫn viên</option>
-                    <option value="other">Khác</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label text-muted fw-medium small">Tên đối tác</label>
-                <input type="text" class="form-control partner-name" placeholder="Ví dụ: Khách sạn Mường Thanh..." required>
-            </div>
-            <div class="col-12">
-                <label class="form-label text-muted fw-medium small">Thông tin liên hệ</label>
-                <input type="text" class="form-control partner-contact" placeholder="SĐT, Email..." required>
-            </div>
-        </div>
-    </div>
-</template>
 
 <script>
     // Include the original behavior logic but adapted to Bootstrap 5 + generic DOM
     let currentStep = 1;
     const totalSteps = 4;
     let itineraryCount = 0;
-    let partnerCount = 0;
 
     document.addEventListener('DOMContentLoaded', function() {
         updateStepDisplay();
@@ -540,7 +468,6 @@ $policies = $policies ?? [];
 
     function saveDraft() {
         updateItineraryData();
-        updatePartnerData();
         showToast('Đã lưu bản nháp lúc ' + new Date().toLocaleTimeString(), 'success');
         document.getElementById('autoSaveIndicator').style.opacity = '1';
         document.querySelector('#autoSaveIndicator .fw-bold').textContent = new Date().toLocaleTimeString();
@@ -578,43 +505,6 @@ $policies = $policies ?? [];
             });
         });
         document.getElementById('tour_itinerary').value = JSON.stringify(arr);
-    }
-
-    function addPartner() {
-        partnerCount++;
-        const template = document.getElementById('partner-template');
-        document.getElementById('partners-list').appendChild(template.content.cloneNode(true));
-        document.getElementById('partners-empty').style.display = 'none';
-        updatePartnerData();
-    }
-    function removePartnerItem(btn) {
-        btn.closest('.partner-item').remove();
-        partnerCount--;
-        if (partnerCount === 0) document.getElementById('partners-empty').style.display = 'block';
-        updatePartnerData();
-    }
-    function addPartnerFromSupplier() {
-        const sel = document.getElementById('supplier-select');
-        const opt = sel.options[sel.selectedIndex];
-        if(!opt.value) return;
-        addPartner();
-        const items = document.querySelectorAll('.partner-item');
-        const last = items[items.length - 1];
-        last.querySelector('.partner-service-type').value = opt.dataset.type === 'transport' ? 'transport' : (opt.dataset.type === 'hotel' ? 'hotel' : 'restaurant');
-        last.querySelector('.partner-name').value = opt.dataset.name;
-        last.querySelector('.partner-contact').value = opt.dataset.contact;
-        updatePartnerData();
-    }
-    function updatePartnerData() {
-        const arr = [];
-        document.querySelectorAll('.partner-item').forEach(item => {
-            arr.push({
-                service_type: item.querySelector('.partner-service-type').value,
-                name: item.querySelector('.partner-name').value,
-                contact: item.querySelector('.partner-contact').value
-            });
-        });
-        document.getElementById('tour_partners').value = JSON.stringify(arr);
     }
 
     document.getElementById('tour-form').addEventListener('submit', function(e) {

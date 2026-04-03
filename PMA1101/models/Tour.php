@@ -281,7 +281,7 @@ class Tour extends BaseModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createTour($tourData, $pricingOptions = [], $dynamicPricing = [], $itineraries = [], $partners = [], $uploadedImages = [], $policyIds = [], $versions = [])
+    public function createTour($tourData, $pricingOptions = [], $dynamicPricing = [], $itineraries = [], $uploadedImages = [], $policyIds = [], $versions = [])
     {
         $this->beginTransaction(); // BẮT ĐẦU TRANSACTION
         try {
@@ -369,21 +369,6 @@ class Tour extends BaseModel
                         'image_url' => $image['path'],
                         'caption' => '',
                         'sort_order' => $index + 1,
-                        'created_at' => date('Y-m-d H:i:s'),
-                    ]);
-                }
-            }
-
-            // 5. INSERT PARTNERS
-            if (!empty($partners)) {
-                $partnerModel = new TourPartner();
-                foreach ($partners as $partner) {
-                    $partnerModel->insert([
-                        'tour_id' => $tourId,
-                        'service_type' => $partner['service_type'] ?? 'other',
-                        'partner_name' => $partner['name'] ?? '',
-                        'contact' => $partner['contact'] ?? '',
-                        'notes' => $partner['notes'] ?? '',
                         'created_at' => date('Y-m-d H:i:s'),
                     ]);
                 }

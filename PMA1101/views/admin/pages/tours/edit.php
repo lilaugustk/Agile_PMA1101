@@ -277,74 +277,6 @@ $versions = $versions ?? [];
                 <!-- Step 4: Final Details -->
                 <div class="form-step d-none" id="step-4">
                     <!-- Partners -->
-                    <div class="card-premium border-0 shadow-sm bg-white mb-4">
-                        <div class="p-3 px-4 border-bottom border-light d-flex justify-content-between align-items-center">
-                            <h6 class="fw-bold mb-0 text-info d-flex align-items-center gap-2">
-                                <i class="ph-fill ph-handshake"></i> Đối tác dịch vụ
-                            </h6>
-                            <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="supplier-select" style="width: 250px;">
-                                    <option value="">-- Chọn nhà cung cấp mẫu --</option>
-                                    <?php if (!empty($suppliers)): ?>
-                                        <?php foreach ($suppliers as $supplier): ?>
-                                            <option value="<?= $supplier['id'] ?>"
-                                                data-name="<?= htmlspecialchars($supplier['name']) ?>"
-                                                data-type="<?= $supplier['type'] ?? '' ?>"
-                                                data-contact="<?= htmlspecialchars($supplier['phone'] ?? $supplier['email'] ?? '') ?>">
-                                                <?= htmlspecialchars($supplier['name']) ?> (<?= strtoupper($supplier['type'] ?? '') ?>)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                                <button type="button" class="btn btn-sm btn-primary shadow-sm" onclick="addPartnerFromSupplier()">
-                                    <i class="ph ph-plus"></i> Thêm
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <!-- Partner Services List -->
-                            <div id="partners-list" class="partners-list d-flex flex-column gap-3">
-                                <?php if (!empty($partnerServices)): ?>
-                                    <?php foreach ($partnerServices as $index => $partner): ?>
-                                        <div class="partner-item border border-light bg-light rounded p-4 position-relative">
-                                            <div class="position-absolute top-0 end-0 p-2">
-                                                <button type="button" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm" onclick="removePartnerItem(this)" style="width: 32px; height: 32px; padding:0;">
-                                                    <i class="ph ph-trash"></i>
-                                                </button>
-                                            </div>
-                                            <h6 class="mb-3 fw-bold text-info">Đối tác dịch vụ</h6>
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <label class="form-label fw-medium text-muted small">Loại dịch vụ</label>
-                                                    <select class="form-select partner-service-type" required>
-                                                        <option value="">-- Chọn --</option>
-                                                        <option value="hotel" <?= ($partner['service_type'] ?? '') === 'hotel' ? 'selected' : '' ?>>Khách sạn</option>
-                                                        <option value="transport" <?= ($partner['service_type'] ?? '') === 'transport' ? 'selected' : '' ?>>Vận chuyển</option>
-                                                        <option value="restaurant" <?= ($partner['service_type'] ?? '') === 'restaurant' ? 'selected' : '' ?>>Nhà hàng</option>
-                                                        <option value="guide" <?= ($partner['service_type'] ?? '') === 'guide' ? 'selected' : '' ?>>Hướng dẫn viên</option>
-                                                        <option value="other" <?= ($partner['service_type'] ?? '') === 'other' ? 'selected' : '' ?>>Khác</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label fw-medium text-muted small">Tên đối tác</label>
-                                                    <input type="text" class="form-control partner-name" value="<?= htmlspecialchars($partner['partner_name']) ?>" required>
-                                                </div>
-                                                <div class="col-12">
-                                                    <label class="form-label fw-medium text-muted small">Thông tin liên hệ</label>
-                                                    <input type="text" class="form-control partner-contact" value="<?= htmlspecialchars($partner['contact'] ?? '') ?>" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </div>
-                            <div class="text-center text-muted py-4 bg-light mt-3" id="partners-empty" style="border: 2px dashed var(--border-color); <?= !empty($partnerServices) ? 'display: none;' : '' ?>">
-                                <i class="ph-fill ph-users opacity-50 mb-2" style="font-size: 3rem;"></i>
-                                <h6 class="fw-bold text-dark">Chưa có đối tác vệ tinh nào</h6>
-                                <button type="button" class="btn btn-outline-primary mt-2" onclick="addPartner()"><i class="ph ph-plus me-1"></i> Thêm đối tác</button>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Policies -->
                     <div class="card-premium border-0 shadow-sm bg-white">
@@ -470,43 +402,12 @@ $versions = $versions ?? [];
     </div>
 </template>
 
-<template id="partner-template">
-    <div class="partner-item border border-light bg-light rounded p-4 position-relative">
-        <div class="position-absolute top-0 end-0 p-2">
-            <button type="button" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm" onclick="removePartnerItem(this)" style="width: 32px; height: 32px; padding:0;">
-                <i class="ph ph-trash"></i>
-            </button>
-        </div>
-        <h6 class="mb-3 fw-bold text-info">Đối tác dịch vụ</h6>
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label fw-medium text-muted small">Loại dịch vụ</label>
-                <select class="form-select partner-service-type" required>
-                    <option value="">-- Chọn --</option>
-                    <option value="hotel">Khách sạn</option>
-                    <option value="transport">Vận chuyển</option>
-                    <option value="restaurant">Nhà hàng</option>
-                    <option value="guide">Hướng dẫn viên</option>
-                    <option value="other">Khác</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label fw-medium text-muted small">Tên đối tác</label>
-                <input type="text" class="form-control partner-name" required>
-            </div>
-            <div class="col-12">
-                <label class="form-label fw-medium text-muted small">Thông tin liên hệ</label>
-                <input type="text" class="form-control partner-contact" required>
-            </div>
-        </div>
-    </div>
-</template>
 
 <script>
     let currentStep = 1;
     const totalSteps = 4;
     let itineraryCount = <?= count($itinerarySchedule ?? []) ?>;
-    let partnerCount = <?= count($partnerServices ?? []) ?>;
+    let itineraryCount = <?= count($itinerarySchedule ?? []) ?>;
 
     document.addEventListener('DOMContentLoaded', function() {
         updateStepDisplay();
@@ -571,7 +472,6 @@ $versions = $versions ?? [];
 
     function saveDraft() {
         updateItineraryData();
-        updatePartnerData();
         const indicator = document.getElementById('autoSaveIndicator');
         indicator.style.opacity = '1';
         indicator.querySelector('.fw-bold').innerText = new Date().toLocaleTimeString();
@@ -711,47 +611,8 @@ $versions = $versions ?? [];
         document.getElementById('tour_itinerary').value = JSON.stringify(arr);
     }
 
-    function addPartner() {
-        partnerCount++;
-        const template = document.getElementById('partner-template');
-        document.getElementById('partners-list').appendChild(template.content.cloneNode(true));
-        document.getElementById('partners-empty').style.display = 'none';
-        updatePartnerData();
-    }
-    function removePartnerItem(btn) {
-        btn.closest('.partner-item').remove();
-        partnerCount--;
-        if (partnerCount === 0) document.getElementById('partners-empty').style.display = 'block';
-        updatePartnerData();
-    }
-    function addPartnerFromSupplier() {
-        const select = document.getElementById('supplier-select');
-        const selected = select.options[select.selectedIndex];
-        if (!selected.value) return showToast('Chưa chọn nhà cung cấp', 'warning');
-        addPartner();
-        const items = document.querySelectorAll('.partner-item');
-        const last = items[items.length - 1];
-        last.querySelector('.partner-service-type').value = selected.dataset.type === 'hotel' ? 'hotel' : (selected.dataset.type === 'transport' ? 'transport' : 'other');
-        last.querySelector('.partner-name').value = selected.dataset.name;
-        last.querySelector('.partner-contact').value = selected.dataset.contact;
-        updatePartnerData();
-        select.selectedIndex = 0;
-    }
-    function updatePartnerData() {
-        const arr = [];
-        document.querySelectorAll('.partner-item').forEach(item => {
-            arr.push({
-                service_type: item.querySelector('.partner-service-type').value,
-                partner_name: item.querySelector('.partner-name').value,
-                contact: item.querySelector('.partner-contact').value
-            });
-        });
-        document.getElementById('tour_partners').value = JSON.stringify(arr);
-    }
-
     document.getElementById('tour-edit-form').addEventListener('submit', function(e) {
         updateItineraryData();
-        updatePartnerData();
     });
 </script>
 
