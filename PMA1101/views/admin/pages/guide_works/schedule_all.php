@@ -42,7 +42,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 <?php if (empty($group['assignments'])): ?>
                     <div class="text-center py-4 bg-light rounded" style="border: 1px dashed #e2e8f0; border-radius: var(--radius-md) !important;">
                         <i class="ph ph-calendar-blank text-muted fs-2 mb-2"></i>
-                        <p class="text-muted mb-0 small">Chưa có tour nào được phân công cho hướng dẫn viên này.</p>
+                        <p class="text-muted mb-0 small">Chưa có tour nào được phân công cho Guide này.</p>
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -165,7 +165,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 const tourName = this.dataset.tourName;
                 const guideName = this.dataset.guideName;
 
-                if (confirm(`Bạn có chắc muốn xóa phân công tour "${tourName}" của HDV "${guideName}"?`)) {
+                if (confirm(`Bạn có chắc muốn xóa phân công tour "${tourName}" của Guide "${guideName}"?`)) {
                     // Disable button và hiển thị loading
                     this.disabled = true;
                     this.innerHTML = '<i class="ph ph-spinner ph-spin"></i>';

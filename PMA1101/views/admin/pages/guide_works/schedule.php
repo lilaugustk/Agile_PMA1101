@@ -16,7 +16,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         </div>
         <div>
             <a href="<?= BASE_URL_ADMIN ?>&action=guide/schedule_all" class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);">
-                <i class="ph ph-users" style="font-size: 1.1rem;"></i> Xem tất cả HDV
+                <i class="ph ph-users" style="font-size: 1.1rem;"></i> Xem tất cả Guide
             </a>
         </div>
     </div>

@@ -9,18 +9,18 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
                     <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=/" class="text-muted text-decoration-none"><i class="ph ph-house me-1"></i> Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=guides" class="text-muted text-decoration-none">Quản lý HDV</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Thêm HDV mới</li>
+                    <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=guides" class="text-muted text-decoration-none">Quản lý Guide</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Thêm Guide mới</li>
                 </ol>
             </nav>
-            <h4 class="fw-bold mb-0 mt-1" style="font-size: 1.25rem; letter-spacing: -0.5px;">Thêm hướng dẫn viên</h4>
+            <h4 class="fw-bold mb-0 mt-1" style="font-size: 1.25rem; letter-spacing: -0.5px;">Thêm Guide</h4>
         </div>
         <div class="d-flex gap-2">
             <a href="<?= BASE_URL_ADMIN ?>&action=guides" class="btn btn-light d-flex align-items-center gap-2 px-3 py-2 border shadow-sm" style="border-radius: var(--radius-md);">
                 <i class="ph ph-x" style="font-size: 1.1rem;"></i> Hủy bỏ
             </a>
             <button type="submit" form="guide-form" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);">
-                <i class="ph ph-floppy-disk" style="font-size: 1.1rem;"></i> Lưu HDV
+                <i class="ph ph-floppy-disk" style="font-size: 1.1rem;"></i> Lưu Guide
             </button>
         </div>
     </div>
@@ -141,7 +141,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                             <div class="card-body p-4">
                                 <div class="row g-4">
                                     <div class="col-md-6">
-                                        <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Loại hướng dẫn viên</label>
+                                        <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Loại Guide</label>
                                         <select class="form-select form-select-sm shadow-none" id="guide_type" name="guide_type" style="border-radius: 8px;">
                                             <option value="domestic">Nội địa</option>
                                             <option value="international">Quốc tế</option>
@@ -177,7 +177,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 
                                     <div class="col-12">
                                         <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Ghi chú bổ sung</label>
-                                        <textarea class="form-control shadow-none" id="notes" name="notes" style="height: 100px; border-radius: 8px;" placeholder="Thông tin khác về HDV..."></textarea>
+                                        <textarea class="form-control shadow-none" id="notes" name="notes" style="height: 100px; border-radius: 8px;" placeholder="Thông tin khác về Guide..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -192,7 +192,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                     </div>
                                     <div>
                                         <h6 class="fw-bold mb-1">Cài đặt tài khoản</h6>
-                                        <p class="mb-0 small text-muted">Mật khẩu khởi tạo mặc định là <strong class="text-dark">123456</strong>. Hướng dẫn viên có thể chủ động thay đổi sau khi đăng nhập thành công.</p>
+                                        <p class="mb-0 small text-muted">Mật khẩu khởi tạo mặc định là <strong class="text-dark">123456</strong>. Guide có thể chủ động thay đổi sau khi đăng nhập thành công.</p>
                                     </div>
                                 </div>
                             </div>
@@ -209,7 +209,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         <div class="card-body p-4">
                             <div class="d-grid gap-2 mb-4">
                                 <button type="submit" form="guide-form" class="btn btn-primary d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm" style="border-radius: 10px;">
-                                    <i class="ph ph-floppy-disk fs-5"></i> <span class="fw-bold">Tạo hướng dẫn viên</span>
+                                    <i class="ph ph-floppy-disk fs-5"></i> <span class="fw-bold">Tạo Guide</span>
                                 </button>
                                 <a href="<?= BASE_URL_ADMIN ?>&action=guides" class="btn btn-light d-flex align-items-center justify-content-center gap-2 py-2 border shadow-sm" style="border-radius: 10px;">
                                     <i class="ph ph-x fs-5"></i> Hủy

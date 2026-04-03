@@ -14,7 +14,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             </nav>
             <h3 class="fw-bold mb-0 mt-1" style="letter-spacing: -0.5px;">Tour Khả Dụng</h3>
         </div>
-        <p class="text-muted small mb-0 d-none d-md-block">Danh sách tour chưa có HDV phụ trách - Bạn có thể nhận tour để quản lý</p>
+        <p class="text-muted small mb-0 d-none d-md-block">Danh sách tour chưa có Guide phụ trách - Bạn có thể nhận tour để quản lý</p>
     </div>
 
     <!-- Alert Messages -->
@@ -152,9 +152,9 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                 ?>
                                     <!-- Admin: Guide Assignment Dropdown -->
                                     <div class="p-3 bg-light rounded-3 mb-3 border border-light">
-                                        <label class="form-label small text-muted fw-bold text-uppercase mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">Phân công Hướng dẫn viên</label>
+                                        <label class="form-label small text-muted fw-bold text-uppercase mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">Phân công Guide</label>
                                         <select class="form-select form-select-sm border-0 shadow-sm mb-3" id="guide-select-<?= $tour['id'] ?>" style="min-height: 38px; border-radius: 8px;">
-                                            <option value="">-- Chọn HDV --</option>
+                                            <option value="">-- Chọn Guide --</option>
                                             <?php foreach ($guides as $guide): ?>
                                                 <option value="<?= $guide['id'] ?>">
                                                     <?= htmlspecialchars($guide['full_name']) ?>
@@ -198,7 +198,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                     <i class="ph ph-map-pin-line text-muted" style="font-size: 2.5rem;"></i>
                 </div>
                 <h5 class="fw-bold text-dark">Không có tour khả dụng</h5>
-                <p class="text-muted mx-auto" style="max-width: 400px;">Hiện tại tất cả tour đã có HDV phụ trách. Vui lòng quay lại sau hoặc kiểm tra các tour khác.</p>
+                <p class="text-muted mx-auto" style="max-width: 400px;">Hiện tại tất cả tour đã có Guide phụ trách. Vui lòng quay lại sau hoặc kiểm tra các tour khác.</p>
                 <a href="<?= BASE_URL_ADMIN ?>&action=/" class="btn btn-light border px-4 mt-2">Quay lại Dashboard</a>
             </div>
         </div>
@@ -260,14 +260,14 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 const guideId = guideSelect.value;
 
                 if (!guideId) {
-                    alert('⚠️ Vui lòng chọn HDV trước khi phân công!');
+                    alert('⚠️ Vui lòng chọn Guide trước khi phân công!');
                     guideSelect.focus();
                     return;
                 }
 
                 const guideName = guideSelect.options[guideSelect.selectedIndex].text;
 
-                if (confirm(`Phân công HDV "${guideName}" cho tour "${tourName}"?`)) {
+                if (confirm(`Phân công Guide "${guideName}" cho tour "${tourName}"?`)) {
                     // Disable button và hiển thị loading
                     this.disabled = true;
                     this.innerHTML = '<i class="ph ph-spinner fa-spin me-2"></i>Đang phân công...';
@@ -293,7 +293,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('❌ Có lỗi xảy ra khi phân công HDV!');
+                            alert('❌ Có lỗi xảy ra khi phân công Guide!');
                             this.disabled = false;
                             this.innerHTML = '<i class="ph-fill ph-user-check me-2"></i>Phân công ngay';
                         });

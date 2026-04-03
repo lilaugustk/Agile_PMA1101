@@ -24,12 +24,12 @@ $rating = $guide['rating'] ?? 4.5;
                         </span>
                         <a href="<?= BASE_URL_ADMIN ?>&action=guides" class="breadcrumb-link">
                             <i class="fas fa-user-tie"></i>
-                            <span>Quản lý HDV</span>
+                            <span>Quản lý Guide</span>
                         </a>
                         <span class="breadcrumb-separator">
                             <i class="fas fa-chevron-right"></i>
                         </span>
-                        <span class="breadcrumb-current">Chi tiết HDV</span>
+                        <span class="breadcrumb-current">Chi tiết Guide</span>
                     </div>
                     
                 </div>
@@ -130,7 +130,7 @@ $rating = $guide['rating'] ?? 4.5;
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="info-item">
-                                    <label class="info-label">Loại hướng dẫn viên</label>
+                                    <label class="info-label">Loại Guide</label>
                                     <div class="info-value">
                                         <?php
                                         $typeMap = [
@@ -216,7 +216,7 @@ $rating = $guide['rating'] ?? 4.5;
                             </div>
                         <?php endif; ?>
                         <h5><?= htmlspecialchars($guide['full_name']) ?></h5>
-                        <p class="text-muted mb-2">Hướng dẫn viên</p>
+                        <p class="text-muted mb-2">Guide</p>
                         <div class="rating mb-2">
                             <?php for ($i = 1; $i <= 5; $i++): ?>
                                 <i class="fas fa-star <?= $i <= $rating ? 'text-warning' : 'text-muted' ?>"></i>

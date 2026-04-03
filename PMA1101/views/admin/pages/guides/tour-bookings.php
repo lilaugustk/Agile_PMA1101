@@ -54,7 +54,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         </div>
                         <div class="col-md-6">
                             <p><strong>Tổng booking:</strong> <span class="badge bg-primary"><?= count($bookings) ?></span></p>
-                            <p><strong>Booking chưa có HDV:</strong> <span class="badge bg-warning"><?= count($bookings) ?></span></p>
+                            <p><strong>Booking chưa có Guide:</strong> <span class="badge bg-warning"><?= count($bookings) ?></span></p>
                         </div>
                     </div>
                 </div>
@@ -152,7 +152,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 <?php else: ?>
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        Không có booking nào cần phân công HDV
+                        Không có booking nào cần phân công Guide
                     </div>
                 <?php endif; ?>
             </div>

@@ -9,13 +9,13 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
                     <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=/" class="text-muted text-decoration-none"><i class="ph ph-house me-1"></i> Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Quản lý HDV</li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản lý Guide</li>
                 </ol>
             </nav>
         </div>
         <div>
             <a href="<?= BASE_URL_ADMIN . '&action=guides/create' ?>" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);">
-                <i class="ph ph-plus-circle" style="font-size: 1.1rem;"></i> Thêm HDV Mới
+                <i class="ph ph-plus-circle" style="font-size: 1.1rem;"></i> Thêm Guide Mới
             </a>
         </div>
     </div>
@@ -45,7 +45,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 <div class="col-12 col-md-6 col-xl-3">
                     <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
                         <div>
-                            <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Tổng HDV</p>
+                            <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Tổng Guide</p>
                             <h3 class="fw-bold mb-0" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= number_format(count($guides)) ?></h3>
                         </div>
                 <div class="d-flex align-items-center justify-content-center text-primary border border-primary-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--primary-subtle);">
@@ -160,10 +160,10 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         <div class="card card-premium border-0 shadow-sm overflow-hidden mb-4">
             <div class="p-3 border-bottom border-light bg-white d-flex justify-content-between align-items-center">
                 <h6 class="fw-bold mb-0 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
-                    <i class="ph-fill ph-list-bullets text-primary"></i> Danh sách Hướng Dẫn Viên
+                    <i class="ph-fill ph-list-bullets text-primary"></i> Danh sách Guide
                 </h6>
                 <div class="count-info badge bg-light text-muted border px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
-                    <?= count($guides) ?> HDV
+                    <?= count($guides) ?> Guide
                 </div>
             </div>
 
@@ -226,7 +226,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                             <div class="d-flex justify-content-end gap-1">
                                                 <a href="<?= BASE_URL_ADMIN . '&action=guides/detail&id=' . $guide['id'] ?>" class="btn btn-sm bg-white text-info border shadow-sm" title="Chi tiết"><i class="ph ph-eye"></i></a>
                                                 <a href="<?= BASE_URL_ADMIN . '&action=guides/edit&id=' . $guide['id'] ?>" class="btn btn-sm bg-white text-primary border shadow-sm" title="Sửa"><i class="ph ph-pencil-simple"></i></a>
-                                                <a href="<?= BASE_URL_ADMIN . '&action=guides/delete&id=' . $guide['id'] ?>" class="btn btn-sm bg-white text-danger border shadow-sm" onclick="return confirm('Xóa hướng dẫn viên này?')" title="Xóa"><i class="ph ph-trash"></i></a>
+                                                <a href="<?= BASE_URL_ADMIN . '&action=guides/delete&id=' . $guide['id'] ?>" class="btn btn-sm bg-white text-danger border shadow-sm" onclick="return confirm('Xóa guide này?')" title="Xóa"><i class="ph ph-trash"></i></a>
                                             </div>
                                         </td>
                                     </tr>
@@ -239,10 +239,10 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         <div class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light mb-3" style="width: 80px; height: 80px;">
                             <i class="ph ph-user-tie text-muted" style="font-size: 2.5rem;"></i>
                         </div>
-                        <h5 class="fw-bold text-dark">Chưa có hướng dẫn viên nào</h5>
-                        <p class="text-muted">Bắt đầu bằng cách thêm hướng dẫn viên đầu tiên vào hệ thống.</p>
+                        <h5 class="fw-bold text-dark">Chưa có guide nào</h5>
+                        <p class="text-muted">Bắt đầu bằng cách thêm guide đầu tiên vào hệ thống.</p>
                         <a href="<?= BASE_URL_ADMIN . '&action=guides/create' ?>" class="btn btn-primary mt-2 px-4 shadow-sm">
-                            <i class="ph ph-plus-circle me-1"></i> Thêm HDV Mới
+                            <i class="ph ph-plus-circle me-1"></i> Thêm Guide Mới
                         </a>
                     </div>
                 <?php endif; ?>
@@ -311,7 +311,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         // Update count
         const countElement = document.querySelector('.count-info');
         if (countElement) {
-            countElement.textContent = visibleCount + ' HDV';
+            countElement.textContent = visibleCount + ' Guide';
         }
     }
 

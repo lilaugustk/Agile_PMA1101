@@ -185,7 +185,7 @@ $statusColors = [
               <?php else: ?>
                 <div class="alert bg-warning-subtle text-warning border-0 d-flex align-items-center gap-3 p-3 mb-0" style="border-radius: 12px;">
                   <i class="ph-fill ph-warning-circle fs-3"></i>
-                  <div class="small fw-medium">Chưa có phân công HDV cho tour này.</div>
+                  <div class="small fw-medium">Chưa có phân công Guide cho tour này.</div>
                 </div>
               <?php endif; ?>
             </div>

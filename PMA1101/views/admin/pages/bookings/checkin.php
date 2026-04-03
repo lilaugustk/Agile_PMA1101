@@ -157,7 +157,7 @@ $statusColors = [
                                     <th>Giới tính</th>
                                     <th>Trạng thái</th>
                                     <th>Thời gian</th>
-                                    <th>HDV</th>
+                                    <th>Guide</th>
                                     <th width="150">Thao tác</th>
                                 </tr>
                             </thead>

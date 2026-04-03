@@ -52,7 +52,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                 <p class="fs-5"><?= date('d/m/Y', strtotime($log['date'])) ?></p>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-muted">Hướng dẫn viên</label>
+                                <label class="form-label fw-bold text-muted">Guide</label>
                                 <p class="fs-5"><?= htmlspecialchars($log['guide_name'] ?? 'N/A') ?></p>
                             </div>
                         </div>
@@ -139,7 +139,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 <?php if (isset($log['guide_rating']) && $log['guide_rating'] > 0): ?>
                     <div class="card shadow-sm border-0 mb-4">
                         <div class="card-body text-center">
-                            <label class="form-label fw-bold text-muted">Tự đánh giá HDV</label>
+                            <label class="form-label fw-bold text-muted">Tự đánh giá Guide</label>
                             <div class="display-4 text-warning my-3">
                                 <?= $log['guide_rating'] ?> <i class="fas fa-star"></i>
                             </div>

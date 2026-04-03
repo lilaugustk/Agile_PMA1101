@@ -9,11 +9,11 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
                     <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=/" class="text-muted text-decoration-none"><i class="ph ph-house me-1"></i> Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=guides" class="text-muted text-decoration-none">Quản lý HDV</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa HDV</li>
+                    <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=guides" class="text-muted text-decoration-none">Quản lý Guide</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa Guide</li>
                 </ol>
             </nav>
-            <h4 class="fw-bold mb-0 mt-1" style="font-size: 1.25rem; letter-spacing: -0.5px;">Chỉnh sửa hướng dẫn viên</h4>
+            <h4 class="fw-bold mb-0 mt-1" style="font-size: 1.25rem; letter-spacing: -0.5px;">Chỉnh sửa Guide</h4>
         </div>
         <div class="d-flex gap-2">
             <a href="<?= BASE_URL_ADMIN ?>&action=guides" class="btn btn-light d-flex align-items-center gap-2 px-3 py-2 border shadow-sm" style="border-radius: var(--radius-md);">
@@ -178,7 +178,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                             <div class="card-body p-4">
                                 <div class="row g-4">
                                     <div class="col-md-6">
-                                        <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Loại hướng dẫn viên</label>
+                                        <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Loại Guide</label>
                                         <select class="form-select form-select-sm shadow-none" id="guide_type" name="guide_type" style="border-radius: 8px;">
                                             <option value="domestic" <?= ($guide['guide_type'] ?? '') == 'domestic' ? 'selected' : '' ?>>Nội địa</option>
                                             <option value="international" <?= ($guide['guide_type'] ?? '') == 'international' ? 'selected' : '' ?>>Quốc tế</option>
