@@ -191,12 +191,6 @@ if (empty($galleryUrls)) {
                                                 <h6 class="fw-bold text-dark mb-0" style="font-size: 1rem;">
                                                     <?= htmlspecialchars($item['title'] ?? 'Lịch trình ngày ' . ($index + 1)) ?>
                                                 </h6>
-                                                <?php if (!empty($item['time_start'])): ?>
-                                                    <span class="badge bg-primary-subtle text-primary border-0 fw-bold d-flex align-items-center gap-1.5 py-1.5 px-3" style="font-size: 0.75rem; border-radius: 8px;">
-                                                        <i class="ph-fill ph-clock"></i>
-                                                        <?= date('H:i', strtotime($item['time_start'])) ?> - <?= date('H:i', strtotime($item['time_end'])) ?>
-                                                    </span>
-                                                <?php endif; ?>
                                             </div>
                                             <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
                                                 <?= htmlspecialchars($item['description'] ?? '') ?>

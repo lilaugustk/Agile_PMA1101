@@ -244,17 +244,9 @@ $versions = $versions ?? [];
                                             </div>
                                             <h6 class="mb-3 fw-bold text-primary">Ngày <span class="day-number"><?= $itinerary['day_number'] ?></span>: <?= htmlspecialchars($itinerary['day_label']) ?></h6>
                                             <div class="row g-3">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <label class="form-label fw-medium text-muted small">Tiêu đề</label>
                                                     <input type="text" class="form-control itinerary-title" value="<?= htmlspecialchars($itinerary['title'] ?? '') ?>" required>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <label class="form-label fw-medium text-muted small">Bắt đầu</label>
-                                                    <input type="time" class="form-control itinerary-time-start" value="<?= $itinerary['time_start'] ?>">
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <label class="form-label fw-medium text-muted small">Kết thúc</label>
-                                                    <input type="time" class="form-control itinerary-time-end" value="<?= $itinerary['time_end'] ?? '' ?>">
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="form-label fw-medium text-muted small">Mô tả chi tiết</label>
@@ -466,17 +458,9 @@ $versions = $versions ?? [];
         </div>
         <h6 class="mb-3 fw-bold text-primary">Ngày <span class="day-number"></span></h6>
         <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <label class="form-label fw-medium text-muted small">Tiêu đề</label>
                 <input type="text" class="form-control itinerary-title" placeholder="Ví dụ: Bay tới Nha Trang..." required>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label fw-medium text-muted small">Bắt đầu</label>
-                <input type="time" class="form-control itinerary-time-start">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label fw-medium text-muted small">Kết thúc</label>
-                <input type="time" class="form-control itinerary-time-end">
             </div>
             <div class="col-12">
                 <label class="form-label fw-medium text-muted small">Mô tả chi tiết</label>
@@ -721,8 +705,6 @@ $versions = $versions ?? [];
                 day_number: index + 1,
                 day_label: `Ngày ${index + 1}`,
                 title: item.querySelector('.itinerary-title').value,
-                time_start: item.querySelector('.itinerary-time-start').value,
-                time_end: item.querySelector('.itinerary-time-end').value,
                 activities: item.querySelector('.itinerary-description').value
             });
         });

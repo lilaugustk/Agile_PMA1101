@@ -378,17 +378,9 @@ $policies = $policies ?? [];
         </div>
         <h6 class="mb-3 fw-bold text-primary">Ngày <span class="day-number"></span></h6>
         <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <label class="form-label text-muted fw-medium small">Tiêu đề</label>
                 <input type="text" class="form-control itinerary-title" placeholder="VD: Khởi hành đi Đà Nẵng" required>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label text-muted fw-medium small">Bắt đầu</label>
-                <input type="time" class="form-control itinerary-time-start">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label text-muted fw-medium small">Kết thúc</label>
-                <input type="time" class="form-control itinerary-time-end">
             </div>
             <div class="col-12">
                 <label class="form-label text-muted fw-medium small">Mô tả chi tiết</label>
@@ -582,8 +574,6 @@ $policies = $policies ?? [];
                 day_number: index + 1,
                 day_label: `Ngày ${index + 1}`,
                 title: item.querySelector('.itinerary-title').value,
-                time_start: item.querySelector('.itinerary-time-start').value,
-                time_end: item.querySelector('.itinerary-time-end').value,
                 description: item.querySelector('.itinerary-description').value
             });
         });
