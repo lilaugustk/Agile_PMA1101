@@ -42,7 +42,7 @@ $actionUrl = BASE_URL_ADMIN . '&action=suppliers/' . ($isEdit ? 'update' : 'stor
         <?php endif; ?>
 
         <!-- Supplier Form -->
-        <form method="POST" action="<?= $actionUrl ?>" id="supplier-form">
+        <form method="POST" action="<?= $actionUrl ?>" id="supplier-form" enctype="multipart/form-data">
             <?php if ($isEdit): ?>
                 <input type="hidden" name="id" value="<?= $supplier['id'] ?>">
             <?php endif; ?>
@@ -84,27 +84,54 @@ $actionUrl = BASE_URL_ADMIN . '&action=suppliers/' . ($isEdit ? 'update' : 'stor
                                     </div>
                                     </div>
                                     <!-- Contracts Card -->
+                                    <div class="card mb-4 border-primary shadow-sm">
+                                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                            <h5 class="card-title mb-0">
+                                                <i class="fas fa-file-signature me-2"></i>
+                                                Hợp đồng Gốc (File PDF/DOC)
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="contract_file" class="form-label fw-bold">Tải lên file hợp đồng chính thức</label>
+                                                <input type="file" class="form-control" id="contract_file" name="contract_file" accept=".pdf,.doc,.docx,.jpg,.png">
+                                                <div class="form-text mt-2 text-muted">
+                                                    <?php if (!empty($supplier['contract_file'])): ?>
+                                                        <span class="text-success"><i class="fas fa-check-circle"></i> Hiện đã có file: 
+                                                            <a href="<?= BASE_URL . 'assets/uploads/contracts/' . $supplier['contract_file'] ?>" target="_blank" class="text-decoration-none fw-bold">
+                                                                <?= $supplier['contract_file'] ?>
+                                                            </a>
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <i class="fas fa-info-circle me-1"></i> Chấp nhận PDF, DOC, DOCX hoặc ảnh chụp hợp đồng.
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Multiple Contracts Items Card -->
                                     <div class="card mb-4">
                                         <div class="card-header">
                                             <h5 class="card-title mb-0">
-                                                <i class="fas fa-file-contract text-info me-2"></i>
-                                                Hợp đồng
+                                                <i class="fas fa-list-ul text-info me-2"></i>
+                                                Chi tiết các hạng mục / Phụ lục
                                             </h5>
                                         </div>
                                         <div class="card-body">
                                             <div id="contracts-wrapper">
                                                 <?php if (!empty($contracts) && is_array($contracts)): ?>
                                                     <?php foreach ($contracts as $i => $c): ?>
-                                                        <div class="contract-item border rounded p-3 mb-3" data-idx="<?= $i ?>">
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                <strong>Hợp đồng #<?= $i + 1 ?></strong>
+                                                        <div class="contract-item border rounded p-3 mb-3 shadow-sm bg-light-subtle" data-idx="<?= $i ?>">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-light">
+                                                                <span class="badge bg-secondary">Hạng mục #<?= $i + 1 ?></span>
                                                                 <button type="button" class="btn btn-sm btn-outline-danger remove-contract">Xóa</button>
                                                             </div>
                                                             <div class="row g-2">
                                                                 <div class="col-md-6">
                                                                     <div class="form-floating">
                                                                         <input type="text" class="form-control" name="contracts[<?= $i ?>][name]" placeholder=" " value="<?= htmlspecialchars($c['contract_name'] ?? '') ?>">
-                                                                        <label>Tiêu đề hợp đồng</label>
+                                                                        <label>Tiêu đề phụ lục</label>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-3">
@@ -119,29 +146,16 @@ $actionUrl = BASE_URL_ADMIN . '&action=suppliers/' . ($isEdit ? 'update' : 'stor
                                                                         <label>Ngày kết thúc</label>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="form-floating">
-                                                                        <input type="number" step="0.01" class="form-control" name="contracts[<?= $i ?>][price]" placeholder=" " value="<?= htmlspecialchars($c['price_info'] ?? '') ?>">
-                                                                        <label>Giá / Giá trị</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12">
-                                                                    <div class="form-floating">
-                                                                        <textarea class="form-control" name="contracts[<?= $i ?>][notes]" style="height:80px" placeholder=" "><?= htmlspecialchars($c['notes'] ?? '') ?></textarea>
-                                                                        <label>Ghi chú hợp đồng</label>
-                                                                    </div>
-                                                                </div>
                                                             </div>
                                                         </div>
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="mt-3">
-                                                <button type="button" class="btn btn-sm btn-outline-primary" id="add-contract-btn">
-                                                    <i class="fas fa-plus me-1"></i> Thêm hợp đồng
+                                                <button type="button" class="btn btn-sm btn-outline-primary shadow-sm" id="add-contract-btn">
+                                                    <i class="fas fa-plus-circle me-1"></i> Thêm hạng mục mới
                                                 </button>
                                             </div>
-                                            <small class="text-muted d-block mt-2">Thêm một hoặc nhiều hợp đồng liên quan đến nhà cung cấp.</small>
                                         </div>
                                     </div>
                                 </div>

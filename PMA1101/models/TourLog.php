@@ -29,9 +29,9 @@ class TourLog extends BaseModel
     public function create(array $data): bool
     {
         $sql = "INSERT INTO tour_logs 
-        (tour_id, guide_id, date, description, issue, solution, customer_feedback, weather, incident, health_status, special_activity, handling_notes, guide_rating) 
+        (tour_id, guide_id, date, description, issue, solution, customer_feedback, weather, incident, health_status, special_activity, handling_notes, guide_rating, actual_cost, cost_description) 
         VALUES 
-        (:tour_id, :guide_id, :date, :description, :issue, :solution, :customer_feedback, :weather, :incident, :health_status, :special_activity, :handling_notes, :guide_rating)";
+        (:tour_id, :guide_id, :date, :description, :issue, :solution, :customer_feedback, :weather, :incident, :health_status, :special_activity, :handling_notes, :guide_rating, :actual_cost, :cost_description)";
 
         $stmt = self::$pdo->prepare($sql);
         return $stmt->execute($data);
@@ -53,7 +53,9 @@ class TourLog extends BaseModel
             health_status = :health_status,
             special_activity = :special_activity,
             handling_notes = :handling_notes,
-            guide_rating = :guide_rating
+            guide_rating = :guide_rating,
+            actual_cost = :actual_cost,
+            cost_description = :cost_description
             WHERE id = :id";
         $data['id'] = $id;
         $stmt = self::$pdo->prepare($sql);

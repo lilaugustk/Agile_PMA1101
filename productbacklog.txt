@@ -1,0 +1,53 @@
+US1	Quản lý tài khoản	Đăng ký tài khoản	Quản trị viên/Hướng dẫn viên/Khách hàng	Đăng ký một tài khoản mới trên hệ thống	Có thể lưu trữ thông tin cá nhân, dễ dàng đặt tour và theo dõi lịch sử mua hàng
+US2		Đăng nhập tài khoản	Quản trị viên/Hướng dẫn viên/Khách hàng	Đăng nhập bằng tài khoản và mật khẩu	Truy cập vào các chức năng hệ thống tương ứng với phân quyền của mình
+US3		Đăng xuất tài khoản	Quản trị viên/Hướng dẫn viên/Khách hàng	Đăng xuất tài khoản khỏi hệ thống	Bảo vệ an toàn dữ liệu cá nhân hoặc dữ liệu nghiệp vụ khi không sử dụng thiết bị
+US4		Xem danh sách tài khoản	Quản trị viên	Xem danh sách toàn bộ người dùng	Quản lý, tra cứu thông tin liên hệ và nắm được số lượng người dùng hệ thống
+US5		Thêm tài khoản nội bộ	Quản trị viên	Tạo tài khoản cấp cho nhân sự mới và thiết lập phân quyền	Cấp quyền truy cập để nhân sự (Hướng dẫn viên) có thể bắt đầu làm việc
+US6		Quản lý trạng thái tài khoản	Quản trị viên	Chỉnh sửa thông tin, đổi quyền hoặc khóa/xóa tài khoản	Kiểm soát bảo mật hệ thống, chặn truy cập khi nhân sự nghỉ việc
+US7		Thay đổi mật khẩu	Quản trị viên/Hướng dẫn viên/Khách hàng	Đổi mật khẩu mới hoặc khôi phục khi quên mật khẩu	Đảm bảo tính bảo mật và quyền kiểm soát đối với tài khoản cá nhân
+US8		Cập nhật hồ sơ cá nhân	Khách hàng	Thay đổi thông tin cá nhân của khách hàng	Đảm bảo thông tin liên hệ chính xác để nhận thông báo và làm thủ tục
+US9	Quản lý Tour & Danh mục	Hiển thị danh mục tour	Quản trị viên/Khách hàng	Xem danh sách các danh mục	Dễ dàng phân loại và điều hướng tìm kiếm các tuyến du lịch
+US10		Quản lý danh mục	Quản trị viên	Thêm mới, chỉnh sửa và xóa danh mục tour	Tổ chức và sắp xếp cấu trúc sản phẩm trên hệ thống một cách logic
+US11		Hiển thị danh sách tour	Quản trị viên/Khách hàng	Xem toàn bộ các tour đang có trên hệ thống	Bao quát được các sản phẩm du lịch hiện đang hoạt động
+US12		Xem chi tiết tour	Quản trị viên/Khách hàng	Xem đầy đủ thông tin: Lịch trình, hình ảnh, giá, chính sách	Nắm rõ thông tin sản phẩm để đưa ra quyết định đặt tour
+US13		Thêm mới & Chỉnh sửa tour	Quản trị viên	Thêm mới & Cập nhật thông tin chi tiết của một tour lên hệ thống	Đảm bảo tour luôn được cập nhật mới và chính xác
+US14		Quản lý trạng thái tour	Quản trị viên	Tùy chọn ẩn/hiện, xóa mềm (tạm thời) và khôi phục tour	Kiểm soát vòng đời của sản phẩm, ẩn đi các tour đã hết chỗ hoặc ngừng kinh doanh
+US15		Xóa cứng tour	Quản trị viên	Xóa vĩnh viễn tour khỏi cơ sở dữ liệu	Dọn dẹp hệ thống đối với các dữ liệu lỗi hoặc không bao giờ sử dụng lại
+US16		Xóa mềm (Xóa tạm thời)	Quản trị viên	Xóa tạm thời một tour khỏi danh sách đang hoạt động (ẩn khỏi người dùng cuối nhưng vẫn giữ trong CSDL)	Ngừng bán các tour đã cũ, hết hạn hoặc tạm ngưng kinh doanh mà không làm mất dữ liệu lịch sử của các Booking cũ
+US17		Xem danh sách đã xóa (Thùng rác)	Quản trị viên	Truy cập vào một trang riêng biệt hiển thị danh sách tất cả các tour đã bị xóa mềm	Dễ dàng quản lý, kiểm tra lại các tour đã ngừng hoạt động trước khi quyết định xóa vĩnh viễn hoặc khôi phục
+US18		Khôi phục tour	Quản trị viên	Khôi phục lại các tour từ "Danh sách đã xóa" về trạng thái hoạt động hiển thị bình thường	Nhanh chóng mở bán lại các tour khi tới mùa du lịch hoặc có nhu cầu mà không cần tốn công nhập liệu lại từ đầu
+US19		Thiết lập tour nổi bật	Quản trị viên	Tùy chọn đẩy các tour "hot" hiển thị lên đầu trang chủ	Thu hút sự chú ý của khách hàng, thúc đẩy doanh số cho các tour trọng điểm
+US20		Tìm kiếm & Bộ lọc	Quản trị viên/Khách hàng	Tìm kiếm tour theo tên, lọc tour theo danh mục, trạng thái	Tiết kiệm thời gian tìm kiếm tour phù hợp với nhu cầu cá nhân
+US21		Clone tour cũ	Quản trị viên	Sao chép toàn bộ thông tin tour cũ để tạo tour mới	Tiết kiệm thời gian nhập liệu cho các gần tương tự nhau
+US21		Mã QR / Link chia sẻ	Quản trị viên	Tạo mã QR hoặc đường dẫn riêng cho từng tour	Hỗ trợ nhân viên sales chia sẻ nhanh cho khách hàng qua tin nhắn/email
+US22	Quản lý Booking & Thanh toán	Hiển thị danh sách booking	Quản trị viên	Xem một danh sách tất cả các booking với các thông tin chính (tên khách, tên tour, ngày đi, trạng thái)	Có cái nhìn tổng quan để quản lý và điều phối các lượt đặt tour
+US23		Đặt tour trực tuyến	Khách hàng	Chọn tour, ngày đi, số lượng người, ghi chú và hoàn tất đặt chỗ qua form	Dễ dàng và chủ động chốt chỗ cho chuyến đi ngay trên website
+US24		Thêm mới booking thủ công	Quản trị viên	Tự tạo một booking mới trên hệ thống và nhập thông tin khách	Xử lý linh hoạt các trường hợp khách đặt qua điện thoại, email hoặc trực tiếp
+US25		Gửi email thông báo xác nhận	Hệ thống	Tự động gửi email cho khách hàng ngay sau khi họ đặt hoặc thanh toán tour thành công	Giúp khách hàng nhận được xác nhận tức thì và có bản ghi chi tiết về booking
+US26		Cập nhật trạng thái booking & thanh toán	Quản trị viên	Cập nhật trạng thái tour (Chờ, Đã xác nhận, Đã hủy) và thanh toán (Chưa thu, Đã cọc, Đã thu đủ)	Theo dõi chính xác tiến trình của mỗi lượt đặt tour và quản lý dòng tiền
+US27		Xem chi tiết booking	Quản trị viên	Xem toàn bộ chi tiết (khách hàng, lịch trình, lịch sử thanh toán, yêu cầu đặc biệt)	Có đủ thông tin cần thiết để quản lý, sắp xếp dịch vụ và chuẩn bị cho tour
+US28		Chỉnh sửa booking	Quản trị viên	Điều chỉnh các chi tiết của một booking đã có (thay đổi ngày đi, số lượng người)	Đáp ứng kịp thời các yêu cầu thay đổi lịch trình từ phía khách hàng
+US29		Xem lịch sử booking	Khách hàng	Xem lại danh sách các chuyến đi đã qua và sắp tới trong trang quản lý tài khoản	Dễ dàng theo dõi kế hoạch du lịch và đối soát lại các chuyến đi cũ
+US30		Hủy booking	Khách hàng	Xem lại danh sách các chuyến đi đã qua và sắp tới trong trang quản lý tài khoản	Chủ động quản lý kế hoạch của mình nếu có sự cố phát sinh ngoài ý muốn
+US31		Thanh toán online	Khách hàng	Thanh toán tiền cọc hoặc toàn bộ chi phí qua các cổng thanh toán điện tử	Thanh toán tiện lợi, nhanh chóng, hệ thống tự động gạch nợ mà không cần làm thủ công
+US32		Xuất báo giá/hóa đơn	Quản trị viên	Hệ thống tự động xuất báo giá, hợp đồng hoặc hóa đơn điện tử (file PDF) từ dữ liệu booking	Rút ngắn thời gian làm giấy tờ thủ công, hỗ trợ gửi trực tiếp qua email cho khách
+US33	Vận hành Tour	Quản lý danh sách HDV	Quản trị viên	Xem, thêm, sửa hồ sơ Hướng dẫn viên (thông tin, chứng chỉ, ngôn ngữ, kinh nghiệm)	Quản lý chặt chẽ chất lượng nhân sự và chọn đúng người cho đúng tuyến
+US34		Phân công công việc	Quản trị viên	Phân bổ HDV, tài xế, xe cho từng lịch khởi hành cụ thể	Đảm bảo mỗi tour đều có đủ nhân sự vận hành trước ngày khởi hành
+US35		Xem lịch làm việc	Hướng dẫn viên	Xem chi tiết các tour mình được phân công (thời gian, địa điểm, lịch trình)	Chủ động nắm bắt kế hoạch làm việc cá nhân để chuẩn bị thật tốt
+US36		Quản lý danh sách đoàn	Quản trị viên/Hướng dẫn viên	Xem và in danh sách chi tiết khách hàng của một tour cụ thể	Thuận tiện cho việc quản lý số lượng, gọi tên và làm thủ tục tập trung
+US37		Phân bổ phòng khách sạn	Quản trị viên	Quản lý và chia phòng cho khách (giường đơn/đôi, ghép phòng)	Đảm bảo khách hàng được sắp xếp chỗ nghỉ đúng với yêu cầu đặt trước
+US38		Quản lý yêu cầu đặc biệt	Quản trị viên/Hướng dẫn viên	Ghi nhận và theo dõi các lưu ý của khách (ăn chay, dị ứng, bệnh lý)	Cảnh báo cho HDV để có sự chuẩn bị chu đáo, nâng cao trải nghiệm khách hàng
+US39		Check-in / Điểm danh	Hướng dẫn viên	Đánh dấu trạng thái có mặt của từng khách hàng tại điểm tập trung	Báo cáo tình hình quân số thực tế về cho bộ phận điều hành
+US40		Cập nhật nhật ký tour	Hướng dẫn viên	Ghi chú lại diễn biến tour, các sự cố phát sinh, hình ảnh thực tế	Lưu lại lịch sử chuyến đi làm căn cứ giải quyết khiếu nại hoặc rút kinh nghiệm
+US41		Đánh giá & Phản hồi	Hướng dẫn viên	Gửi báo cáo nhận xét về chất lượng dịch vụ (nhà hàng, khách sạn) sau tour	Giúp công ty đánh giá lại năng lực của các đối tác cung cấp dịch vụ
+US42		Theo dõi chi phí thực tế	Quản trị viên	Ghi nhận các khoản chi phát sinh thực tế trong tour do HDV báo về	So sánh với dự toán ban đầu để kiểm soát chi phí, tránh thất thoát
+US43	Đối tác, Tài chính & Báo cáo	Quản lý Nhà cung cấp	Quản trị viên	Thêm, sửa, xem thông tin các đối tác (khách sạn, nhà xe, nhà hàng, bảo hiểm)	Xây dựng mạng lưới dữ liệu đối tác để dễ dàng liên hệ và điều phối dịch vụ
+US44		Quản lý Hợp đồng & Báo giá	Quản trị viên	Lưu trữ file hợp đồng, thời hạn áp dụng và lịch sử báo giá của từng nhà cung cấp	Chủ động nắm bắt chi phí đầu vào, gia hạn hợp đồng kịp thời khi sắp hết hạn
+US45		Quản lý Công nợ	Quản trị viên	Theo dõi chi tiết tình trạng nợ của khách hàng (chưa đóng đủ tiền) và nợ nhà cung cấp (chưa thanh toán)	Tránh rủi ro nợ xấu, nhắc nhở thanh toán đúng hạn để đảm bảo uy tín
+US46		Quản lý Thu - Chi theo Tour	Quản trị viên	Ghi nhận chi tiết mọi khoản thu (tiền khách đóng) và khoản chi (thanh toán dịch vụ, phát sinh) cho từng tour	Kiểm soát chặt chẽ dòng tiền thực tế chạy qua mỗi hành trình
+US47		Báo cáo Lãi/Lỗ theo Tour	Quản trị viên	Xem hệ thống tự động tính toán tổng thu, tổng chi và lợi nhuận thực tế sau khi tour kết thúc	Đánh giá được hiệu quả kinh doanh của từng sản phẩm để điều chỉnh chiến lược
+US48		Báo cáo Tổng quan (Dashboard)	Quản trị viên	Xem biểu đồ thống kê tổng doanh thu, lợi nhuận, số lượng booking, tỷ lệ chuyển đổi theo tháng/quý/năm	Có cái nhìn toàn cảnh về sức khỏe tài chính và hoạt động bán hàng của công ty
+US49		Đánh giá Nhà cung cấp	Quản trị viên	Lưu trữ và phân tích nhận xét về chất lượng của từng nhà xe/khách sạn dựa trên phản hồi từ HDV và khách hàng	Làm căn cứ để quyết định tiếp tục hợp tác hay loại bỏ các đối tác kém chất lượng
+US50	Chăm sóc Khách hàng & Nội dung (Blog/Tin tức/Bài viết)	Quản lý bài viết / Tin tức	Quản trị viên	Đăng tải, chỉnh sửa, xóa các bài viết chia sẻ kinh nghiệm du lịch, tin tức khuyến mãi	Thu hút lượng truy cập tự nhiên (SEO), cung cấp thông tin hữu ích cho khách hàng
+US51		Gửi đánh giá Tour	Khách hàng	Viết nhận xét (review) và chấm điểm sao cho tour, dịch vụ và Hướng dẫn viên sau khi chuyến đi kết thúc	Chia sẻ trải nghiệm thực tế để những người dùng sau tham khảo
+US52		Quản lý Phản hồi	Quản trị viên	Xem, duyệt hoặc ẩn các đánh giá của khách hàng trên hệ thống	Kịp thời xử lý khiếu nại (nếu có) và hiển thị các đánh giá tốt để tăng uy tín thương hiệu

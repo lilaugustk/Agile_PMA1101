@@ -20,7 +20,8 @@ class Tour extends BaseModel
         'start_location',
         'end_location',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'deleted_at'
     ];
 
     public function __construct()
@@ -144,6 +145,13 @@ class Tour extends BaseModel
         if (!empty($filters['status'])) {
             $whereConditions[] = "t.status = :status";
             $params[':status'] = $filters['status'];
+        }
+
+        // Soft delete filter (Default: only active ones)
+        if (isset($filters['only_deleted']) && $filters['only_deleted']) {
+            $whereConditions[] = "t.deleted_at IS NOT NULL";
+        } else {
+            $whereConditions[] = "t.deleted_at IS NULL";
         }
 
 
@@ -532,6 +540,92 @@ class Tour extends BaseModel
 
         $newStatus = ($tour['status'] ?? 'active') === 'active' ? 'inactive' : 'active';
         return $this->update(['status' => $newStatus], 'id = :id', ['id' => $id]);
+    }
+
+    /**
+     * Soft delete a tour
+     */
+    public function softDelete($id)
+    {
+        return $this->update(['deleted_at' => date('Y-m-d H:i:s')], 'id = :id', ['id' => $id]);
+    }
+
+    /**
+     * Restore a soft-deleted tour
+     */
+    public function restore($id)
+    {
+        return $this->update(['deleted_at' => null], 'id = :id', ['id' => $id]);
+    }
+
+    /**
+     * Clone a tour and all its related content (deep copy)
+     */
+    public function cloneTour($id)
+    {
+        $tour = $this->findById($id);
+        if (!$tour) return false;
+
+        $this->beginTransaction();
+        try {
+            // 1. Clone main tour data
+            $newTourData = $tour;
+            unset($newTourData['id']);
+            $newTourData['name'] = $tour['name'] . ' (Copy)';
+            $newTourData['created_at'] = date('Y-m-d H:i:s');
+            $newTourData['updated_at'] = date('Y-m-d H:i:s');
+            $newTourData['deleted_at'] = null;
+            $newTourId = $this->insert($newTourData);
+
+            // 2. Clone gallery images
+            $imageModel = new TourImage();
+            $images = $imageModel->getByTourId($id);
+            foreach ($images as $img) {
+                unset($img['id']);
+                $img['tour_id'] = $newTourId;
+                $img['created_at'] = date('Y-m-d H:i:s');
+                $imageModel->insert($img);
+            }
+
+            // 3. Clone itineraries
+            $itineraryModel = new TourItinerary();
+            $itineraries = $itineraryModel->select('*', 'tour_id = :tid', ['tid' => $id]);
+            foreach ($itineraries as $it) {
+                unset($it['id']);
+                $it['tour_id'] = $newTourId;
+                $itineraryModel->insert($it);
+            }
+
+            // 4. Clone pricing options
+            $pricingModel = new TourPricing();
+            $pricingOptions = $pricingModel->select('*', 'tour_id = :tid', ['tid' => $id]);
+            foreach ($pricingOptions as $opt) {
+                unset($opt['id']);
+                $opt['tour_id'] = $newTourId;
+                $opt['created_at'] = date('Y-m-d H:i:s');
+                $pricingModel->insert($opt);
+            }
+
+            // 5. Clone policies
+            $policyAssocModel = new TourPolicyAssignment();
+            $policies = $policyAssocModel->select('*', 'tour_id = :tid', ['tid' => $id]);
+            foreach ($policies as $p) {
+                unset($p['id']);
+                $p['tour_id'] = $newTourId;
+                $p['created_at'] = date('Y-m-d H:i:s');
+                $policyAssocModel->insert($p);
+            }
+
+            // 6. Clone departures (Optional: usually cloned tours don't have old departures)
+            // Skip departures by default to avoid cluttering
+
+            $this->commit();
+            return $newTourId;
+        } catch (Exception $e) {
+            $this->rollBack();
+            error_log('Clone tour error: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function toggleFeatured($id)

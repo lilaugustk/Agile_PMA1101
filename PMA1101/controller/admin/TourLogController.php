@@ -80,6 +80,8 @@ class TourLogController
             'special_activity'  => $_POST['special_activity'] ?? '',
             'handling_notes'    => $_POST['handling_notes'] ?? '',
             'guide_rating'      => $_POST['guide_rating'] ?? null,
+            'actual_cost'       => $_POST['actual_cost'] ?? 0,
+            'cost_description'  => $_POST['cost_description'] ?? '',
         ];
 
         // Get guide_id from user_id in session
@@ -171,6 +173,8 @@ class TourLogController
             'special_activity'  => $_POST['special_activity'] ?? '',
             'handling_notes'    => $_POST['handling_notes'] ?? '',
             'guide_rating'      => $_POST['guide_rating'] ?? null,
+            'actual_cost'       => $_POST['actual_cost'] ?? 0,
+            'cost_description'  => $_POST['cost_description'] ?? '',
         ];
 
         // Get guide_id from user_id in session
@@ -304,6 +308,67 @@ class TourLogController
         } else {
             echo json_encode(['success' => false, 'message' => 'Cập nhật thất bại']);
         }
+        exit;
+    }
+
+    /**
+     * Giao diện điểm danh (Check-in) Mobile friendly (US39)
+     */
+    public function checkin()
+    {
+        $tourId = $_GET['tour_id'] ?? null;
+        if (!$tourId) {
+            die('Thiếu Tour ID');
+        }
+
+        $tourModel = new Tour();
+        $tour = $tourModel->findById($tourId);
+
+        if (!$tour) {
+            die('Không tìm thấy Tour');
+        }
+
+        // Lấy danh sách khách hàng của tour này (từ tất cả bookings thành công/đã cọc)
+        $sql = "SELECT bc.*, b.id as booking_id, b.contact_phone as booker_phone
+                FROM booking_customers bc
+                INNER JOIN bookings b ON bc.booking_id = b.id
+                WHERE b.tour_id = :tour_id 
+                AND b.status IN ('da_coc', 'hoan_tat', 'cho_xac_nhan')
+                AND b.deleted_at IS NULL
+                ORDER BY bc.full_name ASC";
+        
+        $pdo = $this->model->getPDO();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['tour_id' => $tourId]);
+        $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once PATH_VIEW_ADMIN . 'pages/tours_logs/checkin.php';
+    }
+
+    /**
+     * AJAX Toggle Check-in
+     */
+    public function toggleCheckin()
+    {
+        header('Content-Type: application/json');
+        $id = $_POST['id'] ?? null;
+        $status = isset($_POST['status']) ? (int)$_POST['status'] : 0;
+
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Thiếu ID khách']);
+            exit;
+        }
+
+        $sql = "UPDATE booking_customers SET is_checked_in = :status, checked_in_at = :time WHERE id = :id";
+        $pdo = $this->model->getPDO();
+        $stmt = $pdo->prepare($sql);
+        $result = $stmt->execute([
+            'status' => $status,
+            'time' => $status ? date('Y-m-d H:i:s') : null,
+            'id' => $id
+        ]);
+
+        echo json_encode(['success' => $result]);
         exit;
     }
 }

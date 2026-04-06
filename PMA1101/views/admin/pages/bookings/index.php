@@ -60,11 +60,11 @@ $isGuide = $userRole === 'guide';
         <div class="col-12 col-md-6 col-xl-3">
             <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
                 <div>
-                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Chờ Xác Nhận</p>
-                    <h3 class="fw-bold mb-0" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= number_format($stats['pending'] ?? 0) ?></h3>
+                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Chờ Thanh Toán</p>
+                    <h3 class="fw-bold mb-0" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= number_format($stats['soft_pending'] ?? 0) ?></h3>
                 </div>
                 <div class="d-flex align-items-center justify-content-center text-warning border border-warning-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--warning-subtle);">
-                    <i class="ph ph-clock-countdown"></i>
+                    <i class="ph ph-hourglass-medium"></i>
                 </div>
             </div>
         </div>
@@ -117,10 +117,12 @@ $isGuide = $userRole === 'guide';
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Trạng thái</label>
                         <select class="form-select form-select-sm border-light-subtle shadow-sm" name="status" style="border-radius: 8px; min-height: 38px;">
                             <option value="">Tất cả</option>
+                            <option value="pending" <?= (($_GET['status'] ?? '') == 'pending') ? 'selected' : '' ?>>Chờ Thanh Toán</option>
                             <option value="cho_xac_nhan" <?= (($_GET['status'] ?? '') == 'cho_xac_nhan') ? 'selected' : '' ?>>Chờ Xác Nhận</option>
                             <option value="da_coc" <?= (($_GET['status'] ?? '') == 'da_coc') ? 'selected' : '' ?>>Đã Cọc</option>
                             <option value="hoan_tat" <?= (($_GET['status'] ?? '') == 'hoan_tat') ? 'selected' : '' ?>>Hoàn Tất</option>
                             <option value="da_huy" <?= (($_GET['status'] ?? '') == 'da_huy') ? 'selected' : '' ?>>Đã Hủy</option>
+                            <option value="expired" <?= (($_GET['status'] ?? '') == 'expired') ? 'selected' : '' ?>>Hết Hạn</option>
                         </select>
                     </div>
                     <div class="col-12 col-md-2">
@@ -156,7 +158,7 @@ $isGuide = $userRole === 'guide';
             <div class="d-flex align-items-center gap-2">
                 <i class="ph-fill ph-ticket text-primary"></i>
                 <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Danh sách Booking</h6>
-                <span class="badge bg-light text-muted border ms-2 rounded-pill" style="font-size: 0.7rem;"><?= count($bookings) ?> kết quả</span>
+                <span class="badge bg-light text-muted border ms-2 rounded-pill" style="font-size: 0.7rem;"><?= number_format($pagination['total']) ?> kết quả</span>
             </div>
             
         </div>
@@ -175,15 +177,21 @@ $isGuide = $userRole === 'guide';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $stt = 1; foreach ($bookings as $booking) : ?>
+                        <?php 
+                        $stt = ($pagination['page'] - 1) * $pagination['per_page'] + 1; 
+                        foreach ($bookings as $booking) : 
+                        ?>
                             <tr>
                                 <td class="text-center fw-medium text-muted"><?= $stt++ ?></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                            <?= mb_substr(trim($booking['customer_name'] ?? 'A'), 0, 1) ?>
+                                            <?= mb_substr(trim($booking['customer_name'] ?: ($booking['contact_name'] ?: 'X')), 0, 1) ?>
                                         </div>
-                                        <span class="fw-medium text-dark"><?= htmlspecialchars($booking['customer_name'] ?? 'N/A') ?></span>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-medium text-dark"><?= htmlspecialchars($booking['customer_name'] ?: ($booking['contact_name'] ?: 'Khách vãng lai')) ?></span>
+                                            <?php if (empty($booking['customer_id'])): ?><span class="extra-small text-muted mb-0" style="font-size: 0.65rem;">Guest Booking</span><?php endif; ?>
+                                        </div>
                                     </div>
                                 </td>
                                 <td>
@@ -202,21 +210,18 @@ $isGuide = $userRole === 'guide';
                                 </td>
                                 <td>
                                     <?php
-                                    $statusText = 'Chờ Xác Nhận';
-                                    $statusClass = 'warning';
-                                    if ($booking['status'] === 'hoan_tat') {
-                                        $statusText = 'Hoàn Tất';
-                                        $statusClass = 'success';
-                                    } elseif ($booking['status'] === 'da_coc') {
-                                        $statusText = 'Đã Cọc';
-                                        $statusClass = 'info';
-                                    } elseif ($booking['status'] === 'da_huy') {
-                                        $statusText = 'Đã Hủy';
-                                        $statusClass = 'danger';
-                                    }
+                                    $statusMap = [
+                                        'pending' => ['text' => 'Chờ Thanh Toán', 'class' => 'warning'],
+                                        'cho_xac_nhan' => ['text' => 'Chờ Xác Nhận', 'class' => 'warning'],
+                                        'da_coc' => ['text' => 'Đã Cọc', 'class' => 'info'],
+                                        'hoan_tat' => ['text' => 'Hoàn Tất', 'class' => 'success'],
+                                        'da_huy' => ['text' => 'Đã Hủy', 'class' => 'danger'],
+                                        'expired' => ['text' => 'Hết Hạn', 'class' => 'secondary']
+                                    ];
+                                    $curr = $statusMap[$booking['status']] ?? ['text' => 'Không Rõ', 'class' => 'secondary'];
                                     ?>
-                                    <span class="badge badge-soft bg-<?= $statusClass ?>-subtle text-<?= $statusClass ?>">
-                                        <?= $statusText ?>
+                                    <span class="badge badge-soft bg-<?= $curr['class'] ?>-subtle text-<?= $curr['class'] ?>">
+                                        <?= $curr['text'] ?>
                                     </span>
                                 </td>
                                 <td class="text-end">
@@ -251,6 +256,78 @@ $isGuide = $userRole === 'guide';
                 </div>
             <?php endif; ?>
         </div>
+        
+        <?php if (isset($pagination) && $pagination['total_pages'] > 1): ?>
+            <div class="px-4 py-3 border-top bg-light-subtle d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <div class="text-muted small">
+                    Hiển thị từ <strong><?= ($pagination['page'] - 1) * $pagination['per_page'] + 1 ?></strong> 
+                    đến <strong><?= min($pagination['page'] * $pagination['per_page'], $pagination['total']) ?></strong> 
+                    trong tổng số <strong><?= number_format($pagination['total']) ?></strong> kết quả
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0 gap-1">
+                        <?php 
+                        $query = $_GET;
+                        ?>
+                        
+                        <!-- Previous Page -->
+                        <li class="page-item <?= ($pagination['page'] <= 1) ? 'disabled' : '' ?>">
+                            <?php $query['page'] = $pagination['page'] - 1; ?>
+                            <a class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center" 
+                               href="<?= BASE_URL_ADMIN . '&' . http_build_query($query) ?>" style="width: 32px; height: 32px;">
+                                <i class="ph ph-caret-left"></i>
+                            </a>
+                        </li>
+
+                        <?php 
+                        $start = max(1, $pagination['page'] - 2);
+                        $end = min($pagination['total_pages'], $pagination['page'] + 2);
+                        
+                        if ($start > 1): ?>
+                            <li class="page-item">
+                                <?php $query['page'] = 1; ?>
+                                <a class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center" 
+                                   href="<?= BASE_URL_ADMIN . '&' . http_build_query($query) ?>" style="width: 32px; height: 32px;">1</a>
+                            </li>
+                            <?php if ($start > 2): ?>
+                                <li class="page-item disabled"><span class="page-link border-0 bg-transparent">...</span></li>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php for ($i = $start; $i <= $end; $i++): ?>
+                            <li class="page-item <?= ($i == $pagination['page']) ? 'active' : '' ?>">
+                                <?php $query['page'] = $i; ?>
+                                <a class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center" 
+                                   href="<?= BASE_URL_ADMIN . '&' . http_build_query($query) ?>" 
+                                   style="width: 32px; height: 32px; <?= ($i == $pagination['page']) ? 'background: var(--primary-color) !important; color: white !important;' : '' ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if ($end < $pagination['total_pages']): ?>
+                            <?php if ($end < $pagination['total_pages'] - 1): ?>
+                                <li class="page-item disabled"><span class="page-link border-0 bg-transparent">...</span></li>
+                            <?php endif; ?>
+                            <li class="page-item">
+                                <?php $query['page'] = $pagination['total_pages']; ?>
+                                <a class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center" 
+                                   href="<?= BASE_URL_ADMIN . '&' . http_build_query($query) ?>" style="width: 32px; height: 32px;"><?= $pagination['total_pages'] ?></a>
+                            </li>
+                        <?php endif; ?>
+
+                        <!-- Next Page -->
+                        <li class="page-item <?= ($pagination['page'] >= $pagination['total_pages']) ? 'disabled' : '' ?>">
+                            <?php $query['page'] = $pagination['page'] + 1; ?>
+                            <a class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center" 
+                               href="<?= BASE_URL_ADMIN . '&' . http_build_query($query) ?>" style="width: 32px; height: 32px;">
+                                <i class="ph ph-caret-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        <?php endif; ?>
     </div>
 </main>
 

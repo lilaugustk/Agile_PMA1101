@@ -45,6 +45,7 @@ switch ($action) {
         break;
 
     case 'profile':
+    case 'account-profile':
         require_once 'controller/client/AccountController.php';
         $controller = new ClientAccountController();
         $controller->profile();
@@ -57,6 +58,7 @@ switch ($action) {
         break;
 
     case 'my-bookings':
+    case 'account-bookings':
         require_once 'controller/client/AccountController.php';
         $controller = new ClientAccountController();
         $controller->bookings();
@@ -109,7 +111,37 @@ switch ($action) {
         $controller = new ClientBookingController();
         $controller->success();
         break;
+
+    case 'tour-review-submit':
+        require_once 'controller/client/TourController.php';
+        $controller = new ClientTourController();
+        $controller->submitReview();
+        break;
+
+    case 'booking-confirm':
+        require_once 'controller/client/BookingController.php';
+        $controller = new ClientBookingController();
+        $controller->confirmPayment();
+        break;
         
+    case 'payment-ipn':
+        require_once 'controller/client/BookingController.php';
+        $controller = new ClientBookingController();
+        $controller->ipnSimulator();
+        break;
+        
+    case 'blogs':
+        require_once 'controller/client/BlogController.php';
+        $controller = new ClientBlogController();
+        $controller->index();
+        break;
+
+    case 'blog-detail':
+        require_once 'controller/client/BlogController.php';
+        $controller = new ClientBlogController();
+        $controller->detail();
+        break;
+
     default:
         // 404 placeholder
         echo "<h1>404 Not Found</h1>";

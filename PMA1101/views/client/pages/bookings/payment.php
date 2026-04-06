@@ -1,271 +1,312 @@
 <?php include_once PATH_VIEW_CLIENT . 'default/header.php'; ?>
 
-<!-- Custom CSS for Payment Page -->
+<?php
+// Config ngân hàng
+$bankId      = 'MB';
+$accountNo   = '0986951086';
+$accountName = 'Kim Van Kien';
+$amount      = $booking['final_price'];
+$bookingCode = 'BK' . str_pad($booking['id'], 6, '0', STR_PAD_LEFT);
+$content     = $bookingCode . ' THANH TOAN';
+$qrUrl       = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-compact2.jpg?amount={$amount}&addInfo=" . urlencode($content) . "&accountName=" . urlencode($accountName);
+?>
+
 <style>
-    .booking-stepper {
-        position: relative;
-        counter-reset: step;
-        z-index: 1;
-    }
-    .booking-stepper::before {
-        content: '';
-        position: absolute;
-        top: 20px;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: #e9ecef;
-        z-index: -1;
-    }
-    .booking-step {
-        width: 40px;
-        height: 40px;
-        background: #fff;
-        border: 2px solid #e9ecef;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: #adb5bd;
-        margin: 0 auto 10px;
-        transition: all 0.3s ease;
-    }
-    .booking-step.active {
-        border-color: #0d6efd;
-        background: #0d6efd;
-        color: #fff;
-        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
-    }
-    .booking-step.completed {
-        border-color: #198754;
-        background: #198754;
-        color: #fff;
-    }
-    .step-label {
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .step-label.active {
-        color: #0d6efd;
-    }
-    
-    .qr-card {
-        border: 2px solid #e9ecef;
-        border-radius: 16px;
-        transition: all 0.3s ease;
-    }
-    .qr-card:hover {
-        border-color: #0d6efd;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    }
-    .bank-info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px dashed #e9ecef;
-    }
-    .bank-info-row:last-child {
-        border-bottom: none;
-    }
-    .copy-btn {
-        cursor: pointer;
-        color: #0d6efd;
-        font-size: 0.9rem;
-    }
-    .copy-btn:hover {
-        text-decoration: underline;
-    }
+/* ── Stepper ─────────────────────────────── */
+.booking-stepper { position: relative; z-index: 1; }
+.booking-stepper::before {
+    content: ''; position: absolute;
+    top: 20px; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, #198754 66%, #dee2e6 66%);
+    z-index: -1;
+}
+.booking-step {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; margin: 0 auto 8px; transition: all .3s;
+}
+.booking-step.completed { background: #198754; color:#fff; border: 2px solid #198754; }
+.booking-step.active    { background: #0d6efd; color:#fff; border: 2px solid #0d6efd; box-shadow: 0 0 0 4px rgba(13,110,253,.2); }
+.booking-step.pending   { background: #fff; color: #adb5bd; border: 2px solid #dee2e6; }
+.step-label { font-size: .78rem; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.step-label.active    { color: #0d6efd; }
+.step-label.completed { color: #198754; }
+
+/* ── Countdown ───────────────────────────── */
+.countdown-bar {
+    background: linear-gradient(135deg, #fff3cd, #ffe69c);
+    border: 1px solid #ffc107; border-radius: 12px;
+    padding: 12px 20px;
+}
+.countdown-digits { font-size: 1.6rem; font-weight: 800; color: #856404; font-variant-numeric: tabular-nums; letter-spacing: 2px; }
+.countdown-bar.urgent .countdown-digits { color: #dc3545; animation: pulse .8s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+/* ── Payment Info ────────────────────────── */
+.bank-item {
+    display: flex; align-items: center; gap: 14px;
+    background: #f8f9fa; border-radius: 12px; padding: 14px;
+}
+.bank-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: #fff; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+.copy-btn {
+    margin-left: auto; background: none; border: none;
+    color: #0d6efd; cursor: pointer; font-size: .9rem;
+    padding: 4px 8px; border-radius: 6px; transition: background .2s;
+}
+.copy-btn:hover { background: #e7f1ff; }
+
+/* ── QR ──────────────────────────────────── */
+.qr-wrapper {
+    border: 2px dashed #dee2e6; border-radius: 16px;
+    padding: 16px; display: inline-block;
+    transition: border-color .3s;
+}
+.qr-wrapper:hover { border-color: #0d6efd; }
+
+/* ── Order Summary ───────────────────────── */
+.order-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: .9rem; }
 </style>
 
-<div class="container my-5">
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+
     <!-- Stepper -->
     <div class="row mb-5">
         <div class="col-lg-8 mx-auto">
             <div class="d-flex justify-content-between text-center booking-stepper">
-                <div class="position-relative">
-                    <div class="booking-step completed"><i class="fas fa-check"></i></div>
-                    <div class="step-label">Chọn Tour</div>
-                </div>
-                <div class="position-relative">
-                    <div class="booking-step completed"><i class="fas fa-check"></i></div>
-                    <div class="step-label">Nhập Thông Tin</div>
-                </div>
-                <div class="position-relative">
-                    <div class="booking-step active">3</div>
-                    <div class="step-label active">Thanh Toán</div>
-                </div>
-                <div class="position-relative">
-                    <div class="booking-step">4</div>
-                    <div class="step-label">Hoàn Tất</div>
-                </div>
+                <div><div class="booking-step completed"><i class="fas fa-check"></i></div><div class="step-label completed">Chọn Tour</div></div>
+                <div><div class="booking-step completed"><i class="fas fa-check"></i></div><div class="step-label completed">Thông Tin</div></div>
+                <div><div class="booking-step active">3</div><div class="step-label active">Thanh Toán</div></div>
+                <div><div class="booking-step pending">4</div><div class="step-label">Hoàn Tất</div></div>
             </div>
         </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold mb-3">Thanh Toán Đặt Tour</h2>
-                <p class="text-muted lead">Vui lòng quét mã QR hoặc chuyển khoản theo thông tin dưới đây để hoàn tất việc đặt tour.</p>
-                <div class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill">
-                    <i class="fas fa-clock me-2"></i>Chờ thanh toán
+    <!-- Countdown Timer -->
+    <?php if ($secondsLeft > 0): ?>
+    <div class="row mb-4">
+        <div class="col-lg-10 mx-auto">
+            <div class="countdown-bar d-flex align-items-center justify-content-between flex-wrap gap-3" id="countdownBar">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="fas fa-clock fa-lg text-warning"></i>
+                    <div>
+                        <p class="mb-0 fw-bold text-dark">Giữ chỗ tạm thời</p>
+                        <small class="text-muted">Vui lòng thanh toán trong thời gian này, chỗ sẽ tự động giải phóng khi hết hạn</small>
+                    </div>
                 </div>
+                <div class="countdown-digits" id="countdownDisplay">--:--</div>
             </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
-            <div class="row g-4 d-flex align-items-stretch">
-                <!-- Payment Info -->
-                <div class="col-lg-7">
-                    <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
-                        <div class="card-header bg-white border-bottom p-4">
-                            <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-money-bill-wave me-2"></i>Thông Tin Chuyển Khoản</h5>
+    <div class="row g-4 justify-content-center">
+
+        <!-- ─── Left: Thông tin chuyển khoản ─── -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom p-4 pb-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="fas fa-qrcode me-2"></i>Thanh Toán Chuyển Khoản
+                    </h5>
+                    <p class="text-muted small mb-0 mt-1">Quét mã QR hoặc chuyển khoản theo thông tin dưới đây</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center g-4">
+
+                        <!-- QR Code -->
+                        <div class="col-md-5 text-center">
+                            <div class="qr-wrapper">
+                                <img src="<?= $qrUrl ?>" alt="QR Payment" class="img-fluid rounded" style="max-width:180px;">
+                            </div>
+                            <p class="small text-muted mt-2 mb-0">
+                                <i class="fas fa-mobile-alt me-1"></i>Quét bằng app ngân hàng
+                            </p>
                         </div>
-                        <div class="card-body p-4">
-                            <div class="row align-items-center">
-                                <div class="col-md-5 text-center mb-4 mb-md-0">
-                                    <div class="qr-card p-3 d-inline-block bg-white">
-                                        <!-- QR Code Generation Link -->
-                                        <!-- https://img.vietqr.io/image/[BANK_ID]-[ACCOUNT_NO]-[TEMPLATE].png?amount=[AMOUNT]&addInfo=[CONTENT] -->
-                                        <?php 
-                                            // Config Bank Info (You can move this to config later)
-                                            $bankId = 'MB'; // MB Bank
-                                            $accountNo = '0986951086'; 
-                                            $accountName = 'Kim Van Kien';
-                                            $amount = $booking['total_price'];
-                                            $content = $code . ' THANH TOAN';
-                                            
-                                            $qrUrl = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-compact2.jpg?amount={$amount}&addInfo=" . urlencode($content) . "&accountName=" . urlencode($accountName);
-                                        ?>
-                                        <img src="<?= $qrUrl ?>" alt="QR Payment" class="img-fluid rounded" style="max-width: 200px;">
-                                        <p class="small text-muted mt-2 mb-0">Quét mã để thanh toán nhanh</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-7">
-                                    <div class="d-flex flex-column gap-3">
-                                        <div class="d-flex p-3 bg-light rounded-3 align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <div class="rounded-circle bg-white p-2 text-primary shadow-sm" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-university fa-lg"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <small class="text-muted d-block">Ngân hàng</small>
-                                                <span class="fw-bold">MB Bank (Quân Đội)</span>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="d-flex p-3 bg-light rounded-3 align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <div class="rounded-circle bg-white p-2 text-primary shadow-sm" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-credit-card fa-lg"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <small class="text-muted d-block">Số tài khoản</small>
-                                                <span class="fw-bold fs-5 text-dark" id="accNum"><?= $accountNo ?></span>
-                                            </div>
-                                            <button class="btn btn-link btn-sm copy-btn" onclick="copyToClipboard('accNum')">
-                                                <i class="far fa-copy"></i>
-                                            </button>
-                                        </div>
 
-                                        <div class="d-flex p-3 bg-light rounded-3 align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <div class="rounded-circle bg-white p-2 text-primary shadow-sm" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-user fa-lg"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <small class="text-muted d-block">Chủ tài khoản</small>
-                                                <span class="fw-bold"><?= $accountName ?></span>
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex p-3 bg-light rounded-3 align-items-center border border-warning bg-warning-subtle">
-                                            <div class="flex-shrink-0">
-                                                <div class="rounded-circle bg-white p-2 text-warning shadow-sm" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-comment-alt fa-lg"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <small class="text-muted d-block">Nội dung chuyển khoản</small>
-                                                <span class="fw-bold text-danger fs-5" id="transContent"><?= $code ?> THANH TOAN</span>
-                                            </div>
-                                            <button class="btn btn-link btn-sm copy-btn text-warning" onclick="copyToClipboard('transContent')">
-                                                <i class="far fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                        <!-- Bank Info -->
+                        <div class="col-md-7 d-flex flex-column gap-3">
+                            <div class="bank-item">
+                                <div class="bank-icon text-primary"><i class="fas fa-university"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Ngân hàng</small>
+                                    <span class="fw-bold">MB Bank (Quân Đội)</span>
                                 </div>
+                            </div>
+
+                            <div class="bank-item">
+                                <div class="bank-icon text-primary"><i class="fas fa-credit-card"></i></div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Số tài khoản</small>
+                                    <span class="fw-bold fs-5" id="accNum"><?= $accountNo ?></span>
+                                </div>
+                                <button class="copy-btn" onclick="copyText('accNum', this)" title="Sao chép">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                            </div>
+
+                            <div class="bank-item">
+                                <div class="bank-icon text-primary"><i class="fas fa-user"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Chủ tài khoản</small>
+                                    <span class="fw-bold"><?= strtoupper($accountName) ?></span>
+                                </div>
+                            </div>
+
+                            <div class="bank-item" style="background: #fff3cd; border: 1px solid #ffc107;">
+                                <div class="bank-icon text-warning"><i class="fas fa-comment-dots"></i></div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Nội dung chuyển khoản <strong class="text-danger">*bắt buộc</strong></small>
+                                    <span class="fw-bold text-danger fs-6" id="transContent"><?= $bookingCode ?> THANH TOAN</span>
+                                </div>
+                                <button class="copy-btn text-warning" onclick="copyText('transContent', this)" title="Sao chép">
+                                    <i class="far fa-copy"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Booking Summary -->
-                <div class="col-lg-5">
-                    <div class="card h-100 shadow-sm border-0 rounded-4">
-                        <div class="card-header bg-white border-bottom p-4">
-                            <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-receipt me-2"></i>Chi Tiết Đơn Hàng</h5>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="text-center mb-4 pb-4 border-bottom">
-                                <span class="d-block text-muted mb-2">Tổng thanh toán</span>
-                                <h2 class="text-primary fw-bold display-6"><?= number_format($booking['total_price'], 0, ',', '.') ?>đ</h2>
-                            </div>
-                            
-                            <dl class="row mb-0">
-                                <dt class="col-sm-5 text-muted fw-normal mb-3">Mã đơn hàng</dt>
-                                <dd class="col-sm-7 fw-bold text-end mb-3"><?= $code ?></dd>
-
-                                <dt class="col-sm-5 text-muted fw-normal mb-3">Ngày đặt</dt>
-                                <dd class="col-sm-7 fw-bold text-end mb-3"><?= date('d/m/Y H:i', strtotime($booking['booking_date'])) ?></dd>
-                                
-                                <dt class="col-sm-5 text-muted fw-normal mb-3">Trạng thái</dt>
-                                <dd class="col-sm-7 text-end mb-3"><span class="badge bg-warning text-dark">Chờ thanh toán</span></dd>
-                            </dl>
-                            
-                            <div class="mt-4 pt-3 border-top">
-                                <a href="<?= BASE_URL ?>?action=booking-success&code=<?= $code ?>" class="btn btn-success w-100 py-3 fw-bold rounded-pill mb-3 shadow-sm">
-                                    <i class="fas fa-check-circle me-2"></i>
-                                    Tôi đã thanh toán
-                                </a>
-                                <a href="<?= BASE_URL ?>" class="btn btn-outline-secondary w-100 py-2 rounded-pill border-0">
-                                    <i class="fas fa-arrow-left me-2"></i>
-                                    Quay về trang chủ
-                                </a>
-                            </div>
-                            
-                            <div class="alert alert-info mt-3 mb-0 small border-0 bg-info-subtle">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Đơn hàng sẽ được xử lý trong vòng 24h sau khi nhận được thanh toán.
-                            </div>
-                        </div>
+                    <!-- Confirm Button -->
+                    <div class="border-top pt-4 mt-4">
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-info-circle text-info me-1"></i>
+                            Sau khi chuyển khoản thành công, nhấn nút bên dưới để xác nhận. Chúng tôi sẽ kiểm tra và liên hệ với bạn trong vòng <strong>24h</strong>.
+                        </p>
+                        <form action="<?= BASE_URL ?>?action=booking-confirm" method="POST" id="confirmForm">
+                            <input type="hidden" name="booking_id" value="<?= $booking['id'] ?>">
+                            <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm"
+                                    onclick="return confirm('Bạn xác nhận đã chuyển khoản thành công?')">
+                                <i class="fas fa-check-circle me-2"></i>Tôi Đã Chuyển Khoản
+                            </button>
+                        </form>
+                        <a href="<?= BASE_URL ?>" class="btn btn-outline-secondary w-100 mt-2 rounded-pill border-0">
+                            <i class="fas fa-arrow-left me-2"></i>Quay về trang chủ
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- ─── Right: Chi tiết đơn hàng ─── -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom p-4 pb-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="fas fa-receipt me-2"></i>Chi Tiết Đơn Hàng
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+
+                    <!-- Tổng tiền nổi bật -->
+                    <div class="text-center mb-4 pb-4 border-bottom">
+                        <p class="text-muted small mb-1">Số tiền cần thanh toán</p>
+                        <h2 class="text-primary fw-bold mb-0">
+                            <?= number_format($booking['final_price'], 0, ',', '.') ?>đ
+                        </h2>
+                    </div>
+
+                    <!-- Chi tiết -->
+                    <div class="order-item">
+                        <span class="text-muted">Mã đặt tour</span>
+                        <span class="fw-bold text-primary"><?= $bookingCode ?></span>
+                    </div>
+                    <div class="order-item">
+                        <span class="text-muted">Tour</span>
+                        <span class="fw-bold text-end" style="max-width:55%"><?= htmlspecialchars($booking['tour_name'] ?? 'N/A') ?></span>
+                    </div>
+                    <div class="order-item">
+                        <span class="text-muted">Ngày khởi hành</span>
+                        <span class="fw-bold"><?= date('d/m/Y', strtotime($booking['departure_date'])) ?></span>
+                    </div>
+                    <div class="order-item">
+                        <span class="text-muted">Người đặt</span>
+                        <span class="fw-bold"><?= htmlspecialchars($booking['contact_name'] ?? '') ?></span>
+                    </div>
+                    <?php if ($booking['adults'] > 0): ?>
+                    <div class="order-item">
+                        <span class="text-muted">Người lớn</span>
+                        <span class="fw-bold"><?= $booking['adults'] ?> người</span>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($booking['children'] > 0): ?>
+                    <div class="order-item">
+                        <span class="text-muted">Trẻ em</span>
+                        <span class="fw-bold"><?= $booking['children'] ?> người</span>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($booking['infants'] > 0): ?>
+                    <div class="order-item">
+                        <span class="text-muted">Em bé</span>
+                        <span class="fw-bold"><?= $booking['infants'] ?> người</span>
+                    </div>
+                    <?php endif; ?>
+                    <div class="order-item">
+                        <span class="text-muted">Ngày đặt</span>
+                        <span class="fw-bold"><?= date('d/m/Y H:i', strtotime($booking['booking_date'])) ?></span>
+                    </div>
+                    <div class="order-item border-top pt-3 mt-1">
+                        <span class="text-muted">Trạng thái</span>
+                        <span class="badge bg-warning text-dark">Chờ thanh toán</span>
+                    </div>
+
+                    <!-- Cảnh báo -->
+                    <div class="alert alert-warning border-0 bg-warning-subtle mt-4 small rounded-3">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Chỗ được giữ tối đa <strong>30 phút</strong>. Nếu không nhận được thanh toán, đơn hàng sẽ tự động hủy.
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script>
-function copyToClipboard(elementId) {
-    var copyText = document.getElementById(elementId).innerText;
-    navigator.clipboard.writeText(copyText).then(function() {
-        // Show simplified feedback
-        const btn = document.querySelector(`[onclick="copyToClipboard('${elementId}')"]`);
-        const originalHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i>';
-        setTimeout(() => {
-            btn.innerHTML = originalHtml;
-        }, 2000);
-    }, function(err) {
-        console.error('Could not copy text: ', err);
+// ── Copy to clipboard ──────────────────────
+function copyText(elementId, btn) {
+    const text = document.getElementById(elementId).innerText.trim();
+    navigator.clipboard.writeText(text).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check text-success"></i>';
+        setTimeout(() => btn.innerHTML = original, 2000);
     });
 }
+
+// ── Countdown Timer ────────────────────────
+<?php if ($secondsLeft > 0): ?>
+let secondsLeft = <?= $secondsLeft ?>;
+const display   = document.getElementById('countdownDisplay');
+const bar       = document.getElementById('countdownBar');
+
+function updateCountdown() {
+    if (secondsLeft <= 0) {
+        display.textContent = '00:00';
+        bar.classList.add('urgent');
+        display.closest('.countdown-bar').innerHTML = `
+            <div class="d-flex align-items-center gap-3 text-danger">
+                <i class="fas fa-times-circle fa-lg"></i>
+                <div>
+                    <p class="mb-0 fw-bold">Đã hết thời gian giữ chỗ!</p>
+                    <small>Chỗ của bạn đã được giải phóng. <a href="<?= BASE_URL ?>">Đặt tour lại</a></small>
+                </div>
+            </div>`;
+        return;
+    }
+
+    const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+    const s = String(secondsLeft % 60).padStart(2, '0');
+    display.textContent = `${m}:${s}`;
+
+    if (secondsLeft <= 120) bar.classList.add('urgent');
+    secondsLeft--;
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+<?php endif; ?>
 </script>
 
 <?php include_once PATH_VIEW_CLIENT . 'default/footer.php'; ?>

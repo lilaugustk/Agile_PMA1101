@@ -200,10 +200,62 @@ class ClientTourController
         $departureModel = new TourDeparture();
         $departures = $departureModel->select('*', 'tour_id = :tid', ['tid' => $id], 'departure_date ASC');
 
+        // Reviews and Rating stats (US51, 52)
+        $reviewModel = new TourReview();
+        $reviews = $reviewModel->getApprovedByTour($id);
+        $reviewStats = $reviewModel->getStatsByTour($id);
+
         // Check for success message from booking
         $success = $_SESSION['success'] ?? null;
         unset($_SESSION['success']);
+        
+        $errorReview = $_SESSION['error_review'] ?? null;
+        $successReview = $_SESSION['success_review'] ?? null;
+        unset($_SESSION['error_review'], $_SESSION['success_review']);
 
         require_once PATH_VIEW_CLIENT . 'pages/tours/detail.php';
+    }
+
+    /**
+     * Gửi đánh giá tour (US51)
+     */
+    public function submitReview()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL);
+            exit;
+        }
+
+        $tourId = $_POST['tour_id'] ?? null;
+        $rating = (int)($_POST['rating'] ?? 5);
+        $comment = trim($_POST['comment'] ?? '');
+        $fullName = trim($_POST['full_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+
+        if (!$tourId || empty($comment) || empty($fullName)) {
+            $_SESSION['error_review'] = 'Vui lòng điền đầy đủ thông tin và nội dung đánh giá.';
+            header('Location: ' . BASE_URL . '?action=tour-detail&id=' . $tourId . '#reviews');
+            exit;
+        }
+
+        $reviewModel = new TourReview();
+        $data = [
+            'tour_id' => $tourId,
+            'user_id' => $_SESSION['user']['user_id'] ?? null,
+            'full_name' => $fullName,
+            'email' => $email,
+            'rating' => $rating,
+            'comment' => $comment,
+            'status' => 'pending' // Chờ duyệt
+        ];
+
+        if ($reviewModel->insert($data)) {
+            $_SESSION['success_review'] = 'Cảm ơn bạn! Đánh giá của bạn đã được gửi và đang chờ quản trị viên duyệt.';
+        } else {
+            $_SESSION['error_review'] = 'Có lỗi xảy ra, vui lòng thử lại sau.';
+        }
+
+        header('Location: ' . BASE_URL . '?action=tour-detail&id=' . $tourId . '#reviews');
+        exit;
     }
 }

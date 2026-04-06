@@ -24,7 +24,8 @@ class TourController
             'price_max'   => isset($_GET['price_max']) && $_GET['price_max'] !== '' ? (float)$_GET['price_max'] : null,
             'rating_min'  => isset($_GET['rating_min']) && $_GET['rating_min'] !== '' ? (float)$_GET['rating_min'] : null,
             'sort_by'     => $_GET['sort_by'] ?? 'created_at',
-            'sort_dir'    => $_GET['sort_dir'] ?? 'DESC'
+            'sort_dir'    => $_GET['sort_dir'] ?? 'DESC',
+            'only_deleted' => isset($_GET['view']) && $_GET['view'] === 'trash'
         ];
 
         $result = $this->model->getAllTours($page, $perPage, $filters);
@@ -50,7 +51,11 @@ class TourController
             $isAjax = true;
         }
 
-        require_once PATH_VIEW_ADMIN . 'pages/tours/index.php';
+        if (isset($_GET['view']) && $_GET['view'] === 'trash') {
+            require_once PATH_VIEW_ADMIN . 'pages/tours/trash.php';
+        } else {
+            require_once PATH_VIEW_ADMIN . 'pages/tours/index.php';
+        }
     }
 
     private function getTourStatistics()
@@ -596,29 +601,98 @@ class TourController
         }
 
         try {
-            // Check for existing bookings
             $bookingModel = new Booking();
-            $bookingCount = $bookingModel->count('tour_id = :id', ['id' => $id]);
+            $bookingCount = $bookingModel->count('tour_id = :id AND status NOT IN ("expired", "da_huy")', ['id' => $id]);
 
             if ($bookingCount > 0) {
-                $_SESSION['error'] = 'Không thể xóa tour này vì đã có ' . $bookingCount . ' booking liên quan.';
+                $_SESSION['error'] = 'Không thể xóa tour này vì đã có ' . $bookingCount . ' booking còn hiệu lực liên quan. Vui lòng hủy các booking trước.';
                 header('Location:' . BASE_URL_ADMIN . '&action=tours');
                 return;
             }
 
-            $result = $this->model->removeTour($id);
+            $result = $this->model->softDelete($id);
             if ($result) {
-                $_SESSION['success'] = 'Xóa tour thành công!';
+                $_SESSION['success'] = 'Tour đã được chuyển vào Thùng rác thành công!';
             } else {
                 throw new Exception('Không thể xóa tour');
             }
         } catch (Exception $e) {
             $_SESSION['error'] = 'Có lỗi xảy ra: ' . $e->getMessage();
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+        }
+    }
+
+    /**
+     * Restore a soft-deleted tour
+     */
+    public function restore()
+    {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours&view=trash');
+            return;
         }
 
-        header('Location:' . BASE_URL_ADMIN . '&action=tours');
+        try {
+            if ($this->model->restore($id)) {
+                $_SESSION['success'] = 'Khôi phục tour thành công!';
+            } else {
+                throw new Exception('Không thể khôi phục tour.');
+            }
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        header('Location: ' . BASE_URL_ADMIN . '&action=tours&view=trash');
     }
-    public function detail()
+
+    /**
+     * Permanently delete a tour
+     */
+    public function forceDelete()
+    {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours&view=trash');
+            return;
+        }
+
+        try {
+            if ($this->model->removeTour($id)) {
+                $_SESSION['success'] = 'Đã xóa vĩnh viễn tour thành công!';
+            } else {
+                throw new Exception('Không thể xóa vĩnh viễn tour.');
+            }
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        header('Location: ' . BASE_URL_ADMIN . '&action=tours&view=trash');
+    }
+
+    /**
+     * Clone an existing tour
+     */
+    public function clone()
+    {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+            return;
+        }
+
+        try {
+            $newId = $this->model->cloneTour($id);
+            if ($newId) {
+                $_SESSION['success'] = 'Nhân bản tour thành công! Bạn đang ở trang chỉnh sửa tour mới.';
+                header('Location: ' . BASE_URL_ADMIN . '&action=tours/edit&id=' . $newId);
+                return;
+            } else {
+                throw new Exception('Không thể nhân bản tour.');
+            }
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+    }public function detail()
     {
         $id = $_GET['id'] ?? null;
         if (!$id) {
@@ -958,5 +1032,191 @@ class TourController
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
         }
+    }
+    /**
+     * Sao chép Tour (Clone Tour)
+     */
+    public function cloneTour()
+    {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+            exit;
+        }
+
+        try {
+            $this->model->beginTransaction();
+
+            $originalTour = $this->model->findById($id);
+            if (!$originalTour) throw new Exception("Không tìm thấy tour gốc.");
+
+            // 1. Nhân bản Tour chính
+            $newTourData = $originalTour;
+            unset($newTourData['id']);
+            $newTourData['name'] = $originalTour['name'] . ' (Sao chép)';
+            $newTourData['status'] = 'draft'; // Mặc định là nháp
+            $newTourData['created_at'] = date('Y-m-d H:i:s');
+            
+            $newTourId = $this->model->insert($newTourData);
+
+            // 2. Nhân bản Lịch trình (Itineraries)
+            require_once 'models/TourItinerary.php';
+            require_once 'models/TourGallery.php';
+            require_once 'models/TourPricing.php';
+            require_once 'models/TourPolicyAssignment.php';
+
+            $itineraryModel = new TourItinerary();
+            $itineraries = $itineraryModel->select('*', 'tour_id = :tid', ['tid' => $id]);
+            foreach ($itineraries as $it) {
+                unset($it['id']);
+                $it['tour_id'] = $newTourId;
+                $itineraryModel->insert($it);
+            }
+
+            // 3. Nhân bản Gallery
+            $galleryModel = new TourImage();
+            $gallery = $galleryModel->select('*', 'tour_id = :tid', ['tid' => $id]);
+            foreach ($gallery as $img) {
+                unset($img['id']);
+                $img['tour_id'] = $newTourId;
+                $galleryModel->insert($img);
+            }
+
+            // 4. Nhân bản Pricing Options
+            $pricingModel = new TourPricing();
+            $pricing = $pricingModel->select('*', 'tour_id = :tid', ['tid' => $id]);
+            foreach ($pricing as $p) {
+                unset($p['id']);
+                $p['tour_id'] = $newTourId;
+                $pricingModel->insert($p);
+            }
+
+            // 5. Nhân bản Policy Assignments
+            $policyModel = new TourPolicyAssignment();
+            $policies = $policyModel->select('*', 'tour_id = :tid', ['tid' => $id]);
+            foreach ($policies as $pol) {
+                unset($pol['id']);
+                $pol['tour_id'] = $newTourId;
+                $policyModel->insert($pol);
+            }
+
+            $this->model->commit();
+            $_SESSION['success'] = 'Sao chép tour thành công! Vui lòng cập nhật lại thông tin tour mới.';
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours/edit&id=' . $newTourId);
+            exit;
+
+        } catch (Exception $e) {
+            $this->model->rollBack();
+            $_SESSION['error'] = 'Lỗi khi sao chép tour: ' . $e->getMessage();
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+            exit;
+        }
+    }
+
+    /**
+     * Danh sách tất cả lịch khởi hành
+     */
+    public function listDepartures()
+    {
+        require_once 'models/TourDeparture.php';
+        $departureModel = new TourDeparture();
+        
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $perPage = 20;
+
+        $filters = [
+            'tour_id'   => $_GET['tour_id'] ?? null,
+            'keyword'   => isset($_GET['keyword']) ? trim($_GET['keyword']) : '',
+            'status'    => isset($_GET['status']) ? trim($_GET['status']) : '',
+            'date_from' => $_GET['date_from'] ?? '',
+            'date_to'   => $_GET['date_to'] ?? '',
+        ];
+
+        $result = $departureModel->getAllWithBookingStats($page, $perPage, $filters);
+        
+        $departures = $result['data'];
+        $pagination = [
+            'total' => $result['total'],
+            'page' => $result['page'],
+            'per_page' => $result['per_page'],
+            'total_pages' => $result['total_pages'],
+        ];
+
+        // Lấy danh sách tour để lọc (nếu cần)
+        $tours = $this->model->select('id, name');
+        
+        require_once 'views/admin/pages/tour_departures/index.php';
+    }
+
+    /**
+     * Giao diện gán tài nguyên (NCC, Xe, Khách sạn) cho 1 chuyến đi
+     */
+    public function manageDepartureResources()
+    {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours/departures');
+            exit;
+        }
+
+        require_once 'models/TourDeparture.php';
+        require_once 'models/DepartureResource.php';
+        require_once 'models/Supplier.php';
+
+        $departureModel = new TourDeparture();
+        $resourceModel = new DepartureResource();
+        $supplierModel = new Supplier();
+
+        $departure = $departureModel->findById($id);
+        if (!$departure) {
+            $_SESSION['error'] = 'Không tìm thấy lịch khởi hành.';
+            header('Location: ' . BASE_URL_ADMIN . '&action=tours/departures');
+            exit;
+        }
+
+        $resources = $resourceModel->getByDepartureId($id);
+        $suppliers = $supplierModel->select();
+        $totalRevenue = $departureModel->getTotalRevenue($id);
+
+        require_once 'views/admin/pages/tour_departures/resources.php';
+    }
+
+    /**
+     * Lưu thông tin tài nguyên đoàn
+     */
+    public function saveDepartureResources()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') exit;
+
+        $departureId = $_POST['departure_id'] ?? null;
+        if (!$departureId) exit;
+
+        require_once 'models/DepartureResource.php';
+        $resourceModel = new DepartureResource();
+
+        // Xóa cũ và insert mới (Dễ quản lý)
+        $resourceModel->delete('departure_id = :did', ['did' => $departureId]);
+
+        if (!empty($_POST['resources']) && is_array($_POST['resources'])) {
+            foreach ($_POST['resources'] as $res) {
+                if (!empty($res['supplier_id'])) {
+                    $qty = (int)($res['quantity'] ?? 1);
+                    $price = (float)($res['unit_price'] ?? 0);
+                    $resourceModel->insert([
+                        'departure_id' => $departureId,
+                        'supplier_id' => $res['supplier_id'],
+                        'service_type' => $res['service_type'] ?? 'other',
+                        'quantity' => $qty,
+                        'unit_price' => $price,
+                        'total_amount' => $qty * $price,
+                        'notes' => $res['notes'] ?? ''
+                    ]);
+                }
+            }
+        }
+
+        $_SESSION['success'] = 'Cập nhật tài nguyên đoàn thành công.';
+        header('Location: ' . BASE_URL_ADMIN . '&action=tours/departure-resources&id=' . $departureId);
+        exit;
     }
 }

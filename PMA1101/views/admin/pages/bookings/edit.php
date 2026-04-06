@@ -115,16 +115,16 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         <div class="card-premium mb-4 border-0 shadow-sm bg-white">
                             <div class="card-header-premium p-3 px-4 border-bottom border-light">
                                 <h6 class="fw-bold mb-0 text-primary d-flex align-items-center gap-2">
-                                    <i class="ph-fill ph-user-circle"></i> Thông tin khách hàng
+                                    <i class="ph-fill ph-user-circle"></i> Thông tin khách hàng & Liên hệ
                                 </h6>
                             </div>
                             <div class="card-body-premium p-4">
                                 <div class="row g-3">
-                                    <div class="col-12">
+                                    <div class="col-12 mb-2">
                                         <div class="input-group">
                                             <div class="form-floating flex-grow-1">
-                                                <select class="form-select" id="customer_id" name="customer_id" required>
-                                                    <option value="">-- Chọn khách hàng --</option>
+                                                <select class="form-select" id="customer_id" name="customer_id">
+                                                    <option value="">-- Khách vãng lai (không tài khoản) --</option>
                                                     <?php if (!empty($customers)): ?>
                                                         <?php foreach ($customers as $c): ?>
                                                             <option value="<?= htmlspecialchars($c['user_id']) ?>"
@@ -134,14 +134,40 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                                         <?php endforeach; ?>
                                                     <?php endif; ?>
                                                 </select>
-                                                <label for="customer_id">Khách hàng chính <span class="text-danger">*</span></label>
+                                                <label for="customer_id">Liên kết tài khoản khách hàng</label>
                                             </div>
                                             <a href="<?= BASE_URL_ADMIN ?>&action=users/create" target="_blank" class="btn btn-outline-primary d-flex align-items-center px-3" title="Tạo khách hàng mới">
                                                 <i class="ph-fill ph-user-plus fs-5"></i>
                                             </a>
                                         </div>
-                                        <div class="mt-2 text-muted small px-1">
-                                            <i class="ph ph-info me-1"></i>Chọn khách hàng hoặc click "+" để thêm mới người dùng.
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="contact_name" name="contact_name" 
+                                                value="<?= htmlspecialchars($booking['contact_name'] ?? '') ?>" placeholder=" " required>
+                                            <label for="contact_name">Họ tên người liên hệ <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="tel" class="form-control" id="contact_phone" name="contact_phone" 
+                                                value="<?= htmlspecialchars($booking['contact_phone'] ?? '') ?>" placeholder=" " required>
+                                            <label for="contact_phone">Số điện thoại <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                                value="<?= htmlspecialchars($booking['contact_email'] ?? '') ?>" placeholder=" " required>
+                                            <label for="contact_email">Email liên hệ <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="contact_address" name="contact_address" 
+                                                value="<?= htmlspecialchars($booking['contact_address'] ?? '') ?>" placeholder=" ">
+                                            <label for="contact_address">Địa chỉ khách</label>
                                         </div>
                                     </div>
                                 </div>
@@ -215,12 +241,37 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <select class="form-select" id="status" name="status" required>
+                                                <option value="pending" <?= $booking['status'] == 'pending' ? 'selected' : '' ?>>Chờ thanh toán (Hold)</option>
                                                 <option value="cho_xac_nhan" <?= $booking['status'] == 'cho_xac_nhan' ? 'selected' : '' ?>>Chờ xác nhận</option>
                                                 <option value="da_coc" <?= $booking['status'] == 'da_coc' ? 'selected' : '' ?>>Đã cọc</option>
                                                 <option value="hoan_tat" <?= $booking['status'] == 'hoan_tat' ? 'selected' : '' ?>>Hoàn tất</option>
                                                 <option value="da_huy" <?= $booking['status'] == 'da_huy' ? 'selected' : '' ?>>Đã hủy</option>
+                                                <option value="expired" <?= $booking['status'] == 'expired' ? 'selected' : '' ?>>Hết hạn</option>
                                             </select>
                                             <label for="status">Trạng thái Booking <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Passenger Counts -->
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="adults" name="adults"
+                                                value="<?= $booking['adults'] ?>" min="1" required>
+                                            <label for="adults">Người lớn <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="children" name="children"
+                                                value="<?= $booking['children'] ?>" min="0">
+                                            <label for="children">Trẻ em</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="infants" name="infants"
+                                                value="<?= $booking['infants'] ?>" min="0">
+                                            <label for="infants">Em bé</label>
                                         </div>
                                     </div>
                                 </div>

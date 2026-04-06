@@ -21,6 +21,7 @@ define('PATH_CONTROLLER_ADMIN',     PATH_ROOT . 'controller/admin/');
 define('PATH_CONTROLLER_CLIENT',    PATH_ROOT . 'controller/client/');
 
 define('PATH_MODEL',                PATH_ROOT . 'models/');
+define('PATH_SERVICE',              PATH_ROOT . 'services/');
 
 define('DB_HOST',           'localhost');
 define('DB_PORT',           '3306');

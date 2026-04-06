@@ -16,7 +16,10 @@ if (!isset($isAjax)) {
                 </ol>
             </nav>
         </div>
-        <div>
+        <div class="d-flex gap-2">
+            <a href="<?= BASE_URL_ADMIN . '&action=tours&view=trash' ?>" class="btn btn-outline-danger d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);">
+                <i class="ph ph-trash" style="font-size: 1.1rem;"></i> Thùng Rác
+            </a>
             <a href="<?= BASE_URL_ADMIN . '&action=tours/create' ?>" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);">
                 <i class="ph ph-plus-circle" style="font-size: 1.1rem;"></i> Thêm Tour Mới
             </a>
@@ -368,8 +371,9 @@ if (!isset($isAjax)) {
                                         <div class="d-flex justify-content-end gap-1">
                                             <a href="<?= BASE_URL_ADMIN . '&action=tours/detail&id=' . $tour['id'] ?>" class="btn btn-sm bg-white text-primary border shadow-sm" title="Chi tiết"><i class="ph ph-eye"></i></a>
                                             <a href="<?= BASE_URL_ADMIN . '&action=tours/edit&id=' . $tour['id'] ?>" class="btn btn-sm bg-white text-muted border shadow-sm" title="Sửa"><i class="ph ph-pencil-simple"></i></a>
+                                            <a href="<?= BASE_URL_ADMIN . '&action=tours/clone&id=' . $tour['id'] ?>" class="btn btn-sm bg-white text-success border shadow-sm" title="Nhân bản" onclick="return confirm('Bạn có chắc chắn muốn nhân bản tour này?')"><i class="ph ph-copy"></i></a>
                                             <button type="button" class="btn btn-sm bg-white text-info border shadow-sm btn-qr" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>" title="Lấy Link & QR"><i class="ph ph-qr-code"></i></button>
-                                            <button type="button" class="btn btn-sm bg-white text-danger border shadow-sm delete-tour" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>" title="Xóa"><i class="ph ph-trash"></i></button>
+                                            <button type="button" class="btn btn-sm bg-white text-danger border shadow-sm delete-tour" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>" title="Xóa vào thùng rác"><i class="ph ph-trash"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -530,8 +534,8 @@ if (!isset($isAjax)) {
                 <div class="d-inline-flex justify-content-center align-items-center rounded-circle bg-danger-subtle text-danger mb-4" style="width: 72px; height: 72px;">
                     <i class="ph-fill ph-warning-circle" style="font-size: 2.5rem;"></i>
                 </div>
-                <h5 class="fw-bold mb-3">Xóa tour này?</h5>
-                <p class="text-muted mb-4">Bạn có chắc chắn muốn xóa tour "<strong id="delete-tour-name" class="text-dark"></strong>"?<br> Hành động này không thể hoàn tác.</p>
+                <h5 class="fw-bold mb-3">Xóa vào thùng rác?</h5>
+                <p class="text-muted mb-4">Bạn có chắc chắn muốn chuyển tour "<strong id="delete-tour-name" class="text-dark"></strong>" vào thùng rác?<br> Bạn có thể khôi phục lại bất cứ lúc nào trong mục Thùng rác.</p>
                 <div class="d-flex justify-content-center gap-2">
                     <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Hủy bỏ</button>
                     <form id="delete-form" method="POST" class="m-0">

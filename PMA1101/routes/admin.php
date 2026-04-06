@@ -19,6 +19,8 @@ require_once 'controller/admin/TourAssignmentController.php';
 require_once 'controller/admin/GuideWorkController.php';
 require_once 'controller/admin/TourVehicleController.php';
 require_once 'controller/admin/AvailableToursController.php'; // Add missing controller
+require_once 'controller/admin/AdminBlogController.php';
+require_once 'controller/admin/AdminTourReviewController.php';
 
 require_once 'controller/admin/UserController.php';
 
@@ -43,6 +45,7 @@ match ($action) {
     'tours/store'                           => (new TourController)->store(),
     'tours/edit'                            => (new TourController)->edit(),
     'tours/update'                          => (new TourController)->update(),
+    'tours/clone'                           => (new TourController)->cloneTour(),
     'tours/delete'                          => (new TourController)->delete(),
     'tours/detail'                          => (new TourController)->detail(),
     'tours/toggle-status'                   => (new TourController)->toggleStatus(),
@@ -52,6 +55,9 @@ match ($action) {
     'tours/search'                          => (new TourController)->search(),
     'tours/by-status'                       => (new TourController)->getByStatus(),
     'tours/add-departure'                   => (new TourController)->addDeparture(),
+    'tours/departures'                       => (new TourController)->listDepartures(),
+    'tours/departure-resources'             => (new TourController)->manageDepartureResources(),
+    'tours/save-departure-resources'         => (new TourController)->saveDepartureResources(),
 
     // Tour Category
     'tours_categories'                      => (new TourCategoryController)->index(),
@@ -87,6 +93,8 @@ match ($action) {
     'tours_logs/delete'                     => (new TourLogController)->delete(),
     'tours_logs/detail'                     => (new TourLogController)->detail(),
     'tours_logs/tour_detail'                => (new TourLogController)->tourDetail(),
+    'tours_logs/checkin'                    => (new TourLogController)->checkin(),
+    'tours_logs/toggleCheckin'               => (new TourLogController)->toggleCheckin(), // AJAX
     'tours_logs/mark_request_handled'       => (new TourLogController)->markRequestHandled(), // AJAX
 
     // Bookings
@@ -106,6 +114,8 @@ match ($action) {
     'bookings/update-checkin'               => (new BookingController)->updateCheckin(), // AJAX endpoint
     'bookings/bulk-checkin'                 => (new BookingController)->bulkCheckin(), // AJAX endpoint
     'bookings/print-group-list'             => (new BookingController)->printGroupList(),
+    'bookings/allocate-rooms'               => (new BookingController)->allocateRooms(),
+    'bookings/save-room-allocation'         => (new BookingController)->saveRoomAllocation(), // AJAX
 
 
 
@@ -162,11 +172,25 @@ match ($action) {
     'users/delete'                          => (new UserController)->delete(),
     'users/detail'                          => (new UserController)->detail(),
 
+    // Blogs
+    'blogs'                                 => (new AdminBlogController)->index(),
+    'blogs/create'                          => (new AdminBlogController)->create(),
+    'blogs/store'                           => (new AdminBlogController)->store(),
+    'blogs/edit'                            => (new AdminBlogController)->edit(),
+    'blogs/update'                          => (new AdminBlogController)->update(),
+    'blogs/delete'                          => (new AdminBlogController)->delete(),
+
+    // Reviews
+    'tour_reviews'                          => (new AdminTourReviewController)->index(),
+    'tour_reviews/updateStatus'              => (new AdminTourReviewController)->updateStatus(), // AJAX
+    'tour_reviews/delete'                   => (new AdminTourReviewController)->delete(),
+
     // Reports
     'reports'              => (new ReportController)->index(),
     'reports/financial'    => (new ReportController)->financial(),
     'reports/bookings'     => (new ReportController)->bookings(),
     'reports/feedback'     => (new ReportController)->feedback(),
+    'reports/debt'         => (new ReportController)->debt(),
 
     'reports/dashboard'    => (new ReportController)->dashboard(),
 

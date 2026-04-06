@@ -15,9 +15,6 @@ class FinancialReport extends BaseModel
         $this->supplierCost = new SupplierCost();
     }
 
-    /**
-     * Lấy báo cáo tài chính tổng quan theo khoảng thời gian 
-     */
     public function getFinancialSummary($dateFrom = null, $dateTo = null, $filters = [], $skipGrowth = false)
     {
         $dateFrom = $dateFrom ?? date('Y-m-01');
@@ -52,14 +49,38 @@ class FinancialReport extends BaseModel
         $stmt->execute($params);
         $revenueData = $stmt->fetch();
 
-        // Chi phí thực tế từ nhà cung cấp
+        // Chi phí dự toán từ nhà cung cấp (BSA)
         $costData = $this->supplierCost->getTotalCosts($dateFrom, $dateTo, $filters);
-        $totalExpense = $costData['total_costs'] ?? 0;
+        $totalEstimatedExpense = $costData['total_costs'] ?? 0;
+
+        // Chi phí thực tế từ Tour Logs và Departure Resources
+        $totalActualExpense = 0;
+        if (!empty($filters['tour_id'])) {
+            $totalActualExpense = $this->getActualExpenses($filters['tour_id'], $dateFrom, $dateTo);
+        } else {
+            // Nếu không lọc theo tour, tính tổng toàn bộ
+            $sqlActual = "SELECT 
+                            (SELECT COALESCE(SUM(actual_cost), 0) FROM tour_logs 
+                             WHERE date BETWEEN :d1 AND :d2) + 
+                            (SELECT COALESCE(SUM(dr.total_amount), 0) FROM departure_resources dr
+                             JOIN tour_departures td ON dr.departure_id = td.id
+                             WHERE td.departure_date BETWEEN :d1 AND :d2) as total";
+            $stmt = self::$pdo->prepare($sqlActual);
+            $stmt->execute([':d1' => $dateFrom, ':d2' => $dateTo]);
+            $result = $stmt->fetch();
+            $totalActualExpense = $result['total'] ?? 0;
+        }
 
         // Tính toán lợi nhuận và các chỉ số
         $totalRevenue = $revenueData['total_revenue'] ?? 0;
-        $profit = $totalRevenue - $totalExpense;
-        $profitMargin = $totalRevenue > 0 ? ($profit / $totalRevenue) * 100 : 0;
+        
+        // Lợi nhuận dự toán
+        $estimatedProfit = $totalRevenue - $totalEstimatedExpense;
+        $estimatedProfitMargin = $totalRevenue > 0 ? ($estimatedProfit / $totalRevenue) * 100 : 0;
+        
+        // Lợi nhuận thực tế
+        $actualProfit = $totalRevenue - $totalActualExpense;
+        $actualProfitMargin = $totalRevenue > 0 ? ($actualProfit / $totalRevenue) * 100 : 0;
 
         // Lấy dữ liệu kỳ trước để tính growth (chỉ khi không skip)
         $revenueGrowth = 0;
@@ -69,15 +90,18 @@ class FinancialReport extends BaseModel
         if (!$skipGrowth) {
             $previousPeriodData = $this->getPreviousPeriodData($dateFrom, $dateTo, $filters);
             $revenueGrowth = $this->calculateGrowth($totalRevenue, $previousPeriodData['total_revenue']);
-            $expenseGrowth = $this->calculateGrowth($totalExpense, $previousPeriodData['total_expense']);
-            $profitGrowth = $this->calculateGrowth($profit, $previousPeriodData['profit']);
+            $expenseGrowth = $this->calculateGrowth($totalActualExpense, $previousPeriodData['total_actual_expense']);
+            $profitGrowth = $this->calculateGrowth($actualProfit, $previousPeriodData['actual_profit']);
         }
 
         return [
             'total_revenue' => $totalRevenue,
-            'total_expense' => $totalExpense,
-            'profit' => $profit,
-            'profit_margin' => $profitMargin,
+            'total_estimated_expense' => $totalEstimatedExpense,
+            'total_actual_expense' => $totalActualExpense,
+            'estimated_profit' => $estimatedProfit,
+            'estimated_profit_margin' => $estimatedProfitMargin,
+            'actual_profit' => $actualProfit,
+            'actual_profit_margin' => $actualProfitMargin,
             'total_bookings' => $revenueData['total_bookings'] ?? 0,
             'avg_booking_value' => $revenueData['avg_booking_value'] ?? 0,
             'cost_count' => $costData['cost_count'] ?? 0,
@@ -86,6 +110,24 @@ class FinancialReport extends BaseModel
             'expense_growth' => $expenseGrowth,
             'profit_growth' => $profitGrowth
         ];
+    }
+
+    /**
+     * Lấy chi phí thực tế từ bảng tour_logs và departure_resources
+     */
+    public function getActualExpenses($tourId, $dateFrom, $dateTo)
+    {
+        // Phối hợp chi phí từ tour_logs và departure_resources
+        $sql = "SELECT 
+                    (SELECT COALESCE(SUM(actual_cost), 0) FROM tour_logs 
+                     WHERE tour_id = :tid AND date BETWEEN :d1 AND :d2) + 
+                    (SELECT COALESCE(SUM(dr.total_amount), 0) FROM departure_resources dr
+                     JOIN tour_departures td ON dr.departure_id = td.id
+                     WHERE td.tour_id = :tid AND td.departure_date BETWEEN :d1 AND :d2) as total";
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute([':tid' => $tourId, ':d1' => $dateFrom, ':d2' => $dateTo]);
+        $result = $stmt->fetch();
+        return $result['total'] ?? 0;
     }
 
     /**
@@ -166,10 +208,12 @@ class FinancialReport extends BaseModel
             $tourFilters = array_merge($filters, ['tour_id' => $tour['tour_id']]);
             $costData = $this->supplierCost->getTotalCosts($dateFrom, $dateTo, $tourFilters);
 
-            $tour['expense'] = $costData['total_costs'] ?? 0;
-            $tour['profit'] = $tour['revenue'] - $tour['expense'];
+            $tour['estimated_expense'] = $costData['total_costs'] ?? 0;
+            $tour['actual_expense'] = $this->getActualExpenses($tour['tour_id'], $dateFrom, $dateTo);
+            
+            $tour['profit'] = $tour['revenue'] - $tour['actual_expense'];
             $tour['profit_margin'] = $tour['revenue'] > 0 ? ($tour['profit'] / $tour['revenue']) * 100 : 0;
-            $tour['cost_count'] = $costData['cost_count'] ?? 0;
+            $tour['variance'] = $tour['estimated_expense'] - $tour['actual_expense'];
         }
 
         // Sắp xếp lại theo lợi nhuận
@@ -218,16 +262,34 @@ class FinancialReport extends BaseModel
         $stmt->execute($params);
         $revenueData = $stmt->fetchAll();
 
-        // Lấy chi phí thực tế theo tháng
+        // Lấy chi phí dự kiến từ BSA theo tháng
         $costFilters = $filters;
         $costFilters['year'] = $year;
-        $expenseData = $this->supplierCost->getMonthlyCosts($year, $costFilters);
+        $estimatedExpenseData = $this->supplierCost->getMonthlyCosts($year, $costFilters);
 
-        // Gộp dữ liệu revenue và expense
+        // Chi phí thực tế tổng hợp (Tour Logs + Departure Resources)
+        $sqlActual = "SELECT month, SUM(total_actual) as total_actual FROM (
+                        SELECT MONTH(d.departure_date) as month, 
+                            (SELECT COALESCE(SUM(actual_cost), 0) FROM tour_logs l
+                             JOIN tour_departures d2 ON l.tour_id = d2.tour_id 
+                             WHERE MONTH(d2.departure_date) = MONTH(d.departure_date) AND YEAR(d2.departure_date) = :year) + 
+                            (SELECT COALESCE(SUM(total_amount), 0) FROM departure_resources r
+                             JOIN tour_departures d3 ON r.departure_id = d3.id
+                             WHERE MONTH(d3.departure_date) = MONTH(d.departure_date) AND YEAR(d3.departure_date) = :year) as total_actual
+                        FROM tour_departures d
+                        WHERE YEAR(d.departure_date) = :year
+                      ) subquery 
+                      GROUP BY month";
+        $stmtActual = self::$pdo->prepare($sqlActual);
+        $stmtActual->execute([':year' => $year]);
+        $actualExpenseData = $stmtActual->fetchAll();
+
+        // Gộp dữ liệu
         $monthlyData = [];
         for ($month = 1; $month <= 12; $month++) {
             $revenue = 0;
-            $expense = 0;
+            $estExpense = 0;
+            $actExpense = 0;
             $bookings = 0;
 
             foreach ($revenueData as $data) {
@@ -238,21 +300,29 @@ class FinancialReport extends BaseModel
                 }
             }
 
-            foreach ($expenseData as $data) {
+            foreach ($estimatedExpenseData as $data) {
                 if ($data['month'] == $month) {
-                    $expense = $data['total_costs'];
+                    $estExpense = $data['total_costs'];
                     break;
                 }
             }
 
-            $profit = $revenue - $expense;
+            foreach ($actualExpenseData as $data) {
+                if ($data['month'] == $month) {
+                    $actExpense = $data['total_actual'];
+                    break;
+                }
+            }
+
+            $profit = $revenue - $actExpense;
             $profitMargin = $revenue > 0 ? ($profit / $revenue) * 100 : 0;
 
             $monthlyData[] = [
                 'month' => $month,
                 'month_name' => date('F', mktime(0, 0, 0, $month, 1)),
                 'revenue' => $revenue,
-                'expense' => $expense,
+                'estimated_expense' => $estExpense,
+                'actual_expense' => $actExpense,
                 'profit' => $profit,
                 'profit_margin' => $profitMargin,
                 'bookings' => $bookings

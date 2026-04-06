@@ -97,50 +97,50 @@ $filterOptions = $data['filterOptions'] ?? [];
             </div>
         </div>
 
-        <!-- Total Expense -->
+        <!-- Total Estimated Expense -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card card-premium p-3 border-0 shadow-sm h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center justify-content-center text-warning border border-warning-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--warning-subtle);">
+                        <i class="ph ph-hash" style="font-size: 1rem;"></i>
+                    </div>
+                    <span class="badge rounded-pill bg-warning-subtle text-warning" style="font-size: 0.7rem;">Dự toán (BSA)</span>
+                </div>
+                <div>
+                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Tổng Chi Dự Kiến</p>
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.25rem; letter-spacing: -0.5px;"><?= number_format($financialData['total_estimated_expense'] ?? 0, 0, ',', '.') ?> <span style="font-size: 0.8rem; font-weight: 500;">₫</span></h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Actual Expense -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card card-premium p-3 border-0 shadow-sm h-100">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div class="d-flex align-items-center justify-content-center text-danger border border-danger-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--danger-subtle);">
                         <i class="ph ph-receipt" style="font-size: 1rem;"></i>
                     </div>
-                    <span class="badge rounded-pill bg-danger-subtle text-danger" style="font-size: 0.7rem;"><?= $financialData['cost_count'] ?? 0 ?> khoản chi</span>
+                    <span class="badge rounded-pill bg-danger-subtle text-danger" style="font-size: 0.7rem;">Thực tế (Logs)</span>
                 </div>
                 <div>
-                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Tổng Chi Phí</p>
-                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.25rem; letter-spacing: -0.5px;"><?= number_format($financialData['total_expense'] ?? 0, 0, ',', '.') ?> <span style="font-size: 0.8rem; font-weight: 500;">₫</span></h3>
+                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Tổng Chi Thực Tế</p>
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.25rem; letter-spacing: -0.5px;"><?= number_format($financialData['total_actual_expense'] ?? 0, 0, ',', '.') ?> <span style="font-size: 0.8rem; font-weight: 500;">₫</span></h3>
                 </div>
             </div>
         </div>
 
-        <!-- Profit -->
+        <!-- Actual Profit -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card card-premium p-3 border-0 shadow-sm h-100">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div class="d-flex align-items-center justify-content-center text-primary border border-primary-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--primary-subtle);">
                         <i class="ph ph-trend-up" style="font-size: 1rem;"></i>
                     </div>
-                    <span class="badge rounded-pill bg-primary-subtle text-primary" style="font-size: 0.7rem;"><?= number_format($financialData['profit_margin'] ?? 0, 1) ?>% Margin</span>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary" style="font-size: 0.7rem;"><?= number_format($financialData['actual_profit_margin'] ?? 0, 1) ?>% Margin</span>
                 </div>
                 <div>
-                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Lợi Nhuận</p>
-                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.25rem; letter-spacing: -0.5px;"><?= number_format($financialData['profit'] ?? 0, 0, ',', '.') ?> <span style="font-size: 0.8rem; font-weight: 500;">₫</span></h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Avg Value -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card card-premium p-3 border-0 shadow-sm h-100">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="d-flex align-items-center justify-content-center text-info border border-info-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--info-subtle);">
-                        <i class="ph ph-chart-line" style="font-size: 1rem;"></i>
-                    </div>
-                    <span class="badge rounded-pill bg-info-subtle text-info" style="font-size: 0.7rem;">TB / Booking</span>
-                </div>
-                <div>
-                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Giá trị TB</p>
-                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.25rem; letter-spacing: -0.5px;"><?= number_format($financialData['avg_booking_value'] ?? 0, 0, ',', '.') ?> <span style="font-size: 0.8rem; font-weight: 500;">₫</span></h3>
+                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Lợi Nhuận Thực</p>
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.25rem; letter-spacing: -0.5px;"><?= number_format($financialData['actual_profit'] ?? 0, 0, ',', '.') ?> <span style="font-size: 0.8rem; font-weight: 500;">₫</span></h3>
                 </div>
             </div>
         </div>
@@ -194,12 +194,12 @@ $filterOptions = $data['filterOptions'] ?? [];
                         <tr>
                             <th class="border-0 ps-3">#</th>
                             <th class="border-0">Tên Tour</th>
-                            <th class="border-0">Danh Mục</th>
                             <th class="border-0 text-end">Booking</th>
                             <th class="border-0 text-end">Doanh Thu</th>
-                            <th class="border-0 text-end">Chi Phí</th>
-                            <th class="border-0 text-end">Lợi Nhuận</th>
-                            <th class="border-0 text-end pe-3">Tỷ suất LN</th>
+                            <th class="border-0 text-end">Dự toán (BSA)</th>
+                            <th class="border-0 text-end">Thực tế (Logs)</th>
+                            <th class="border-0 text-end">Chênh lệch</th>
+                            <th class="border-0 text-end pe-3">Lợi Nhuận Thực</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -208,23 +208,31 @@ $filterOptions = $data['filterOptions'] ?? [];
                                 <tr>
                                     <td class="ps-3 fw-bold text-muted" style="font-size: 0.8rem;"><?= $index + 1 ?></td>
                                     <td>
-                                        <div class="fw-semibold text-dark text-truncate" style="max-width: 280px;" title="<?= htmlspecialchars($tour['tour_name']) ?>">
-                                            <i class="ph ph-map-pin text-muted me-2"></i>
+                                        <div class="fw-semibold text-dark text-truncate" style="max-width: 250px;" title="<?= htmlspecialchars($tour['tour_name']) ?>">
                                             <?= htmlspecialchars($tour['tour_name']) ?>
                                         </div>
+                                        <div class="text-muted" style="font-size: 0.7rem;"><?= htmlspecialchars($tour['category_name'] ?? 'N/A') ?></div>
                                     </td>
-                                    <td><span class="badge bg-light text-secondary border fw-medium"><?= htmlspecialchars($tour['category_name'] ?? 'N/A') ?></span></td>
                                     <td class="text-end fw-medium"><?= number_format($tour['booking_count'] ?? 0) ?></td>
-                                    <td class="text-end fw-bold text-success"><?= number_format($tour['revenue'] ?? 0, 0, ',', '.') ?> <span style="font-weight: 400; font-size: 0.8rem;">₫</span></td>
-                                    <td class="text-end text-danger"><?= number_format($tour['expense'] ?? 0, 0, ',', '.') ?> <span style="font-weight: 400; font-size: 0.8rem;">₫</span></td>
-                                    <td class="text-end fw-bold <?= ($tour['profit'] ?? 0) >= 0 ? 'text-primary' : 'text-danger' ?>">
-                                        <?= number_format($tour['profit'] ?? 0, 0, ',', '.') ?> <span style="font-weight: 400; font-size: 0.8rem;">₫</span>
+                                    <td class="text-end fw-bold text-success"><?= number_format($tour['revenue'] ?? 0, 0, ',', '.') ?></td>
+                                    <td class="text-end text-muted"><?= number_format($tour['estimated_expense'] ?? 0, 0, ',', '.') ?></td>
+                                    <td class="text-end text-danger fw-medium"><?= number_format($tour['actual_expense'] ?? 0, 0, ',', '.') ?></td>
+                                    <td class="text-end">
+                                        <?php $variance = $tour['variance'] ?? 0; ?>
+                                        <span class="fw-bold <?= $variance >= 0 ? 'text-success' : 'text-danger' ?>">
+                                            <?= $variance > 0 ? '+' : '' ?><?= number_format($variance, 0, ',', '.') ?>
+                                        </span>
                                     </td>
                                     <td class="text-end pe-3">
-                                        <?php $margin = $tour['profit_margin'] ?? 0; ?>
-                                        <span class="badge <?= $margin >= 20 ? 'bg-success-subtle text-success' : ($margin >= 10 ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger') ?> rounded-pill" style="font-size: 0.75rem;">
-                                            <?= number_format($margin, 1) ?>%
-                                        </span>
+                                        <div class="fw-bold <?= ($tour['profit'] ?? 0) >= 0 ? 'text-primary' : 'text-danger' ?>">
+                                            <?= number_format($tour['profit'] ?? 0, 0, ',', '.') ?>
+                                        </div>
+                                        <div style="font-size: 0.7rem;">
+                                            <?php $margin = $tour['profit_margin'] ?? 0; ?>
+                                            <span class="badge <?= $margin >= 20 ? 'text-success' : ($margin >= 10 ? 'text-warning' : 'text-danger') ?> p-0">
+                                                <?= number_format($margin, 1) ?>% Margin
+                                            </span>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -276,7 +284,8 @@ $filterOptions = $data['filterOptions'] ?? [];
         // Re-use data from PHP
         const monthlyLabels = <?= json_encode($data['monthlyLabels'] ?? []) ?>;
         const monthlyRevenue = <?= json_encode($data['monthlyRevenue'] ?? []) ?>;
-        const monthlyExpense = <?= json_encode($data['monthlyExpense'] ?? []) ?>;
+        const monthlyEstimatedExpense = <?= json_encode($data['monthlyEstimatedExpense'] ?? []) ?>;
+        const monthlyActualExpense = <?= json_encode($data['monthlyActualExpense'] ?? []) ?>;
         const monthlyProfit = <?= json_encode($data['monthlyProfit'] ?? []) ?>;
 
         const tourNames = <?= json_encode($data['tourNames'] ?? []) ?>;
@@ -293,24 +302,30 @@ $filterOptions = $data['filterOptions'] ?? [];
                         label: 'Doanh Thu',
                         data: monthlyRevenue,
                         backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                        borderColor: '#10b981',
                         borderWidth: 0,
                         borderRadius: 4,
-                        barThickness: 12
+                        barThickness: 8
                     }, {
-                        label: 'Chi Phí',
-                        data: monthlyExpense,
-                        backgroundColor: 'rgba(239, 68, 68, 0.7)',
-                        borderColor: '#ef4444',
+                        label: 'Chi dự toán (BSA)',
+                        data: monthlyEstimatedExpense,
+                        backgroundColor: 'rgba(245, 158, 11, 0.5)',
                         borderWidth: 0,
-                        borderRadius: 4, barThickness: 12
+                        borderRadius: 4, 
+                        barThickness: 8
                     }, {
-                        label: 'Lợi Nhuận',
+                        label: 'Chi thực tế (Logs)',
+                        data: monthlyActualExpense,
+                        backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                        borderWidth: 0,
+                        borderRadius: 4, 
+                        barThickness: 8
+                    }, {
+                        label: 'Lợi Nhuận Thực',
                         data: monthlyProfit,
                         backgroundColor: 'rgba(67, 97, 238, 0.7)',
-                        borderColor: '#4361ee',
                         borderWidth: 0,
-                        borderRadius: 4, barThickness: 12
+                        borderRadius: 4, 
+                        barThickness: 8
                     }]
                 },
                 options: {

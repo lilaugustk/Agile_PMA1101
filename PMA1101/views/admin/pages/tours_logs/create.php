@@ -123,6 +123,28 @@ $preSelectedTourId = $_GET['tour_id'] ?? null;
                                 </div>
                             </div>
 
+                            <!-- Cost Tracking (US41) -->
+                            <div class="card bg-primary-subtle border-0 mb-4 rounded-3 overflow-hidden">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold text-primary mb-3">
+                                        <i class="fas fa-coins me-2"></i>Chi phí thực tế đoàn (P&L)
+                                    </h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="actual_cost" class="form-label small fw-bold">Tổng chi phí (VNĐ)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text border-0">₫</span>
+                                                <input type="number" class="form-control border-0" id="actual_cost" name="actual_cost" value="0" step="1000">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label for="cost_description" class="form-label small fw-bold">Ghi chú chi phí (Mua vé, Thuê xe, Ăn uống...)</label>
+                                            <textarea class="form-control border-0" id="cost_description" name="cost_description" rows="2" placeholder="Ví dụ: Vé tham quan 20 khách, Ăn trưa tại nhà hàng X..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Actions -->
                             <div class="d-flex justify-content-end gap-2 pt-3 border-top">
                                 <a href="<?= $preSelectedTourId ? BASE_URL_ADMIN . '&action=tours_logs/tour_detail&id=' . $preSelectedTourId : BASE_URL_ADMIN . '&action=tours_logs' ?>" class="btn btn-light">

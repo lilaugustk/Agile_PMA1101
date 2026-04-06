@@ -84,6 +84,11 @@ $isGuide = $userRole === 'guide';
                                 <i class="ph ph-handshake" style="font-size: 1.1rem;"></i> Nhà cung cấp
                             </a>
                         </li>
+                        <li class="menu-item">
+                            <a class="menu-link py-2 <?= isActive('tours/departures') ?>" href="<?= BASE_URL_ADMIN ?>&action=tours/departures">
+                                <i class="ph ph-truck" style="font-size: 1.1rem;"></i> Vận hành đoàn
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </li>
@@ -195,6 +200,11 @@ $isGuide = $userRole === 'guide';
                         <li class="menu-item">
                             <a class="menu-link py-2 <?= isActive('reports/feedback') ?>" href="<?= BASE_URL_ADMIN ?>&action=reports/feedback">
                                 <i class="ph ph-chat-teardrop-dots" style="font-size: 1.1rem;"></i> BC Phản hồi
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a class="menu-link py-2 <?= isActive('reports/debt') ?>" href="<?= BASE_URL_ADMIN ?>&action=reports/debt">
+                                <i class="ph ph-handshake" style="font-size: 1.1rem;"></i> BC Công nợ
                             </a>
                         </li>
                     </ul>

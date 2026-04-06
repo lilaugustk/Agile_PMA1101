@@ -19,7 +19,9 @@ $statusMap = [
     'cho_xac_nhan' => ['text' => 'Chờ xác nhận', 'class' => 'warning', 'icon' => 'clock'],
     'da_coc' => ['text' => 'Đã cọc', 'class' => 'info', 'icon' => 'credit-card'],
     'hoan_tat' => ['text' => 'Hoàn tất', 'class' => 'success', 'icon' => 'check-circle'],
-    'da_huy' => ['text' => 'Đã hủy', 'class' => 'danger', 'icon' => 'times-circle']
+    'da_huy' => ['text' => 'Đã hủy', 'class' => 'danger', 'icon' => 'times-circle'],
+    'pending' => ['text' => 'Chờ thanh toán', 'class' => 'warning', 'icon' => 'hourglass-medium'],
+    'expired' => ['text' => 'Hết hạn', 'class' => 'secondary', 'icon' => 'calendar-x']
 ];
 
 $currentStatus = $statusMap[$booking['status']] ?? ['text' => 'Unknown', 'class' => 'secondary', 'icon' => 'question'];
@@ -46,6 +48,9 @@ $canEdit = ($userRole === 'admin');
                 <div class="header-right d-flex gap-2">
                     <a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="btn btn-light border shadow-sm px-3 py-2">
                         <i class="ph ph-arrow-left me-1"></i> Quay lại
+                    </a>
+                    <a href="<?= BASE_URL_ADMIN ?>&action=bookings/exportInvoice&id=<?= $booking['id'] ?>" target="_blank" class="btn btn-outline-info d-flex align-items-center gap-2 px-3 py-2 shadow-sm">
+                        <i class="ph ph-printer"></i> In Hóa Đơn
                     </a>
                     <?php if ($canEdit): ?>
                         <a href="<?= BASE_URL_ADMIN ?>&action=bookings/edit&id=<?= $booking['id'] ?>" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm">
@@ -124,8 +129,8 @@ $canEdit = ($userRole === 'admin');
                             <i class="ph-fill ph-users-three"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label text-muted small fw-bold">Số lượng khách ghi nhận</span>
-                            <h3 class="stat-value text-dark fw-800 mb-0"><?= count($companions) + 1 ?> guests</h3>
+                            <span class="stat-label text-muted small fw-bold">Tổng số khách</span>
+                            <h3 class="stat-value text-dark fw-800 mb-0"><?= (int)$booking['adults'] + (int)$booking['children'] + (int)$booking['infants'] ?> khách</h3>
                         </div>
                     </div>
                 </div>
@@ -174,12 +179,21 @@ $canEdit = ($userRole === 'admin');
                                                 <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="da_coc" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-credit-card me-2"></i> Đã cọc</a></li>
                                                 <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="hoan_tat" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-check-circle me-2"></i> Hoàn tất</a></li>
                                                 <li><hr class="dropdown-divider opacity-50"></li>
+                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="pending" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-hourglass-medium me-2"></i> Chờ thanh toán</a></li>
                                                 <li><a class="dropdown-item py-2 status-change-btn text-danger" href="#" data-status="da_huy" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-x-circle me-2"></i> Hủy đơn</a></li>
                                             </ul>
                                         </div>
                                     <?php endif; ?>
                                 </div>
                             </div>
+                            <?php if ($booking['status'] === 'pending' && !empty($booking['expires_at'])): ?>
+                                <div class="col-12 mt-3">
+                                    <div class="alert alert-warning border-0 bg-warning bg-opacity-10 p-2 mb-0 rounded-3 small text-warning-emphasis d-flex align-items-center gap-2">
+                                        <i class="ph-fill ph-timer fs-5"></i>
+                                        <span>Giữ chỗ sẽ hết hạn vào: <strong><?= date('H:i d/m/Y', strtotime($booking['expires_at'])) ?></strong></span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -211,44 +225,37 @@ $canEdit = ($userRole === 'admin');
                                 <div class="flex-grow-1">
                                     <div class="border-bottom pb-2 mb-3">
                                         <h4 class="fw-800 text-dark mb-1">
-                                            <?php
-                                            if (!empty($booking['customer_name'])) {
-                                                echo htmlspecialchars($booking['customer_name']);
-                                            } elseif (!empty($companions[0]['full_name'])) {
-                                                echo htmlspecialchars($companions[0]['full_name']) . ' (Khách lẻ)';
-                                            } else {
-                                                echo 'Chưa xác định';
-                                            }
-                                            ?>
+                                            <?= htmlspecialchars($booking['contact_name'] ?: ($booking['customer_name'] ?: 'Khách vãng lai')) ?>
                                         </h4>
                                         <div class="d-flex align-items-center gap-3">
-                                            <span class="text-muted small d-flex align-items-center gap-1 text-truncate" style="max-width: 250px;">
+                                            <span class="text-muted small d-flex align-items-center gap-1">
                                                 <i class="ph ph-envelope"></i>
-                                                <?php
-                                                if (!empty($booking['customer_email'])) {
-                                                    echo htmlspecialchars($booking['customer_email']);
-                                                } else {
-                                                    preg_match('/Email: (.*)/', $booking['notes'] ?? '', $matches);
-                                                    echo !empty($matches[1]) ? htmlspecialchars(trim($matches[1])) : 'N/A';
-                                                }
-                                                ?>
+                                                <?= htmlspecialchars($booking['contact_email'] ?: ($booking['customer_email'] ?: 'N/A')) ?>
                                             </span>
                                             <span class="text-muted small d-flex align-items-center gap-1">
                                                 <i class="ph ph-phone"></i>
-                                                <?php
-                                                if (!empty($booking['customer_phone'])) {
-                                                    echo htmlspecialchars($booking['customer_phone']);
-                                                } elseif (!empty($companions[0]['phone'])) {
-                                                    echo htmlspecialchars($companions[0]['phone']);
-                                                } else {
-                                                    echo 'N/A';
-                                                }
-                                                ?>
+                                                <?= htmlspecialchars($booking['contact_phone'] ?: ($booking['customer_phone'] ?: 'N/A')) ?>
                                             </span>
                                         </div>
+                                        <?php if (!empty($booking['contact_address'])): ?>
+                                            <div class="text-muted small mt-1">
+                                                <i class="ph ph-map-pin"></i> <?= htmlspecialchars($booking['contact_address']) ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
-                                    <div class="alert alert-light border-0 bg-white bg-opacity-50 p-2 mb-0 rounded-3 small text-muted">
-                                        <i class="ph ph-info me-1"></i> Đây là người đại diện ký hợp đồng và chịu trách nhiệm chính về thanh toán.
+                                    <div class="d-flex gap-4">
+                                        <div class="passenger-badge text-center">
+                                            <div class="fw-bold text-dark fs-5"><?= $booking['adults'] ?></div>
+                                            <div class="extra-small text-muted text-uppercase">Người lớn</div>
+                                        </div>
+                                        <div class="passenger-badge text-center">
+                                            <div class="fw-bold text-dark fs-5"><?= $booking['children'] ?></div>
+                                            <div class="extra-small text-muted text-uppercase">Trẻ em</div>
+                                        </div>
+                                        <div class="passenger-badge text-center">
+                                            <div class="fw-bold text-dark fs-5"><?= $booking['infants'] ?></div>
+                                            <div class="extra-small text-muted text-uppercase">Em bé</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

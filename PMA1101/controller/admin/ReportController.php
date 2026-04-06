@@ -128,7 +128,8 @@ class ReportController
         // Chuẩn bị dữ liệu cho biểu đồ
         $monthlyLabels = array_column($monthlyData, 'month_name');
         $monthlyRevenue = array_column($monthlyData, 'revenue');
-        $monthlyExpense = array_column($monthlyData, 'expense');
+        $monthlyEstimatedExpense = array_column($monthlyData, 'estimated_expense');
+        $monthlyActualExpense = array_column($monthlyData, 'actual_expense');
         $monthlyProfit = array_column($monthlyData, 'profit');
 
         // Dữ liệu cho biểu đồ tròn lợi nhuận theo tour
@@ -158,7 +159,8 @@ class ReportController
             'tourFinancials' => $tourFinancials,
             'monthlyLabels' => $monthlyLabels,
             'monthlyRevenue' => $monthlyRevenue,
-            'monthlyExpense' => $monthlyExpense,
+            'monthlyEstimatedExpense' => $monthlyEstimatedExpense,
+            'monthlyActualExpense' => $monthlyActualExpense,
             'monthlyProfit' => $monthlyProfit,
             'tourNames' => $tourNames,
             'tourProfits' => $tourProfits,
@@ -1107,5 +1109,22 @@ class ReportController
         } elseif ($format === 'pdf') {
             $this->exportService->exportToPDF($dashboardData, 'dashboard', $filename . '.pdf');
         }
+    }
+
+    /**
+     * Báo cáo công nợ nhà cung cấp (US45)
+     */
+    public function debt()
+    {
+        require_once 'models/DepartureResource.php';
+        require_once 'models/Booking.php';
+
+        $resourceModel = new DepartureResource();
+        $bookingModel = new Booking();
+        
+        $supplierDebts = $resourceModel->getSupplierDebt();
+        $customerDebts = $bookingModel->getUnpaidBookings();
+        
+        require_once PATH_VIEW_ADMIN . 'pages/reports/debt.php';
     }
 }

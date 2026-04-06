@@ -102,6 +102,19 @@ class SupplierController
                 'description' => trim($_POST['description'] ?? '')
             ];
 
+            // Phase 7: Handle contract file upload
+            if (isset($_FILES['contract_file']) && $_FILES['contract_file']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = 'assets/uploads/contracts/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+                
+                $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', basename($_FILES['contract_file']['name']));
+                $targetPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['contract_file']['tmp_name'], $targetPath)) {
+                    $data['contract_file'] = $fileName;
+                }
+            }
+
             // Validate email format if provided
             if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 $_SESSION['error'] = 'Email không hợp lệ';
@@ -213,6 +226,19 @@ class SupplierController
                 'rating' => !empty($_POST['rating']) ? (float)$_POST['rating'] : null,
                 'description' => trim($_POST['description'] ?? '')
             ];
+
+            // Phase 7: Handle contract file upload
+            if (isset($_FILES['contract_file']) && $_FILES['contract_file']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = 'assets/uploads/contracts/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+                
+                $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', basename($_FILES['contract_file']['name']));
+                $targetPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['contract_file']['tmp_name'], $targetPath)) {
+                    $data['contract_file'] = $fileName;
+                }
+            }
 
             // Validate email format if provided
             if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {

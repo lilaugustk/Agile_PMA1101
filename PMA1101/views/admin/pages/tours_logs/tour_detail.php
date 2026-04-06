@@ -28,6 +28,10 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                     
                 </div>
                 <div class="header-right">
+                    <a href="<?= BASE_URL_ADMIN . '&action=tours_logs/checkin&tour_id=' . ($tour['id'] ?? '') ?>" class="btn btn-modern btn-outline-success me-2">
+                        <i class="fas fa-user-check me-2"></i>
+                        Điểm danh đoàn
+                    </a>
                     <a href="<?= BASE_URL_ADMIN . '&action=tours_logs/create&tour_id=' . ($tour['id'] ?? '') ?>" class="btn btn-modern btn-primary">
                         <i class="fas fa-plus-circle me-2"></i>
                         Thêm nhật ký ngày

@@ -59,6 +59,9 @@ if (empty($galleryUrls)) {
             <a href="<?= BASE_URL_ADMIN ?>&action=tours/edit&id=<?= $tour['id'] ?>" class="btn btn-sm bg-white text-muted border shadow-sm d-flex align-items-center gap-2">
                 <i class="ph ph-note-pencil"></i> Chỉnh sửa
             </a>
+            <button type="button" class="btn btn-sm btn-outline-info d-flex align-items-center gap-2 px-3 shadow-sm btn-qr" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>">
+                <i class="ph ph-qr-code"></i> Chia sẻ
+            </button>
             <a href="<?= BASE_URL_ADMIN ?>&action=bookings/create&tour_id=<?= $tour['id'] ?>" class="btn btn-sm btn-primary d-flex align-items-center gap-2 px-3 shadow-sm">
                 <i class="ph ph-calendar-plus"></i> Tạo Booking
             </a>
@@ -691,6 +694,67 @@ if (empty($galleryUrls)) {
     </div> <!-- /content -->
 </main>
 
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: var(--radius-lg);">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title fw-bold"><i class="ph ph-qr-code me-2"></i> Mã QR & Link Chia Sẻ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center pt-0 pb-4">
+                <h6 id="qr-tour-name" class="mb-3 fw-bold text-primary"></h6>
+                <div class="qr-code-wrapper mb-4 p-3 border rounded border-light d-inline-block bg-white shadow-sm">
+                    <div id="qrcode"></div>
+                </div>
+                <div class="input-group mb-3 shadow-sm rounded overflow-hidden px-3">
+                    <span class="input-group-text bg-light border-0"><i class="ph ph-link"></i></span>
+                    <input type="text" class="form-control border-0 bg-light" id="tour-link" readonly>
+                    <button class="btn btn-primary px-3" type="button" id="copy-link-btn">
+                        <i class="ph ph-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="alert alert-success d-none py-2 border-0 mx-3" id="copy-success-alert">
+                    <small><i class="ph-fill ph-check-circle me-1"></i> Đã sao chép liên kết!</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+        const qrContainer = document.getElementById('qrcode');
+        const tourLinkInput = document.getElementById('tour-link');
+        const copyAlert = document.getElementById('copy-success-alert');
+
+        document.querySelectorAll('.btn-qr').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tourId = this.dataset.id;
+                const publicUrl = `<?= BASE_URL ?>?action=tour-detail&id=${tourId}`;
+                document.getElementById('qr-tour-name').textContent = this.dataset.name;
+                tourLinkInput.value = publicUrl;
+                copyAlert.classList.add('d-none');
+                
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, { text: publicUrl, width: 200, height: 200, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.H });
+                qrModal.show();
+            });
+        });
+
+        document.getElementById('copy-link-btn').addEventListener('click', function() {
+            tourLinkInput.select();
+            navigator.clipboard.writeText(tourLinkInput.value).then(() => {
+                copyAlert.classList.remove('d-none');
+                setTimeout(() => copyAlert.classList.add('d-none'), 2000);
+            });
+        });
+    });
+</script>
+
 <style>
     /* Premium Detail Page Styles */
     .content {
@@ -1078,6 +1142,57 @@ if (empty($galleryUrls)) {
                             .catch(() => alert('Có lỗi mạng hoặc máy chủ. Vui lòng thử lại.'))
                             .finally(() => { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnContent; });
                         });
+                    }
+
+                    // Handle QR Click
+                    const qrBtn = document.querySelector('.btn-qr');
+                    if (qrBtn) {
+                        qrBtn.addEventListener('click', function() {
+                            const tourId = this.dataset.id;
+                            const publicUrl = `<?= BASE_URL ?>?action=tour-detail&id=${tourId}`;
+                            document.getElementById('qr-tour-name').textContent = this.dataset.name;
+                            document.getElementById('tour-link').value = publicUrl;
+                            const qrContainer = document.getElementById('qrcode');
+                            qrContainer.innerHTML = '';
+                            new QRCode(qrContainer, { text: publicUrl, width: 180, height: 180 });
+                            new bootstrap.Modal(document.getElementById('qrModal')).show();
+                        });
+                    }
+                </script>
+
+                <!-- QR Modal -->
+                <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-4">
+                            <div class="modal-header border-0 pb-0">
+                                <h5 class="modal-title fw-bold" id="qr-tour-name">Mã QR Tour</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center p-4">
+                                <div id="qrcode" class="d-inline-block p-3 bg-white shadow-sm rounded mb-4"></div>
+                                <div class="input-group mb-3 shadow-none">
+                                    <input type="text" id="tour-link" class="form-control bg-light border-0 shadow-none text-muted small" readonly>
+                                    <button class="btn btn-primary px-3 shadow-none" type="button" onclick="copyTourLink()">
+                                        <i class="ph ph-copy"></i> Copy
+                                    </button>
+                                </div>
+                                <p class="text-muted small mb-0">Quét mã QR để xem tour trên thiết bị di động hoặc chia sẻ đường dẫn nhanh.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function copyTourLink() {
+                        const copyText = document.getElementById("tour-link");
+                        copyText.select();
+                        copyText.setSelectionRange(0, 99999);
+                        navigator.clipboard.writeText(copyText.value);
+                        // Show success feedback
+                        const btn = event.currentTarget;
+                        const original = btn.innerHTML;
+                        btn.innerHTML = '<i class="ph-fill ph-check-circle"></i> Xong';
+                        setTimeout(() => btn.innerHTML = original, 2000);
                     }
                 </script>
 

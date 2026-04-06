@@ -13,12 +13,20 @@ class Booking extends BaseModel
         'bus_company_id',
         'original_price',
         'final_price',
+        'total_price',
         'status',
-        'source',
         'booking_date',
         'departure_date',
+        'adults',
+        'children',
+        'infants',
+        'contact_name',
+        'contact_phone',
+        'contact_email',
+        'contact_address',
         'notes',
         'discount_note',
+        'expires_at',
         'created_by',
         'created_at',
         'updated_at'
@@ -29,32 +37,99 @@ class Booking extends BaseModel
         parent::__construct();
     }
 
-    public function getAll()
+    /**
+     * Lấy danh sách booking với bộ lọc và phân trang chuyên nghiệp
+     */
+    public function getAllBookings($page = 1, $perPage = 15, $filters = [])
     {
+        $offset = ($page - 1) * $perPage;
+        $params = [];
+        $whereConditions = ["1=1"];
+
+        // Bộ lọc từ khóa (Tìm theo Mã, Tên khách, Tên tour)
+        if (!empty($filters['keyword'])) {
+            $whereConditions[] = "(B.id LIKE :keyword OR B.contact_name LIKE :keyword OR U.full_name LIKE :keyword OR T.name LIKE :keyword)";
+            $params[':keyword'] = '%' . $filters['keyword'] . '%';
+        }
+
+        // Bộ lọc trạng thái
+        if (!empty($filters['status'])) {
+            $whereConditions[] = "B.status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        // Bộ lọc ngày đặt (Từ ngày)
+        if (!empty($filters['date_from'])) {
+            $whereConditions[] = "DATE(B.booking_date) >= :date_from";
+            $params[':date_from'] = $filters['date_from'];
+        }
+
+        // Bộ lọc ngày đặt (Đến ngày)
+        if (!empty($filters['date_to'])) {
+            $whereConditions[] = "DATE(B.booking_date) <= :date_to";
+            $params[':date_to'] = $filters['date_to'];
+        }
+
+        // Phân quyền cho HDV (nếu có)
+        if (isset($filters['guide_id']) && !empty($filters['guide_id'])) {
+            $whereConditions[] = "EXISTS (SELECT 1 FROM tour_assignments TA WHERE TA.tour_id = B.tour_id AND TA.guide_id = :guide_id)";
+            $params[':guide_id'] = $filters['guide_id'];
+        }
+
+        $whereClause = implode(' AND ', $whereConditions);
+
+        // Đếm tổng số bản ghi
+        $countSql = "SELECT COUNT(*) FROM bookings AS B 
+                     LEFT JOIN tours AS T ON B.tour_id = T.id
+                     LEFT JOIN users AS U ON B.customer_id = U.user_id
+                     WHERE $whereClause";
+        $countStmt = self::$pdo->prepare($countSql);
+        foreach ($params as $key => $val) {
+            $countStmt->bindValue($key, $val);
+        }
+        $countStmt->execute();
+        $totalItems = (int)$countStmt->fetchColumn();
+
+        // Xử lý sắp xếp
+        $orderBy = "B.booking_date DESC, B.id DESC";
+        if (!empty($filters['sort_by'])) {
+            $sortDir = strtoupper($filters['sort_dir'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
+            if ($filters['sort_by'] === 'total_price') {
+                $orderBy = "B.final_price $sortDir";
+            } elseif ($filters['sort_by'] === 'booking_date') {
+                $orderBy = "B.booking_date $sortDir";
+            }
+        }
+
+        // Truy vấn dữ liệu chính
         $sql = "SELECT 
                     B.*, 
                     T.name AS tour_name, 
-                    COALESCE((SELECT full_name FROM booking_customers WHERE booking_id = B.id LIMIT 1), U.full_name) AS customer_name,
-                    BC.company_name AS bus_company_name,
-                    BC.phone AS bus_company_phone,
-                    BC.total_vehicles AS bus_company_vehicles
+                    COALESCE(U.full_name, B.contact_name) AS customer_name,
+                    BC.company_name AS bus_company_name
                 FROM bookings AS B 
                 LEFT JOIN tours AS T ON B.tour_id = T.id
                 LEFT JOIN users AS U ON B.customer_id = U.user_id
                 LEFT JOIN bus_companies AS BC ON B.bus_company_id = BC.id
-                ORDER BY 
-                    CASE B.status
-                        WHEN 'cho_xac_nhan' THEN 1
-                        WHEN 'da_coc' THEN 2
-                        WHEN 'hoan_tat' THEN 3
-                        WHEN 'da_huy' THEN 4
-                        ELSE 5
-                    END,
-                    B.booking_date DESC, 
-                    B.id DESC";
+                WHERE $whereClause
+                ORDER BY $orderBy
+                LIMIT :limit OFFSET :offset";
+
         $stmt = self::$pdo->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->bindValue(':limit', (int)$perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return [
+            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'total' => $totalItems,
+            'page' => $page,
+            'per_page' => $perPage,
+            'total_pages' => ceil($totalItems / $perPage)
+        ];
     }
 
     public function getMonthlyRevenue($month, $year)
@@ -169,6 +244,79 @@ class Booking extends BaseModel
     }
 
     /**
+     * Lấy booking theo mã (BK000001 -> id=1)
+     */
+    public function getByCode($code)
+    {
+        $id = intval(substr($code, 2));
+        return $this->find('*', 'id = :id', ['id' => $id]);
+    }
+
+    /**
+     * Lấy thông tin booking đầy đủ cho client (join tour + departure)
+     */
+    public function getDetailForClient($bookingId)
+    {
+        $sql = "SELECT 
+                    B.*,
+                    T.name AS tour_name,
+                    T.base_price AS tour_base_price,
+                    TD.departure_date AS dep_departure_date,
+                    TD.price_adult,
+                    TD.price_child,
+                    TD.max_seats,
+                    TD.booked_seats,
+                    (SELECT image_url FROM tour_gallery_images WHERE tour_id = T.id AND main_img = 1 LIMIT 1) AS tour_main_image,
+                    (SELECT image_url FROM tour_gallery_images WHERE tour_id = T.id LIMIT 1) AS tour_first_image
+                FROM bookings AS B
+                LEFT JOIN tours AS T ON B.tour_id = T.id
+                LEFT JOIN tour_departures AS TD ON B.departure_id = TD.id
+                WHERE B.id = :id";
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute(['id' => $bookingId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Giải phóng booked_seats cho các booking pending đã hết hạn
+     * Gọi mỗi lần trước khi check availability
+     */
+    public function cleanupExpiredPending()
+    {
+        try {
+            // Lấy danh sách booking hết hạn
+            $sql = "SELECT id, departure_id, (adults + children + infants) AS total_seats
+                    FROM bookings
+                    WHERE status = 'pending'
+                    AND expires_at IS NOT NULL
+                    AND expires_at < NOW()";
+            $stmt = self::$pdo->prepare($sql);
+            $stmt->execute();
+            $expired = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($expired)) return;
+
+            foreach ($expired as $row) {
+                // Giải phóng chỗ
+                $releaseSql = "UPDATE tour_departures 
+                               SET booked_seats = GREATEST(0, booked_seats - :seats)
+                               WHERE id = :dep_id";
+                $stmtR = self::$pdo->prepare($releaseSql);
+                $stmtR->execute(['seats' => $row['total_seats'], 'dep_id' => $row['departure_id']]);
+
+                // Cập nhật booking thành expired
+                $this->update(
+                    ['status' => 'expired', 'expires_at' => null],
+                    'id = :id',
+                    ['id' => $row['id']]
+                );
+            }
+        } catch (Exception $e) {
+            error_log('cleanupExpiredPending error: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Lấy tất cả bookings của một tour
      * @param int $tourId
      * @return array
@@ -219,9 +367,9 @@ class Booking extends BaseModel
                     T.name AS tour_name,
                     T.base_price AS tour_base_price,
                     T.supplier_id AS tour_supplier_id,
-                    U.full_name AS customer_name,
-                    U.email AS customer_email,
-                    U.phone AS customer_phone,
+                    COALESCE(U.full_name, B.contact_name) AS customer_name,
+                    COALESCE(U.email, B.contact_email) AS customer_email,
+                    COALESCE(U.phone, B.contact_phone) AS customer_phone,
                     BC.id AS bus_company_id,
                     BC.company_name AS bus_company_name,
                     BC.phone AS bus_company_phone,
@@ -230,7 +378,7 @@ class Booking extends BaseModel
                     BC.address AS bus_company_address
                 FROM bookings AS B 
                 LEFT JOIN tours AS T ON B.tour_id = T.id
-                LEFT JOIN users AS U ON B.customer_id = U.user_id AND U.role = 'customer'
+                LEFT JOIN users AS U ON B.customer_id = U.user_id
                 LEFT JOIN bus_companies AS BC ON B.bus_company_id = BC.id
                 WHERE B.id = :id";
         $stmt = self::$pdo->prepare($sql);
@@ -310,7 +458,7 @@ class Booking extends BaseModel
         $sql = "SELECT 
                     B.*, 
                     T.name AS tour_name, 
-                    U.full_name AS customer_name
+                    COALESCE(U.full_name, B.contact_name) AS customer_name
                 FROM {$this->table} AS B 
                 INNER JOIN tour_assignments AS TA ON B.tour_id = TA.tour_id
                 LEFT JOIN tours AS T ON B.tour_id = T.id
@@ -322,17 +470,17 @@ class Booking extends BaseModel
         $stmt->execute(['guide_id' => $guideId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function getAllByRole($userRole, $guideId = null)
+    public function getAllByRole($userRole, $guideId = null, $page = 1, $perPage = 15, $filters = [])
     {
-        if ($userRole === 'admin') {
-            // Admin xem tất cả
-            return $this->getAll();
-        } elseif ($userRole === 'guide' && $guideId) {
-            // HDV chỉ xem bookings của tour mình phụ trách
-            return $this->getBookingsForGuide($guideId);
+        if ($userRole === 'guide' && $guideId) {
+            $filters['guide_id'] = $guideId;
+        }
+        
+        if ($userRole === 'admin' || ($userRole === 'guide' && $guideId)) {
+            return $this->getAllBookings($page, $perPage, $filters);
         }
 
-        return [];
+        return ['data' => [], 'total' => 0, 'page' => 1, 'per_page' => $perPage, 'total_pages' => 0];
     }
     /**
      * Cập nhật trạng thái booking
@@ -344,7 +492,7 @@ class Booking extends BaseModel
     {
         try {
             // Validate status
-            $validStatuses = ['cho_xac_nhan', 'da_coc', 'hoan_tat', 'da_huy'];
+            $validStatuses = ['pending', 'cho_xac_nhan', 'da_coc', 'hoan_tat', 'da_huy', 'expired'];
             if (!in_array($newStatus, $validStatuses)) {
                 return false;
             }
@@ -473,12 +621,12 @@ class Booking extends BaseModel
                     B.*,
                     T.name AS tour_name,
                     TC.name AS category_name,
-                    BC.full_name AS customer_name,
-                    BC.phone AS customer_phone
+                    COALESCE(U.full_name, B.contact_name) AS customer_name,
+                    COALESCE(U.phone, B.contact_phone) AS customer_phone
                 FROM bookings B
                 LEFT JOIN tours T ON B.tour_id = T.id
                 LEFT JOIN tour_categories TC ON T.category_id = TC.id
-                LEFT JOIN booking_customers BC ON B.id = BC.booking_id AND BC.passenger_type = 'adult'
+                LEFT JOIN users U ON B.customer_id = U.user_id
                 $whereClause
                 ORDER BY B.booking_date DESC, B.id DESC";
 
@@ -655,15 +803,36 @@ class Booking extends BaseModel
     {
         $sql = "SELECT 
                     COUNT(*) as total,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as soft_pending,
                     SUM(CASE WHEN status = 'cho_xac_nhan' THEN 1 ELSE 0 END) as pending,
                     SUM(CASE WHEN status = 'da_coc' THEN 1 ELSE 0 END) as deposited,
                     SUM(CASE WHEN status = 'hoan_tat' THEN 1 ELSE 0 END) as completed,
                     SUM(CASE WHEN status = 'da_huy' THEN 1 ELSE 0 END) as cancelled,
-                    SUM(final_price) as total_revenue
+                    SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expired,
+                    SUM(CASE WHEN status IN ('da_coc', 'hoan_tat') THEN final_price ELSE 0 END) as total_revenue
                 FROM bookings";
 
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Lấy danh sách booking chưa thanh toán đủ (Công nợ phải thu)
+     */
+    public function getUnpaidBookings()
+    {
+        $sql = "SELECT b.id, b.final_price, u.full_name as customer_name, t.name as tour_name, td.departure_date,
+                       (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE booking_id = b.id AND type = 'income') as paid_amount
+                FROM {$this->table} b
+                JOIN users u ON b.customer_id = u.user_id
+                JOIN tours t ON b.tour_id = t.id
+                JOIN tour_departures td ON b.departure_id = td.id
+                WHERE b.status NOT IN ('cancelled', 'da_huy')
+                HAVING paid_amount < b.final_price
+                ORDER BY td.departure_date DESC";
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

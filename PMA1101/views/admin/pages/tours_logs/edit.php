@@ -111,10 +111,32 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                 <div class="col-md-4">
                                     <label for="guide_rating" class="form-label fw-medium">Tự đánh giá (1-5)</label>
                                     <select class="form-select" id="guide_rating" name="guide_rating">
-                                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
                                             <option value="<?= $i ?>" <?= ($log['guide_rating'] == $i) ? 'selected' : '' ?>><?= $i ?></option>
                                         <?php endfor; ?>
                                     </select>
+                                </div>
+                            </div>
+
+                            <!-- Cost Tracking (US41) -->
+                            <div class="card bg-primary-subtle border-0 mb-4 rounded-3 overflow-hidden">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold text-primary mb-3">
+                                        <i class="fas fa-coins me-2"></i>Chi phí thực tế đoàn (P&L)
+                                    </h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="actual_cost" class="form-label small fw-bold">Tổng chi phí (VNĐ)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text border-0">₫</span>
+                                                <input type="number" class="form-control border-0" id="actual_cost" name="actual_cost" value="<?= (int)($log['actual_cost'] ?? 0) ?>" step="1000">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label for="cost_description" class="form-label small fw-bold">Ghi chú chi phí (Mua vé, Thuê xe, Ăn uống...)</label>
+                                            <textarea class="form-control border-0" id="cost_description" name="cost_description" rows="2" placeholder="Ví dụ: Vé tham quan 20 khách, Ăn trưa tại nhà hàng X..."><?= htmlspecialchars($log['cost_description'] ?? '') ?></textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

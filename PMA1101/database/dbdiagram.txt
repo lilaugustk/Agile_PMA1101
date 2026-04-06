@@ -149,39 +149,46 @@
 
     // Liên kết chính
     tour_id int [ref: > T.id]
-    supplier_id int [ref: > S.id]
-    bus_company_id int [ref: > BusC.id]
-    departure_id int [ref: > TD.id, null]        // nếu là tour ghép đoàn
-    version_id int [ref: > TV.id, null]          // phiên bản tour (mùa, khuyến mãi…)
+    departure_id int [ref: > TD.id, null]
+    version_id int [ref: > TV.id, null]
     customer_id int [ref: > U.user_id, null]
-    // Số lượng khách – BẮT BUỘC giữ lại
-    adults      int [default: 0]
+    bus_company_id int [ref: > BusC.id, null]
+
+    // Số lượng khách
+    adults      int [default: 1]
     children    int [default: 0]
     infants     int [default: 0]
-    foc_pax     int [default: 0]
 
-    // Giá – chỉ cần 2 trường là đủ
-    original_price decimal [null]                // giá tính tự động ban đầu
-    final_price    decimal                       // giá cuối cùng khách trả (sau giảm/tặng/phụ thu)
+    // Thông tin liên hệ (Lead Passenger)
+    contact_name    varchar
+    contact_phone   varchar
+    contact_email   varchar
+    contact_address text
 
-    // Trạng thái + nguồn
-    status varchar [default: 'pending']          // pending, confirmed, deposited, paid, cancelled, completed
-    source varchar [null]                        // website, zalo, phone, walk_in…
+    // Giá
+    original_price decimal [null]
+    final_price    decimal
+    total_price    decimal
+
+    // Trạng thái
+    status varchar [default: 'pending']          // pending, confirmed, deposited, paid, cancelled, completed, expired
 
     // Ngày quan trọng
     booking_date    datetime [default: `now()`]  // ngày tạo booking
     departure_date  date [null]                  // ngày đi thực tế
+    expires_at      datetime [null]              // thời hạn giữ chỗ pending
 
     // Ghi chú
     notes           text [null]
-    discount_note   text [null]                  // admin ghi: "giảm 5tr", "tặng 2 FOC", "phụ thu Tết +8tr"
+    internal_notes  text [null]
+    discount_note   text [null]
 
     // Ai tạo
     created_by int [ref: > U.user_id]
     created_at datetime
     updated_at datetime
 
-    // Index bắt buộc (chỉ 2 cái này là đủ mượt)
+    // Index bắt buộc
     Indexes {
       (tour_id, departure_date)
       status
@@ -264,7 +271,7 @@
     payment_date datetime [null]
     
     checkin_status enum('not_arrived', 'checked_in', 'absent') [default: 'not_arrived']
-    checkin_time date [null]
+    checkin_time datetime [null]
     checkin_location VARCHAR(255) [null]
     checkin_notes TEXT [null]
     checked_by INT [null] // 'User ID của HDV check-in';

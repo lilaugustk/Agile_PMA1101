@@ -1,4 +1,5 @@
 <?php include_once PATH_VIEW_CLIENT . 'default/header.php'; ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <!-- Hero Section -->
 <div class="tour-hero position-relative">
@@ -482,8 +483,50 @@
                             <span class="fw-bold text-dark"><?= htmlspecialchars($tour['supplier_name'] ?? 'VietTravel') ?></span>
                         </div>
                     </div>
+                        <div class="mt-4 pt-3 border-top text-center">
+                        <p class="text-muted small mb-2"><i class="fas fa-lock me-1"></i> Cam kết bảo mật thông tin</p>
+                        <p class="text-muted fs-7 mb-0">Hỗ trợ 24/7: <a href="tel:19008888" class="text-primary text-decoration-none fw-bold">1900 8888</a></p>
+                    </div>
                 </div>
             </div>
+
+            <!-- Share & QR Code Card (Phase 7) -->
+            <div class="card shadow-sm border-0 mt-4 rounded-4 overflow-hidden">
+                <div class="card-body p-4 text-center">
+                    <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-share-alt me-2 text-primary"></i>Chia sẻ Tour này</h6>
+                    <div id="tour-qr-code" class="d-flex justify-content-center mb-3 p-2 bg-light rounded-3" style="min-height: 140px;">
+                        <!-- QR Code will be rendered here -->
+                    </div>
+                    <p class="small text-muted mb-3">Quét mã QR để xem trên điện thoại hoặc chia sẻ nhanh cho bạn bè</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="copyTourUrl()">
+                            <i class="fas fa-link me-1"></i> Sao chép liên kết
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    new QRCode(document.getElementById("tour-qr-code"), {
+                        text: window.location.href,
+                        width: 140,
+                        height: 140,
+                        colorDark : "#1e293b",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                });
+
+                function copyTourUrl() {
+                    navigator.clipboard.writeText(window.location.href).then(function() {
+                        alert('Đã sao chép liên kết tour!');
+                    }, function(err) {
+                        console.error('Không thể sao chép: ', err);
+                    });
+                }
+            </script>
         </div>
     </div>
 </div>
