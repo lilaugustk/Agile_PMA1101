@@ -15,6 +15,7 @@ function formatPrice($price)
 }
 
 // Status mapping
+// Check
 $statusMap = [
     'cho_xac_nhan' => ['text' => 'Chờ xác nhận', 'class' => 'warning', 'icon' => 'clock'],
     'da_coc' => ['text' => 'Đã cọc', 'class' => 'info', 'icon' => 'credit-card'],

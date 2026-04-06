@@ -58,3 +58,4 @@
   </div>
 </main>
 <?php include_once PATH_VIEW_ADMIN . 'default/footer.php'; ?>
+// Check

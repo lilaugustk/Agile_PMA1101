@@ -26,6 +26,8 @@ $isGuide = $userRole === 'guide';
     </div>
 
     <!-- Alert Messages -->
+    // Check
+
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert bg-success-subtle text-success border-0 d-flex align-items-center gap-3 p-3 mb-4" style="border-radius: 12px;">
             <i class="ph-fill ph-check-circle fs-4"></i>
@@ -108,8 +110,8 @@ $isGuide = $userRole === 'guide';
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tìm kiếm</label>
                         <div class="position-relative">
                             <i class="ph ph-magnifying-glass position-absolute text-muted" style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
-                            <input type="text" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm" name="keyword" 
-                                value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>" 
+                            <input type="text" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm" name="keyword"
+                                value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>"
                                 placeholder="Mã BK, tên KH, tour..." style="border-radius: 8px; min-height: 38px;">
                         </div>
                     </div>
@@ -125,12 +127,12 @@ $isGuide = $userRole === 'guide';
                     </div>
                     <div class="col-12 col-md-2">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Từ ngày</label>
-                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_from" 
+                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_from"
                             value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;">
                     </div>
                     <div class="col-12 col-md-2">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đến ngày</label>
-                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_to" 
+                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_to"
                             value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;">
                     </div>
                     <div class="col-12 col-md-3 d-flex align-items-end gap-2">
@@ -158,7 +160,7 @@ $isGuide = $userRole === 'guide';
                 <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Danh sách Booking</h6>
                 <span class="badge bg-light text-muted border ms-2 rounded-pill" style="font-size: 0.7rem;"><?= count($bookings) ?> kết quả</span>
             </div>
-            
+
         </div>
         <div class="table-responsive bg-white" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
             <?php if (!empty($bookings)) : ?>
@@ -175,7 +177,8 @@ $isGuide = $userRole === 'guide';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $stt = 1; foreach ($bookings as $booking) : ?>
+                        <?php $stt = 1;
+                        foreach ($bookings as $booking) : ?>
                             <tr>
                                 <td class="text-center fw-medium text-muted"><?= $stt++ ?></td>
                                 <td>

@@ -155,6 +155,8 @@
 
 <body>
     <!-- Print/Close buttons -->
+    // Check
+
     <div class="no-print text-center mb-3">
         <button onclick="window.print()" class="btn btn-primary btn-lg">
             <i class="fas fa-print"></i> In danh sách

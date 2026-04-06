@@ -6,6 +6,8 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 <main class="dashboard booking-edit-page">
     <div class="dashboard-container">
         <!-- Modern Page Header -->
+         // Check
+
         <header class="dashboard-header mb-4">
             <div class="header-content d-flex justify-content-between align-items-end">
                 <div class="header-left">
