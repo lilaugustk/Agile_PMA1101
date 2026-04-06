@@ -69,6 +69,8 @@ $currentUserRole = $_SESSION['user']['role'] ?? 'customer';
     </div>
 
     <!-- Advanced Filters -->
+    <!-- Check -->
+
     <div class="card-premium mb-3">
         <div class="p-2 px-3 border-bottom border-light d-flex justify-content-between align-items-center bg-white" style="border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
             <h6 class="fw-bold mb-0 d-flex align-items-center gap-2" style="font-size: 0.9rem;"><i class="ph ph-funnel text-muted"></i> Bộ Lọc Tìm Kiếm</h6>
@@ -82,7 +84,7 @@ $currentUserRole = $_SESSION['user']['role'] ?? 'customer';
                     <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tìm kiếm</label>
                     <div class="position-relative">
                         <i class="ph ph-magnifying-glass position-absolute text-muted" style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
-                        <input type="text" name="search" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm" 
+                        <input type="text" name="search" class="form-control form-control-sm ps-4 border-light-subtle shadow-sm"
                             placeholder="Tìm theo tên hoặc email..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
                             style="border-radius: 8px; min-height: 38px;">
                     </div>
@@ -107,96 +109,96 @@ $currentUserRole = $_SESSION['user']['role'] ?? 'customer';
         </div>
     </div>
 
-        <!-- Users List Section -->
-        <div class="card card-premium border-0 shadow-sm overflow-hidden mb-4">
-            <div class="p-3 border-bottom border-light bg-white d-flex justify-content-between align-items-center">
-                <h6 class="fw-bold mb-0 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
-                    <i class="ph-fill ph-users text-primary"></i> Danh sách Người dùng
-                </h6>
-                <span class="badge bg-light text-muted border px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
-                    <?= count($users) ?> thành viên
-                </span>
-            </div>
-            <div class="card-body p-0">
-                <?php if (!empty($users)): ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
-                            <thead class="bg-light text-muted" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                                <tr>
-                                    <th class="ps-4 py-3">ID</th>
-                                    <th class="py-3">Họ tên</th>
-                                    <th class="py-3">Email</th>
-                                    <th class="py-3">Điện thoại</th>
-                                    <th class="py-3">Vai trò</th>
-                                    <th class="py-3">Ngày tạo</th>
-                                    <th class="text-end pe-4 py-3">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($users as $user): ?>
-                                    <tr>
-                                        <td class="ps-4"><strong>#<?= $user['user_id'] ?></strong></td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                                    <i class="ph ph-user text-muted"></i>
-                                                </div>
-                                                <span class="fw-bold"><?= htmlspecialchars($user['full_name']) ?></span>
-                                            </div>
-                                        </td>
-                                        <td><?= htmlspecialchars($user['email']) ?></td>
-                                        <td><?= htmlspecialchars($user['phone'] ?? '---') ?></td>
-                                        <td>
-                                            <?php
-                                            $roleMap = [
-                                                'customer' => ['text' => 'Khách hàng', 'color' => 'success'],
-                                                'guide' => ['text' => 'Guide', 'color' => 'info'],
-                                                'admin' => ['text' => 'Admin', 'color' => 'danger']
-                                            ];
-                                            $roleInfo = $roleMap[$user['role']] ?? ['text' => $user['role'], 'color' => 'secondary'];
-                                            ?>
-                                            <span class="badge bg-<?= $roleInfo['color'] ?>-subtle text-<?= $roleInfo['color'] ?> px-2 py-1" style="font-size: 0.7rem;">
-                                                <?= $roleInfo['text'] ?>
-                                            </span>
-                                        </td>
-                                        <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
-                                        <td class="text-end pe-4">
-                                            <div class="d-flex justify-content-end gap-1">
-                                                <a href="<?= BASE_URL_ADMIN ?>&action=users/detail&id=<?= $user['user_id'] ?>" class="btn btn-sm bg-white text-primary border shadow-sm" title="Chi tiết"><i class="ph ph-eye"></i></a>
-                                                <a href="<?= BASE_URL_ADMIN ?>&action=users/edit&id=<?= $user['user_id'] ?>" class="btn btn-sm bg-white text-muted border shadow-sm" title="Sửa"><i class="ph ph-pencil-simple"></i></a>
-                                                <?php
-                                                $canDelete = false;
-                                                if ($currentUserRole === 'admin') {
-                                                    $canDelete = ($user['role'] !== 'admin');
-                                                } elseif ($currentUserRole === 'guide') {
-                                                    $canDelete = ($user['role'] === 'customer');
-                                                }
-                                                if ($user['user_id'] == $_SESSION['user']['user_id']) {
-                                                    $canDelete = false;
-                                                }
-
-                                                if ($canDelete):
-                                                ?>
-                                                    <button class="btn btn-sm bg-white text-danger border shadow-sm delete-user-btn" data-id="<?= $user['user_id'] ?>" data-name="<?= htmlspecialchars($user['full_name']) ?>" title="Xóa">
-                                                        <i class="ph ph-trash"></i>
-                                                    </button>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php else: ?>
-                    <div class="text-center py-5">
-                        <i class="ph ph-users-three fa-4x text-muted mb-3 opacity-25"></i>
-                        <h5 class="text-muted">Không có người dùng nào</h5>
-                        <p class="text-muted small">Bắt đầu bằng cách thêm người dùng đầu tiên vào hệ thống</p>
-                    </div>
-                <?php endif; ?>
-            </div>
+    <!-- Users List Section -->
+    <div class="card card-premium border-0 shadow-sm overflow-hidden mb-4">
+        <div class="p-3 border-bottom border-light bg-white d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                <i class="ph-fill ph-users text-primary"></i> Danh sách Người dùng
+            </h6>
+            <span class="badge bg-light text-muted border px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+                <?= count($users) ?> thành viên
+            </span>
         </div>
+        <div class="card-body p-0">
+            <?php if (!empty($users)): ?>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                        <thead class="bg-light text-muted" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <tr>
+                                <th class="ps-4 py-3">ID</th>
+                                <th class="py-3">Họ tên</th>
+                                <th class="py-3">Email</th>
+                                <th class="py-3">Điện thoại</th>
+                                <th class="py-3">Vai trò</th>
+                                <th class="py-3">Ngày tạo</th>
+                                <th class="text-end pe-4 py-3">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($users as $user): ?>
+                                <tr>
+                                    <td class="ps-4"><strong>#<?= $user['user_id'] ?></strong></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                <i class="ph ph-user text-muted"></i>
+                                            </div>
+                                            <span class="fw-bold"><?= htmlspecialchars($user['full_name']) ?></span>
+                                        </div>
+                                    </td>
+                                    <td><?= htmlspecialchars($user['email']) ?></td>
+                                    <td><?= htmlspecialchars($user['phone'] ?? '---') ?></td>
+                                    <td>
+                                        <?php
+                                        $roleMap = [
+                                            'customer' => ['text' => 'Khách hàng', 'color' => 'success'],
+                                            'guide' => ['text' => 'Guide', 'color' => 'info'],
+                                            'admin' => ['text' => 'Admin', 'color' => 'danger']
+                                        ];
+                                        $roleInfo = $roleMap[$user['role']] ?? ['text' => $user['role'], 'color' => 'secondary'];
+                                        ?>
+                                        <span class="badge bg-<?= $roleInfo['color'] ?>-subtle text-<?= $roleInfo['color'] ?> px-2 py-1" style="font-size: 0.7rem;">
+                                            <?= $roleInfo['text'] ?>
+                                        </span>
+                                    </td>
+                                    <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a href="<?= BASE_URL_ADMIN ?>&action=users/detail&id=<?= $user['user_id'] ?>" class="btn btn-sm bg-white text-primary border shadow-sm" title="Chi tiết"><i class="ph ph-eye"></i></a>
+                                            <a href="<?= BASE_URL_ADMIN ?>&action=users/edit&id=<?= $user['user_id'] ?>" class="btn btn-sm bg-white text-muted border shadow-sm" title="Sửa"><i class="ph ph-pencil-simple"></i></a>
+                                            <?php
+                                            $canDelete = false;
+                                            if ($currentUserRole === 'admin') {
+                                                $canDelete = ($user['role'] !== 'admin');
+                                            } elseif ($currentUserRole === 'guide') {
+                                                $canDelete = ($user['role'] === 'customer');
+                                            }
+                                            if ($user['user_id'] == $_SESSION['user']['user_id']) {
+                                                $canDelete = false;
+                                            }
+
+                                            if ($canDelete):
+                                            ?>
+                                                <button class="btn btn-sm bg-white text-danger border shadow-sm delete-user-btn" data-id="<?= $user['user_id'] ?>" data-name="<?= htmlspecialchars($user['full_name']) ?>" title="Xóa">
+                                                    <i class="ph ph-trash"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <div class="text-center py-5">
+                    <i class="ph ph-users-three fa-4x text-muted mb-3 opacity-25"></i>
+                    <h5 class="text-muted">Không có người dùng nào</h5>
+                    <p class="text-muted small">Bắt đầu bằng cách thêm người dùng đầu tiên vào hệ thống</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
 </main>
 
 <!-- Delete Confirmation Modal -->

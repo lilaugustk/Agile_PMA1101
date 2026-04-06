@@ -28,6 +28,8 @@ $currentUserRole = $_SESSION['user']['role'] ?? 'customer';
     </div>
 
     <!-- Alert Messages -->
+                  <!-- Check -->
+
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert bg-danger-subtle text-danger border-0 d-flex align-items-center gap-3 p-3 mb-4" style="border-radius: 12px;">
             <i class="ph-fill ph-warning-circle fs-4"></i>

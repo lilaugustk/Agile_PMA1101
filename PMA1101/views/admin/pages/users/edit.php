@@ -30,6 +30,8 @@ $isOwnProfile = ($user['user_id'] == $currentUserId);
     </div>
 
     <!-- Alert Messages -->
+    <!-- Check -->
+
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert bg-danger-subtle text-danger border-0 d-flex align-items-center gap-3 p-3 mb-4" style="border-radius: 12px;">
             <i class="ph-fill ph-warning-circle fs-4"></i>
@@ -57,9 +59,20 @@ $isOwnProfile = ($user['user_id'] == $currentUserId);
     </div>
 
     <style>
-        .progress-steps-modern .step.active .step-icon { background: var(--primary-color); color: white; }
-        .progress-steps-modern .step.completed .step-icon { background: var(--success-color); color: white; }
-        .progress-steps-modern .step.completed .step-icon::after { content: '\eab1'; font-family: "Phosphor"; }
+        .progress-steps-modern .step.active .step-icon {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .progress-steps-modern .step.completed .step-icon {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .progress-steps-modern .step.completed .step-icon::after {
+            content: '\eab1';
+            font-family: "Phosphor";
+        }
     </style>
 
     <!-- User Form -->
@@ -210,104 +223,104 @@ $isOwnProfile = ($user['user_id'] == $currentUserId);
     </div>
 </main>
 
-    let currentStep = 1;
-    const totalSteps = 2;
+let currentStep = 1;
+const totalSteps = 2;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeForm();
-        setupPasswordValidation();
-    });
+document.addEventListener('DOMContentLoaded', function() {
+initializeForm();
+setupPasswordValidation();
+});
 
-    function initializeForm() {
-        updateStepDisplay();
-        updateNavigationButtons();
+function initializeForm() {
+updateStepDisplay();
+updateNavigationButtons();
+}
+
+function setupPasswordValidation() {
+const password = document.getElementById('password');
+const passwordConfirm = document.getElementById('password_confirm');
+
+if (password && passwordConfirm) {
+passwordConfirm.addEventListener('input', function() {
+if (password.value && password.value !== passwordConfirm.value) {
+passwordConfirm.setCustomValidity('Mật khẩu không khớp');
+} else {
+passwordConfirm.setCustomValidity('');
+}
+});
+
+password.addEventListener('input', function() {
+if (this.value && passwordConfirm.value && this.value !== passwordConfirm.value) {
+passwordConfirm.setCustomValidity('Mật khẩu không khớp');
+} else {
+passwordConfirm.setCustomValidity('');
+}
+});
+}
+}
+
+function nextStep() {
+if (currentStep < totalSteps) {
+    currentStep++;
+    updateStepDisplay();
+    updateNavigationButtons();
     }
-
-    function setupPasswordValidation() {
-        const password = document.getElementById('password');
-        const passwordConfirm = document.getElementById('password_confirm');
-
-        if (password && passwordConfirm) {
-            passwordConfirm.addEventListener('input', function() {
-                if (password.value && password.value !== passwordConfirm.value) {
-                    passwordConfirm.setCustomValidity('Mật khẩu không khớp');
-                } else {
-                    passwordConfirm.setCustomValidity('');
-                }
-            });
-
-            password.addEventListener('input', function() {
-                if (this.value && passwordConfirm.value && this.value !== passwordConfirm.value) {
-                    passwordConfirm.setCustomValidity('Mật khẩu không khớp');
-                } else {
-                    passwordConfirm.setCustomValidity('');
-                }
-            });
-        }
-    }
-
-    function nextStep() {
-        if (currentStep < totalSteps) {
-            currentStep++;
-            updateStepDisplay();
-            updateNavigationButtons();
-        }
     }
 
     function previousStep() {
-        if (currentStep > 1) {
-            currentStep--;
-            updateStepDisplay();
-            updateNavigationButtons();
-        }
+    if (currentStep> 1) {
+    currentStep--;
+    updateStepDisplay();
+    updateNavigationButtons();
+    }
     }
 
     function updateStepDisplay() {
-        document.querySelectorAll('.step').forEach(step => {
-            step.classList.remove('active', 'completed');
-            const stepNum = parseInt(step.dataset.step);
-            const stepIcon = step.querySelector('.step-icon');
-            
-            if (stepNum === currentStep) {
-                step.classList.add('active');
-                step.classList.remove('text-muted');
-                if (stepIcon) stepIcon.innerHTML = stepNum;
-            } else if (stepNum < currentStep) {
-                step.classList.add('completed');
-                step.classList.remove('text-muted');
-                if (stepIcon) stepIcon.innerHTML = '<i class="ph ph-check"></i>';
-            } else {
-                step.classList.add('text-muted');
-                if (stepIcon) stepIcon.innerHTML = stepNum;
-            }
+    document.querySelectorAll('.step').forEach(step => {
+    step.classList.remove('active', 'completed');
+    const stepNum = parseInt(step.dataset.step);
+    const stepIcon = step.querySelector('.step-icon');
+
+    if (stepNum === currentStep) {
+    step.classList.add('active');
+    step.classList.remove('text-muted');
+    if (stepIcon) stepIcon.innerHTML = stepNum;
+    } else if (stepNum < currentStep) {
+        step.classList.add('completed');
+        step.classList.remove('text-muted');
+        if (stepIcon) stepIcon.innerHTML='<i class="ph ph-check"></i>' ;
+        } else {
+        step.classList.add('text-muted');
+        if (stepIcon) stepIcon.innerHTML=stepNum;
+        }
         });
 
-        document.querySelectorAll('.form-step').forEach(step => {
-            step.style.display = 'none';
-            step.classList.remove('active');
+        document.querySelectorAll('.form-step').forEach(step=> {
+        step.style.display = 'none';
+        step.classList.remove('active');
         });
         const currentStepEl = document.getElementById(`step-${currentStep}`);
         if (currentStepEl) {
-            currentStepEl.style.display = 'block';
-            currentStepEl.classList.add('active');
+        currentStepEl.style.display = 'block';
+        currentStepEl.classList.add('active');
         }
-    }
+        }
 
-    function updateNavigationButtons() {
+        function updateNavigationButtons() {
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
         if (prevBtn) prevBtn.style.display = currentStep === 1 ? 'none' : 'block';
         if (nextBtn) nextBtn.style.display = currentStep === totalSteps ? 'none' : 'block';
-    }
+        }
 
-<style>
-    .info-item {
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 6px;
-    }
-</style>
+        <style>
+            .info-item {
+                padding: 10px;
+                background: #f8f9fa;
+                border-radius: 6px;
+            }
+        </style>
 
-<?php
-include_once PATH_VIEW_ADMIN . 'default/footer.php';
-?>
+        <?php
+        include_once PATH_VIEW_ADMIN . 'default/footer.php';
+        ?>
