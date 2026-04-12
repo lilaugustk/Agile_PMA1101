@@ -1,7 +1,6 @@
 <?php
 require_once 'services/ExportService.php';
 require_once 'services/FilterService.php';
-require_once 'models/SupplierCost.php';
 require_once 'models/ConversionReport.php';
 
 class ReportController
@@ -128,9 +127,7 @@ class ReportController
         // Chuẩn bị dữ liệu cho biểu đồ
         $monthlyLabels = array_column($monthlyData, 'month_name');
         $monthlyRevenue = array_column($monthlyData, 'revenue');
-        $monthlyEstimatedExpense = array_column($monthlyData, 'estimated_expense');
-        $monthlyActualExpense = array_column($monthlyData, 'actual_expense');
-        $monthlyProfit = array_column($monthlyData, 'profit');
+        $monthlyProfit = array_column($monthlyData, 'revenue'); // Profit = Revenue
 
         // Dữ liệu cho biểu đồ tròn lợi nhuận theo tour
         $topTours = array_slice($tourFinancials, 0, 5); // Top 5 tours
@@ -159,8 +156,6 @@ class ReportController
             'tourFinancials' => $tourFinancials,
             'monthlyLabels' => $monthlyLabels,
             'monthlyRevenue' => $monthlyRevenue,
-            'monthlyEstimatedExpense' => $monthlyEstimatedExpense,
-            'monthlyActualExpense' => $monthlyActualExpense,
             'monthlyProfit' => $monthlyProfit,
             'tourNames' => $tourNames,
             'tourProfits' => $tourProfits,
@@ -570,7 +565,6 @@ class ReportController
         // Map loại feedback sang tên tiếng Việt
         $typeLabels = [
             'tour' => 'Tour',
-            'supplier' => 'Nhà cung cấp',
             'guide' => 'Guide'
         ];
 
@@ -1111,18 +1105,12 @@ class ReportController
         }
     }
 
-    /**
-     * Báo cáo công nợ nhà cung cấp (US45)
-     */
     public function debt()
     {
-        require_once 'models/DepartureResource.php';
         require_once 'models/Booking.php';
 
-        $resourceModel = new DepartureResource();
         $bookingModel = new Booking();
         
-        $supplierDebts = $resourceModel->getSupplierDebt();
         $customerDebts = $bookingModel->getUnpaidBookings();
         
         require_once PATH_VIEW_ADMIN . 'pages/reports/debt.php';

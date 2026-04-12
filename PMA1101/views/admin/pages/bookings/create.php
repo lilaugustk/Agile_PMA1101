@@ -167,23 +167,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                         </div>
                                     </div>
 
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            <select class="form-select" id="version_id" name="version_id">
-                                                <option value="">-- Chọn phiên bản --</option>
-                                                <?php if (!empty($versions)): ?>
-                                                    <?php foreach ($versions as $v): ?>
-                                                        <option value="<?= htmlspecialchars($v['id']) ?>"
-                                                            data-price-adult="<?= htmlspecialchars($v['price_adult'] ?? 0) ?>">
-                                                            <?= htmlspecialchars($v['name']) ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
-                                            <label for="version_id">Phiên bản / Sự kiện</label>
-                                        </div>
-                                    </div>
-
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <select class="form-select" id="departure_id" name="departure_id" required>
@@ -326,7 +309,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                     <div class="recap-item d-flex justify-content-between mb-3">
                                         <div class="text-muted small d-flex align-items-center gap-2">
                                             <i class="ph ph-navigation-arrow text-primary"></i> Sản phẩm:
-                                        </div>
+                                         </div>
                                         <span id="quick-tour" class="text-end small fw-bold text-dark text-truncate ms-2" style="max-width: 150px;">--</span>
                                     </div>
                                     <div class="recap-item d-flex justify-content-between mb-3">
@@ -373,18 +356,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
     function initializeForm() {
         updateStepDisplay();
         updateNavigationButtons();
-
-        // Auto-select "Bình thường" version (ID=10) if no version is selected
-        const versionSelect = document.getElementById('version_id');
-        if (versionSelect && !versionSelect.value) {
-            // Try to find and select version with ID=10
-            const defaultOption = versionSelect.querySelector('option[value="10"]');
-            if (defaultOption) {
-                versionSelect.value = '10';
-                // Trigger change event to update price
-                versionSelect.dispatchEvent(new Event('change'));
-            }
-        }
     }
 
     function setupEventListeners() {
@@ -392,7 +363,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         document.getElementById('tour_id').addEventListener('change', function() {
             const tourId = this.value;
             const selectedOption = this.options[this.selectedIndex];
-            const price = selectedOption.getAttribute('data-price');
+            const price = selectedOption.getAttribute('data-price') || 0;
 
             // Reset departure selection
             const departureSelect = document.getElementById('departure_id');
@@ -403,12 +374,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             if (tourId) {
                 // Fetch departures for this tour
                 fetchDepartures(tourId);
-
-                // Reset version selection when tour changes
-                const versionSelect = document.getElementById('version_id');
-                if (versionSelect) {
-                    versionSelect.value = '';
-                }
                 document.getElementById('total_price').value = price;
                 updateSummary();
             }
@@ -419,17 +384,11 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             const selectedOption = this.options[this.selectedIndex];
             if (selectedOption.value) {
                 const departureDate = selectedOption.getAttribute('data-date');
-                const priceAdult = selectedOption.getAttribute('data-price-adult');
                 const availableSeats = selectedOption.getAttribute('data-seats');
                 const maxSeats = selectedOption.getAttribute('data-max-seats');
 
                 // Update hidden booking_date field
                 document.getElementById('booking_date').value = departureDate;
-
-                // Disable automatic price update - keep tour base price
-                // if (priceAdult) {
-                //     document.getElementById('total_price').value = priceAdult;
-                // }
 
                 // Show departure info
                 document.getElementById('departure-info').innerHTML =
@@ -441,29 +400,9 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 document.getElementById('departure-info').textContent = '';
             }
         });
-        // Auto-update price when version is selected
-        const versionSelect = document.getElementById('version_id');
-        if (versionSelect) {
-            versionSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                const priceAdult = selectedOption.getAttribute('data-price-adult');
 
-                if (priceAdult && priceAdult > 0) {
-                    // Nếu có chọn version → dùng giá của version
-                    document.getElementById('total_price').value = priceAdult;
-                } else {
-                    // Nếu không chọn version → quay về giá gốc của tour
-                    const tourSelect = document.getElementById('tour_id');
-                    const tourPrice = tourSelect.options[tourSelect.selectedIndex].getAttribute('data-price');
-                    if (tourPrice) {
-                        document.getElementById('total_price').value = tourPrice;
-                    }
-                }
-                updateSummary();
-            });
-        }
         // Update summary on field changes
-        ['customer_id', 'tour_id', 'version_id', 'departure_id', 'status', 'total_price'].forEach(id => {
+        ['customer_id', 'tour_id', 'status', 'total_price'].forEach(id => {
             const element = document.getElementById(id);
             if (element) {
                 element.addEventListener('change', updateSummary);
@@ -491,13 +430,8 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         option.textContent = dep.formatted_date;
                         option.setAttribute('data-date', dep.departure_date);
                         option.setAttribute('data-price-adult', dep.price_adult);
-                        option.setAttribute('data-price-child', dep.price_child);
                         option.setAttribute('data-seats', dep.available_seats);
                         option.setAttribute('data-max-seats', dep.max_seats);
-
-                        if (dep.version_name) {
-                            option.textContent += ` (${dep.version_name})`;
-                        }
 
                         departureSelect.appendChild(option);
                     });

@@ -8,130 +8,109 @@ $experienceYears = $guide['experience_years'] ?? 0;
 $rating = $guide['rating'] ?? 4.5;
 ?>
 
-<main class="dashboard guide-detail-page">
-    <div class="dashboard-container">
-        <!-- Modern Page Header -->
-        <header class="dashboard-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="breadcrumb-modern">
-                        <a href="<?= BASE_URL_ADMIN ?>&action=/" class="breadcrumb-link">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                        <span class="breadcrumb-separator">
-                            <i class="fas fa-chevron-right"></i>
-                        </span>
-                        <a href="<?= BASE_URL_ADMIN ?>&action=guides" class="breadcrumb-link">
-                            <i class="fas fa-user-tie"></i>
-                            <span>Quản lý Guide</span>
-                        </a>
-                        <span class="breadcrumb-separator">
-                            <i class="fas fa-chevron-right"></i>
-                        </span>
-                        <span class="breadcrumb-current">Chi tiết Guide</span>
-                    </div>
-                    
-                </div>
-                <div class="header-right">
-                    <a href="<?= BASE_URL_ADMIN ?>&action=guides/edit&id=<?= $guide['id'] ?>" class="btn btn-modern btn-secondary">
-                        <i class="fas fa-edit me-2"></i>
-                        Chỉnh sửa
-                    </a>
-                    <a href="<?= BASE_URL_ADMIN ?>&action=guides" class="btn btn-modern btn-primary">
-                        <i class="fas fa-arrow-left me-2"></i>
-                        Quay lại
-                    </a>
-                </div>
+<main class="dashboard-content">
+    <div class="container-fluid p-0">
+        <!-- Modern Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=/" class="text-decoration-none text-muted">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=guides" class="text-decoration-none text-muted">Quản lý Guide</a></li>
+                        <li class="breadcrumb-item active">Chi tiết</li>
+                    </ol>
+                </nav>
+                <h3 class="fw-bold text-dark mb-0">Hồ sơ Hướng dẫn viên</h3>
             </div>
-        </header>
-
-        <!-- Alert Messages -->
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert-modern alert-success alert-dismissible fade show" role="alert">
-                <div class="alert-content">
-                    <i class="fas fa-check-circle alert-icon"></i>
-                    <span><?= $_SESSION['success'] ?></span>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                <?php unset($_SESSION['success']); ?>
+            <div class="d-flex gap-2">
+                <a href="<?= BASE_URL_ADMIN ?>&action=guides" class="btn btn-light border btn-xs d-flex align-items-center gap-2 px-3 py-2 rounded-3 hover-lift shadow-sm">
+                    <i class="ph ph-arrow-left"></i> Quay lại
+                </a>
+                <a href="<?= BASE_URL_ADMIN ?>&action=guides/edit&id=<?= $guide['id'] ?>" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-primary hover-lift">
+                    <i class="ph ph-pencil-simple"></i> Chỉnh sửa hồ sơ
+                </a>
             </div>
-        <?php endif; ?>
+        </div>
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert-modern alert-danger alert-dismissible fade show" role="alert">
-                <div class="alert-content">
-                    <i class="fas fa-exclamation-circle alert-icon"></i>
-                    <span><?= $_SESSION['error'] ?></span>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                <?php unset($_SESSION['error']); ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- Statistics Cards -->
-        <section class="stats-section">
-            <div class="stats-grid">
-                <div class="stat-card stat-primary">
-                    <div class="stat-icon-wrapper">
-                        <i class="fas fa-route"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value"><?= $totalTours ?></div>
-                        <div class="stat-label">Tổng tour</div>
-                    </div>
-                </div>
-
-                <div class="stat-card stat-success">
-                    <div class="stat-icon-wrapper">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value"><?= $experienceYears ?></div>
-                        <div class="stat-label">Năm kinh nghiệm</div>
-                    </div>
-                </div>
-
-                <div class="stat-card stat-warning">
-                    <div class="stat-icon-wrapper">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value"><?= number_format($rating, 1) ?></div>
-                        <div class="stat-label">Đánh giá</div>
-                    </div>
-                </div>
-
-                <div class="stat-card stat-info">
-                    <div class="stat-icon-wrapper">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">Hoạt động</div>
-                        <div class="stat-label">Trạng thái</div>
+        <!-- Stats Section -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3 bg-white hover-lift transition-all">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-shape bg-primary-subtle text-primary rounded-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
+                            <i class="ph-fill ph-airplane-tilt fs-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small fw-semibold mb-0">Tổng số Tour</p>
+                            <h4 class="fw-bold text-dark mb-0"><?= number_format($totalTours) ?></h4>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3 bg-white hover-lift transition-all">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-shape bg-success-subtle text-success rounded-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
+                            <i class="ph-fill ph-calendar-check fs-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small fw-semibold mb-0">Kinh nghiệm</p>
+                            <h4 class="fw-bold text-dark mb-0"><?= $experienceYears ?> năm</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3 bg-white hover-lift transition-all">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-shape bg-warning-subtle text-warning rounded-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
+                            <i class="ph-fill ph-star fs-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small fw-semibold mb-0">Đánh giá TB</p>
+                            <h4 class="fw-bold text-dark mb-0"><?= number_format($rating, 1) ?> <span class="text-muted fs-6">/ 5</span></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3 bg-white hover-lift transition-all">
+                    <div class="d-flex align-items-center gap-3">
+                        <?php 
+                        $isActive = ($guide['status'] ?? 'active') === 'active';
+                        $statusColor = $isActive ? 'success' : 'danger';
+                        $statusLabel = $isActive ? 'Hoạt động' : 'Tạm nghỉ';
+                        ?>
+                        <div class="icon-shape bg-<?= $statusColor ?>-subtle text-<?= $statusColor ?> rounded-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
+                            <i class="ph-fill ph-shield-check fs-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small fw-semibold mb-0">Trạng thái</p>
+                            <h4 class="fw-bold text-<?= $statusColor ?> mb-0"><?= $statusLabel ?></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content Grid -->
         <div class="row">
-            <!-- Main Column (Left) -->
+            <!-- Left Side: Professional Information -->
             <div class="col-lg-8">
-                <!-- Professional Information Card -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-briefcase text-primary me-2"></i>
-                            Thông tin chuyên môn
+                <!-- Specialized Information Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                             <i class="ph ph-briefcase text-primary shadow-sm" style="font-size: 1.25rem;"></i>
+                             Thông tin chuyên môn
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
+                    <div class="card-body p-4 bg-light bg-opacity-10">
+                        <div class="row g-4">
                             <div class="col-md-6">
-                                <div class="info-item">
-                                    <label class="info-label">Loại Guide</label>
-                                    <div class="info-value">
+                                <div class="p-3 bg-white rounded-4 border border-light-subtle shadow-inner h-100 transition-all hover-lift">
+                                    <label class="text-muted small fw-semibold d-block mb-1">Loại Guide</label>
+                                    <div class="fw-bold text-dark fs-5">
                                         <?php
                                         $typeMap = [
                                             'domestic' => 'Nội địa',
@@ -144,32 +123,28 @@ $rating = $guide['rating'] ?? 4.5;
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="info-item">
-                                    <label class="info-label">Chuyên môn</label>
-                                    <div class="info-value"><?= htmlspecialchars($guide['specialization'] ?? 'N/A') ?></div>
+                                <div class="p-3 bg-white rounded-4 border border-light-subtle shadow-inner h-100 transition-all hover-lift">
+                                    <label class="text-muted small fw-semibold d-block mb-1">Chuyên môn</label>
+                                    <div class="fw-bold text-dark fs-5"><?= htmlspecialchars($guide['specialization'] ?? 'N/A') ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="info-item">
-                                    <label class="info-label">Ngôn ngữ sử dụng</label>
-                                    <div class="info-value"><?= htmlspecialchars($guide['languages'] ?? 'N/A') ?></div>
+                                <div class="p-3 bg-white rounded-4 border border-light-subtle shadow-inner h-100 transition-all hover-lift">
+                                    <label class="text-muted small fw-semibold d-block mb-1">Ngôn ngữ sử dụng</label>
+                                    <div class="fw-bold text-primary fs-5"><?= htmlspecialchars($guide['languages'] ?? 'N/A') ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="info-item">
-                                    <label class="info-label">Số năm kinh nghiệm</label>
-                                    <div class="info-value"><?= $experienceYears ?> năm</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="info-item">
-                                    <label class="info-label">Tình trạng sức khỏe</label>
-                                    <div class="info-value">
+                                <div class="p-3 bg-white rounded-4 border border-light-subtle shadow-inner h-100 transition-all hover-lift">
+                                    <label class="text-muted small fw-semibold d-block mb-1">Tình trạng sức khỏe</label>
+                                    <div class="d-flex align-items-center gap-2 pt-1">
                                         <?php
                                         $healthStatus = $guide['health_status'] ?? 'Tốt';
-                                        $healthClass = $healthStatus === 'Tốt' ? 'success' : ($healthStatus === 'Khá' ? 'info' : 'warning');
+                                        $healthColor = $healthStatus === 'Tốt' ? 'success' : ($healthStatus === 'Khá' ? 'info' : 'warning');
                                         ?>
-                                        <span class="badge bg-<?= $healthClass ?>"><?= htmlspecialchars($healthStatus) ?></span>
+                                        <span class="badge bg-<?= $healthColor ?>-subtle text-<?= $healthColor ?> rounded-pill px-3 py-2 fw-semibold border border-<?= $healthColor ?> border-opacity-10 shadow-sm">
+                                            <i class="ph ph-heart-pulse me-1"></i> <?= htmlspecialchars($healthStatus) ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -179,78 +154,76 @@ $rating = $guide['rating'] ?? 4.5;
 
                 <!-- Notes Card -->
                 <?php if (!empty($guide['notes'])): ?>
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-comment text-warning me-2"></i>
-                                Ghi chú
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                                <i class="ph ph-chat-centered-text text-warning shadow-sm" style="font-size: 1.25rem;"></i>
+                                Ghi chú chuyên môn
                             </h5>
                         </div>
-                        <div class="card-body">
-                            <p class="mb-0"><?= nl2br(htmlspecialchars($guide['notes'])) ?></p>
+                        <div class="card-body p-4">
+                            <p class="text-muted mb-0 lh-lg italic"><?= nl2br(htmlspecialchars($guide['notes'])) ?></p>
                         </div>
                     </div>
                 <?php endif; ?>
             </div>
 
-            <!-- Sidebar (Right) -->
+            <!-- Right Side: Profile & Contact -->
             <div class="col-lg-4">
-                <!-- Avatar Card -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-image text-primary me-2"></i>
-                            Ảnh đại diện
-                        </h5>
-                    </div>
-                    <div class="card-body text-center">
-                        <?php if (!empty($guide['avatar'])): ?>
-                            <img src="<?= htmlspecialchars($guide['avatar']) ?>"
-                                alt="Avatar"
-                                class="img-fluid rounded-circle mb-3"
-                                style="width: 200px; height: 200px; object-fit: cover;">
-                        <?php else: ?>
-                            <div class="avatar-placeholder rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
-                                style="width: 200px; height: 200px; background: #e9ecef;">
-                                <i class="fas fa-user fa-5x text-muted"></i>
-                            </div>
-                        <?php endif; ?>
-                        <h5><?= htmlspecialchars($guide['full_name']) ?></h5>
-                        <p class="text-muted mb-2">Guide</p>
-                        <div class="rating mb-2">
+                <!-- Profile Avatar Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                    <div class="card-body p-4 text-center pb-5 bg-white">
+                        <div class="position-relative d-inline-block mb-4">
+                            <?php if (!empty($guide['avatar'])): ?>
+                                <img src="<?= htmlspecialchars($guide['avatar']) ?>"
+                                    alt="Avatar"
+                                    class="rounded-circle shadow-lg border border-4 border-white"
+                                    style="width: 140px; height: 140px; object-fit: cover;">
+                            <?php else: ?>
+                                <div class="avatar-placeholder rounded-circle mx-auto d-flex align-items-center justify-content-center shadow-lg border border-4 border-white"
+                                    style="width: 140px; height: 140px; background: #f3f4f6;">
+                                    <i class="ph ph-user-tie text-muted" style="font-size: 4rem;"></i>
+                                </div>
+                            <?php endif; ?>
+                            <div class="position-absolute bottom-0 end-0 bg-success rounded-circle border border-2 border-white shadow-sm" style="width: 20px; height: 20px;"></div>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-1"><?= htmlspecialchars($guide['full_name']) ?></h4>
+                        <p class="text-primary fw-medium small text-uppercase mb-3 tracking-wider">Hướng dẫn viên <?= htmlspecialchars(($guide['guide_type'] ?? 'domestic') === 'domestic' ? 'Nội địa' : 'Quốc tế') ?></p>
+                        
+                        <div class="rating d-flex justify-content-center align-items-center gap-1 mb-0 p-2 bg-light rounded-pill mx-auto" style="width: fit-content;">
                             <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <i class="fas fa-star <?= $i <= $rating ? 'text-warning' : 'text-muted' ?>"></i>
+                                <i class="ph-fill ph-star <?= $i <= $rating ? 'text-warning' : 'text-muted' ?>" style="font-size: 0.9rem;"></i>
                             <?php endfor; ?>
-                            <span class="text-muted ms-1">(<?= number_format($rating, 1) ?>)</span>
+                            <span class="text-dark fw-bold ms-1 small"><?= number_format($rating, 1) ?></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Contact Information Card -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-address-card text-success me-2"></i>
+                <!-- Contact Info Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                            <i class="ph ph-address-book text-success shadow-sm" style="font-size: 1.25rem;"></i>
                             Thông tin liên hệ
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <div class="contact-item mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-envelope text-primary me-2"></i>
-                                <div>
-                                    <small class="text-muted d-block">Email</small>
-                                    <span><?= htmlspecialchars($guide['email'] ?? 'N/A') ?></span>
-                                </div>
+                    <div class="card-body p-4 d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light bg-opacity-50 rounded-4 border border-light-subtle transition-all hover-lift">
+                            <div class="icon-shape bg-primary text-white rounded-pill d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                <i class="ph ph-envelope"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <small class="text-muted d-block fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Email cá nhân</small>
+                                <span class="text-dark fw-bold text-truncate d-block small"><?= htmlspecialchars($guide['email'] ?? 'N/A') ?></span>
                             </div>
                         </div>
-                        <div class="contact-item">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-phone text-success me-2"></i>
-                                <div>
-                                    <small class="text-muted d-block">Điện thoại</small>
-                                    <span><?= htmlspecialchars($guide['phone'] ?? 'N/A') ?></span>
-                                </div>
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light bg-opacity-50 rounded-4 border border-light-subtle transition-all hover-lift">
+                            <div class="icon-shape bg-success text-white rounded-pill d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                <i class="ph ph-phone"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <small class="text-muted d-block fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Số điện thoại</small>
+                                <span class="text-dark fw-bold text-truncate d-block small"><?= htmlspecialchars($guide['phone'] ?? 'N/A') ?></span>
                             </div>
                         </div>
                     </div>
@@ -261,30 +234,19 @@ $rating = $guide['rating'] ?? 4.5;
 </main>
 
 <style>
-    .info-item {
-        padding: 12px;
-        background: #f8f9fa;
-        border-radius: 8px;
+    .shadow-inner {
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
     }
-
-    .info-label {
-        display: block;
-        font-size: 0.875rem;
-        color: #6c757d;
-        margin-bottom: 4px;
+    .hover-lift:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
     }
-
-    .info-value {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #212529;
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-
-    .contact-item {
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 6px;
-    }
+    .italic { font-style: italic; }
 </style>
 
 <?php

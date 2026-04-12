@@ -288,6 +288,7 @@ a:hover {
   padding: 1rem 1.25rem !important;
   border-bottom-color: var(--border-light) !important;
   vertical-align: middle;
+  font-size: 0.85rem;
 }
 .table > thead > tr > th {
   background-color: #f8fafc !important;

@@ -28,19 +28,15 @@ class TourDeparture extends BaseModel
         $sql = "SELECT 
                     td.id,
                     td.tour_id,
-                    td.version_id,
                     td.departure_date,
                     td.max_seats,
                     td.booked_seats,
                     td.price_adult,
                     td.price_child,
-                    td.price_infant,
                     td.status,
                     td.notes,
-                    (td.max_seats - td.booked_seats) as available_seats,
-                    tv.name as version_name
+                    (td.max_seats - td.booked_seats) as available_seats
                 FROM tour_departures td
-                LEFT JOIN tour_versions tv ON td.version_id = tv.id
                 WHERE td.tour_id = :tour_id
                     AND td.status = 'open'
                     AND td.departure_date >= CURDATE()
@@ -179,5 +175,27 @@ class TourDeparture extends BaseModel
             'per_page' => $perPage,
             'total_pages' => ceil($totalItems / $perPage)
         ];
+    }
+
+    /**
+     * Đồng bộ số ghế đã đặt với dữ liệu booking thực tế
+     * @param int|null $departureId Nếu null sẽ đồng bộ tất cả các chuyến trong 1 tháng vừa qua và tương lai
+     */
+    public function syncBookedSeats($departureId = null)
+    {
+        $condition = $departureId ? "WHERE id = :id" : "WHERE departure_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
+        $params = $departureId ? [':id' => $departureId] : [];
+
+        $sql = "UPDATE {$this->table} td
+                SET booked_seats = (
+                    SELECT COALESCE(SUM(b.adults + b.children), 0)
+                    FROM bookings b
+                    WHERE b.departure_id = td.id
+                    AND b.status NOT IN ('cancelled', 'da_huy', 'expired', 'cancelled')
+                )
+                $condition";
+        
+        $stmt = self::$pdo->prepare($sql);
+        return $stmt->execute($params);
     }
 }

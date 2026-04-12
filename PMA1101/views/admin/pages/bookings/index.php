@@ -95,16 +95,26 @@ $isGuide = $userRole === 'guide';
     <!-- Advanced Filters -->
     <div class="card-premium mb-3">
         <div class="p-2 px-3 border-bottom border-light d-flex justify-content-between align-items-center bg-white" style="border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-            <h6 class="fw-bold mb-0 d-flex align-items-center gap-2" style="font-size: 0.9rem;"><i class="ph ph-funnel text-muted"></i> Bộ Lọc Tìm Kiếm</h6>
-            <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1 py-1" onclick="resetFilters()" style="font-size: 0.75rem;">
-                <i class="ph ph-arrow-counter-clockwise"></i> Reset
-            </button>
+            <h6 class="fw-bold mb-0 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                <i class="ph ph-funnel text-muted"></i> Bộ Lọc Tìm Kiếm
+            </h6>
+            <div class="d-flex gap-1">
+                <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1 py-1" onclick="resetFilters()" style="font-size: 0.75rem;">
+                    <i class="ph ph-arrow-counter-clockwise"></i> Reset
+                </button>
+                <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1 py-1" onclick="toggleAdvancedFilters()" style="font-size: 0.75rem;">
+                    <i class="ph ph-sliders"></i> Nâng Cao
+                </button>
+            </div>
         </div>
+
         <div class="p-2 bg-white" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
-            <form id="booking-filters" method="GET" action="<?= BASE_URL_ADMIN . '&action=bookings' ?>">
+            <form id="booking-filters" method="GET" action="<?= BASE_URL_ADMIN ?>">
+                <input type="hidden" name="mode" value="admin">
                 <input type="hidden" name="action" value="bookings">
-                <div class="row g-3 align-items-end">
-                    <div class="col-12 col-md-3">
+
+                <div class="row g-2">
+                    <div class="col-12 col-md-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tìm kiếm</label>
                         <div class="position-relative">
                             <i class="ph ph-magnifying-glass position-absolute text-muted" style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
@@ -113,7 +123,20 @@ $isGuide = $userRole === 'guide';
                                 placeholder="Mã BK, tên KH, tour..." style="border-radius: 8px; min-height: 38px;">
                         </div>
                     </div>
-                    <div class="col-12 col-md-2">
+
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Loại Tour</label>
+                        <select class="form-select form-select-sm border-light-subtle shadow-sm" name="category_id" style="border-radius: 8px; min-height: 38px;">
+                            <option value="">Tất cả</option>
+                            <?php foreach ($categories ?? [] as $cat): ?>
+                                <option value="<?= $cat['id'] ?>" <?= (($_GET['category_id'] ?? '') == $cat['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($cat['name'] ?? '') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Trạng thái</label>
                         <select class="form-select form-select-sm border-light-subtle shadow-sm" name="status" style="border-radius: 8px; min-height: 38px;">
                             <option value="">Tất cả</option>
@@ -125,27 +148,68 @@ $isGuide = $userRole === 'guide';
                             <option value="expired" <?= (($_GET['status'] ?? '') == 'expired') ? 'selected' : '' ?>>Hết Hạn</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-2">
+
+                    <div class="col-12 col-sm-6 col-lg-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" style="border-radius: 8px; height: 38px;">
+                            <i class="ph-fill ph-magnifying-glass"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Advanced Filters (Hidden by default) -->
+                <div class="row g-3 mt-1 advanced-filters" style="display: <?= (!empty($_GET['price_min']) || !empty($_GET['price_max']) || !empty($_GET['date_from']) || !empty($_GET['date_to'])) ? 'flex' : 'none' ?>;">
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Giá từ (VNĐ)</label>
+                        <input type="number" class="form-control form-control-sm border-light-subtle shadow-sm" name="price_min"
+                            value="<?= htmlspecialchars($_GET['price_min'] ?? '') ?>" placeholder="0" style="border-radius: 8px; min-height: 38px;">
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Giá đến (VNĐ)</label>
+                        <input type="number" class="form-control form-control-sm border-light-subtle shadow-sm" name="price_max"
+                            value="<?= htmlspecialchars($_GET['price_max'] ?? '') ?>" placeholder="Không giới hạn" style="border-radius: 8px; min-height: 38px;">
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Từ ngày</label>
-                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_from" 
-                            value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;">
+                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_from"
+                            value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;" />
                     </div>
-                    <div class="col-12 col-md-2">
+
+                    <div class="col-12 col-sm-6 col-lg-3">
                         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đến ngày</label>
-                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_to" 
-                            value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;">
+                        <input type="date" class="form-control form-control-sm border-light-subtle shadow-sm" name="date_to"
+                            value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>" style="border-radius: 8px; min-height: 38px;" />
                     </div>
-                    <div class="col-12 col-md-3 d-flex align-items-end gap-2">
+                </div>
+
+                <div class="row g-3 mt-1 align-items-end">
+                    <div class="col-12 col-lg-12 d-flex gap-3">
                         <div class="flex-grow-1">
-                            <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Sắp xếp</label>
+                            <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Sắp xếp theo</label>
                             <select class="form-select form-select-sm border-light-subtle shadow-sm" name="sort_by" style="border-radius: 8px; min-height: 38px;">
-                                <option value="booking_date">Ngày đặt</option>
-                                <option value="total_price">Tổng tiền</option>
+                                <option value="booking_date" <?= (($_GET['sort_by'] ?? '') == 'booking_date') ? 'selected' : '' ?>>Ngày đặt</option>
+                                <option value="total_price" <?= (($_GET['sort_by'] ?? '') == 'total_price') ? 'selected' : '' ?>>Giá trị đơn hàng</option>
+                                <option value="customer" <?= (($_GET['sort_by'] ?? '') == 'customer') ? 'selected' : '' ?>>Tên khách hàng</option>
+                                <option value="tour" <?= (($_GET['sort_by'] ?? '') == 'tour') ? 'selected' : '' ?>>Tên tour</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm px-3 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-radius: 8px; min-height: 38px;">
-                            <i class="ph ph-magnifying-glass" style="font-size: 1rem;"></i> Lọc
-                        </button>
+                        <div style="width: 130px;">
+                            <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Thứ tự</label>
+                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="sort_dir" style="border-radius: 8px; min-height: 38px;">
+                                <option value="DESC" <?= (($_GET['sort_dir'] ?? '') == 'DESC') ? 'selected' : '' ?>>Giảm dần</option>
+                                <option value="ASC" <?= (($_GET['sort_dir'] ?? '') == 'ASC') ? 'selected' : '' ?>>Tăng dần</option>
+                            </select>
+                        </div>
+                        <div style="width: 100px;">
+                            <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Hiển thị</label>
+                            <select class="form-select form-select-sm border-light-subtle shadow-sm" name="per_page" style="border-radius: 8px; min-height: 38px;">
+                                <option value="15" <?= (($_GET['per_page'] ?? '') == '15') ? 'selected' : '' ?>>15</option>
+                                <option value="30" <?= (($_GET['per_page'] ?? '') == '30') ? 'selected' : '' ?>>30</option>
+                                <option value="50" <?= (($_GET['per_page'] ?? '') == '50') ? 'selected' : '' ?>>50</option>
+                                <option value="100" <?= (($_GET['per_page'] ?? '') == '100') ? 'selected' : '' ?>>100</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -168,10 +232,10 @@ $isGuide = $userRole === 'guide';
                     <thead>
                         <tr>
                             <th width="5%" class="text-center">#</th>
-                            <th width="20%">Khách hàng</th>
-                            <th width="25%">Tour</th>
-                            <th width="12%">Ngày đặt</th>
-                            <th width="15%">Tổng tiền</th>
+                            <th width="22%">Khách hàng</th>
+                            <th width="22%">Tour</th>
+                            <th width="11%">Ngày đặt</th>
+                            <th width="17%">Tổng tiền</th>
                             <th width="13%">Trạng thái</th>
                             <th width="10%" class="text-end">Hành động</th>
                         </tr>
@@ -188,9 +252,9 @@ $isGuide = $userRole === 'guide';
                                         <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
                                             <?= mb_substr(trim($booking['customer_name'] ?: ($booking['contact_name'] ?: 'X')), 0, 1) ?>
                                         </div>
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-medium text-dark"><?= htmlspecialchars($booking['customer_name'] ?: ($booking['contact_name'] ?: 'Khách vãng lai')) ?></span>
-                                            <?php if (empty($booking['customer_id'])): ?><span class="extra-small text-muted mb-0" style="font-size: 0.65rem;">Guest Booking</span><?php endif; ?>
+                                        <div class="d-flex flex-column overflow-hidden">
+                                            <span class="fw-medium text-dark text-nowrap"><?= htmlspecialchars($booking['customer_name'] ?: ($booking['contact_name'] ?: 'Khách vãng lai')) ?></span>
+                                            <?php if (empty($booking['customer_id'])): ?><span class="extra-small text-muted mb-0 text-nowrap">Guest Booking</span><?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
@@ -206,7 +270,7 @@ $isGuide = $userRole === 'guide';
                                     <span class="text-muted" style="font-size: 0.9rem;"><i class="ph ph-calendar-blank me-1"></i><?= date('d/m/Y', strtotime($booking['booking_date'])) ?></span>
                                 </td>
                                 <td>
-                                    <span class="fw-bold" style="color: var(--text-main);"><?= number_format($booking['final_price'] ?? 0, 0, ',', '.') ?> ₫</span>
+                                    <span class="fw-bold text-nowrap" style="color: var(--text-main);"><?= number_format($booking['final_price'] ?? 0, 0, ',', '.') ?> ₫</span>
                                 </td>
                                 <td>
                                     <?php
@@ -214,8 +278,12 @@ $isGuide = $userRole === 'guide';
                                         'pending' => ['text' => 'Chờ Thanh Toán', 'class' => 'warning'],
                                         'cho_xac_nhan' => ['text' => 'Chờ Xác Nhận', 'class' => 'warning'],
                                         'da_coc' => ['text' => 'Đã Cọc', 'class' => 'info'],
+                                        'confirmed' => ['text' => 'Đã Xác Nhận', 'class' => 'info'],
                                         'hoan_tat' => ['text' => 'Hoàn Tất', 'class' => 'success'],
+                                        'completed' => ['text' => 'Hoàn Tất', 'class' => 'success'],
+                                        'paid' => ['text' => 'Đã Thanh Toán', 'class' => 'success'],
                                         'da_huy' => ['text' => 'Đã Hủy', 'class' => 'danger'],
+                                        'cancelled' => ['text' => 'Đã Hủy', 'class' => 'danger'],
                                         'expired' => ['text' => 'Hết Hạn', 'class' => 'secondary']
                                     ];
                                     $curr = $statusMap[$booking['status']] ?? ['text' => 'Không Rõ', 'class' => 'secondary'];
@@ -229,11 +297,14 @@ $isGuide = $userRole === 'guide';
                                         <a href="<?= BASE_URL_ADMIN . '&action=bookings/detail&id=' . $booking['id'] ?>" class="btn btn-sm bg-white text-primary border shadow-sm" title="Chi tiết">
                                             <i class="ph ph-eye"></i>
                                         </a>
+                                        <a href="<?= BASE_URL_ADMIN . '&action=bookings/invoice&id=' . $booking['id'] ?>" target="_blank" class="btn btn-sm bg-white text-info border shadow-sm" title="In Hóa Đơn">
+                                            <i class="ph ph-printer"></i>
+                                        </a>
                                         <?php if ($isAdmin): ?>
                                             <a href="<?= BASE_URL_ADMIN . '&action=bookings/edit&id=' . $booking['id'] ?>" class="btn btn-sm bg-white text-muted border shadow-sm" title="Sửa">
                                                 <i class="ph ph-pencil-simple"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm bg-white text-danger border shadow-sm delete-booking" data-id="<?= $booking['id'] ?>" data-name="<?= htmlspecialchars($booking['customer_name']) ?>" title="Xóa">
+                                            <button type="button" class="btn btn-sm bg-white text-danger border shadow-sm delete-booking" data-id="<?= $booking['id'] ?>" data-name="<?= htmlspecialchars($booking['customer_name'] ?: ($booking['contact_name'] ?: 'Khách hàng')) ?>" title="Xóa">
                                                 <i class="ph ph-trash"></i>
                                             </button>
                                         <?php endif; ?>
@@ -381,8 +452,16 @@ $isGuide = $userRole === 'guide';
     });
 
     function resetFilters() {
-        document.getElementById('booking-filters').reset();
-        document.getElementById('booking-filters').submit();
+        window.location.href = '<?= BASE_URL_ADMIN ?>&action=bookings';
+    }
+
+    function toggleAdvancedFilters() {
+        const advancedSection = document.querySelector('.advanced-filters');
+        if (advancedSection.style.display === 'none') {
+            advancedSection.style.display = 'flex';
+        } else {
+            advancedSection.style.display = 'none';
+        }
     }
 </script>
 

@@ -24,6 +24,12 @@ class AvailableToursController
 
         // Lấy danh sách tour theo từng lịch khởi hành
         $availableTours = $this->tourAssignmentModel->getAvailableTours();
+        
+        // Bổ sung thông tin chi tiết phiên bản cho từng tour
+        foreach ($availableTours as &$tour) {
+            $tour['version_breakdown'] = $this->tourAssignmentModel->getTourVersionBreakdown($tour['tour_id']);
+        }
+        unset($tour);
 
         // Nếu là admin, lấy danh sách HDV để phân công
         $guides = [];

@@ -60,11 +60,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 </div>
                 <div class="stepper-item" data-step="2" onclick="goToStep(2)">
                     <div class="stepper-dot">2</div>
-                    <span class="stepper-label">Phân công & Lần đầu</span>
-                </div>
-                <div class="stepper-item" data-step="3" onclick="goToStep(3)">
-                    <div class="stepper-dot">3</div>
-                    <span class="stepper-label">Xác nhận đơn</span>
+                    <span class="stepper-label">Ghi chú & Xác nhận</span>
                 </div>
             </div>
         </div>
@@ -85,7 +81,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39) !important;
             }
             .progress-stepper-container {
-                max-width: 900px;
+                max-width: 600px;
                 margin: 0 auto;
             }
             .card-header-premium {
@@ -203,24 +199,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <select class="form-select" id="version_id" name="version_id">
-                                                <option value="">-- Chọn phiên bản --</option>
-                                                <?php if (!empty($versions)): ?>
-                                                    <?php foreach ($versions as $v): ?>
-                                                        <option value="<?= htmlspecialchars($v['id']) ?>"
-                                                            data-price-adult="<?= htmlspecialchars($v['price_adult'] ?? 0) ?>"
-                                                            <?= (isset($booking['version_id']) && $v['id'] == $booking['version_id']) ? 'selected' : '' ?>>
-                                                            <?= htmlspecialchars($v['name']) ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
-                                            <label for="version_id">Phiên bản / Sự kiện</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
                                             <select class="form-select" id="departure_id" name="departure_id" required>
                                                 <option value="">-- Chọn ngày khởi hành --</option>
                                             </select>
@@ -279,123 +257,23 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         </div>
                     </div>
 
-                    <!-- Step 2: Staff & Suppliers -->
+                    <!-- Step 2: Confirmation -->
                     <div class="form-step" id="step-2">
-                        <!-- Supplier Management -->
-                        <div class="card-premium mb-4 border-0 shadow-sm bg-white">
-                            <div class="card-header-premium p-3 px-4 border-bottom border-light d-flex justify-content-between align-items-center">
-                                <h6 class="fw-bold mb-0 text-info d-flex align-items-center gap-2">
-                                    <i class="ph-fill ph-buildings"></i> Quản lý Nhà cung cấp
-                                </h6>
-                                <button type="button" class="btn btn-sm btn-primary shadow-sm" onclick="addSupplierRow()">
-                                    <i class="ph ph-plus me-1"></i> Thêm supplier
-                                </button>
-                            </div>
-                            <div class="card-body-premium p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle mb-0" id="suppliers-table">
-                                        <thead>
-                                            <tr>
-                                                <th width="20%">Loại dịch vụ</th>
-                                                <th width="30%">Nhà cung cấp</th>
-                                                <th width="10%">S.Lượng</th>
-                                                <th width="15%">Giá (VNĐ)</th>
-                                                <th width="20%">Ghi chú</th>
-                                                <th width="5%"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="suppliers-tbody">
-                                            <?php if (!empty($bookingSuppliers)): ?>
-                                                <?php foreach ($bookingSuppliers as $index => $bs): ?>
-                                                    <tr>
-                                                        <td>
-                                                            <select name="suppliers[<?= $index ?>][service_type]" class="form-select form-select-sm" required>
-                                                                <option value="tour_operator" <?= $bs['service_type'] == 'tour_operator' ? 'selected' : '' ?>>Tour Operator</option>
-                                                                <option value="hotel" <?= $bs['service_type'] == 'hotel' ? 'selected' : '' ?>>Khách sạn</option>
-                                                                <option value="transport" <?= $bs['service_type'] == 'transport' ? 'selected' : '' ?>>Vận chuyển</option>
-                                                                <option value="restaurant" <?= $bs['service_type'] == 'restaurant' ? 'selected' : '' ?>>Nhà hàng</option>
-                                                                <option value="guide" <?= $bs['service_type'] == 'guide' ? 'selected' : '' ?>>Hướng dẫn viên</option>
-                                                                <option value="other" <?= $bs['service_type'] == 'other' ? 'selected' : '' ?>>Khác</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <select name="suppliers[<?= $index ?>][supplier_id]" class="form-select form-select-sm" required>
-                                                                <?php foreach ($suppliers as $s): ?>
-                                                                    <option value="<?= $s['id'] ?>" <?= $bs['supplier_id'] == $s['id'] ? 'selected' : '' ?>>
-                                                                        <?= htmlspecialchars($s['name']) ?>
-                                                                    </option>
-                                                                <?php endforeach; ?>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <input type="number" name="suppliers[<?= $index ?>][quantity]"
-                                                                value="<?= $bs['quantity'] ?>" class="form-control form-control-sm text-center" min="1" required>
-                                                        </td>
-                                                        <td>
-                                                            <input type="number" name="suppliers[<?= $index ?>][price]"
-                                                                value="<?= $bs['price'] ?>" class="form-control form-control-sm text-end" min="0" step="10000">
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" name="suppliers[<?= $index ?>][notes]"
-                                                                value="<?= htmlspecialchars($bs['notes'] ?? '') ?>" class="form-control form-control-sm" placeholder="...">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <button type="button" class="btn btn-icon-only-sm text-danger" onclick="removeSupplierRow(this)">
-                                                                <i class="ph-bold ph-trash"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <?php if (empty($bookingSuppliers)): ?>
-                                    <div class="text-center text-muted py-4 border rounded-3 border-dashed mt-2" id="empty-suppliers-message">
-                                        <i class="ph-bold ph-building-office fa-2x mb-2 text-light"></i>
-                                        <p class="small mb-0">Chưa có nhà cung cấp nào được gán</p>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <!-- Logistics & Operations -->
+                        <!-- Operations & Notes -->
                         <div class="card-premium mb-4 border-0 shadow-sm bg-white">
                             <div class="card-header-premium p-3 px-4 border-bottom border-light">
                                 <h6 class="fw-bold mb-0 text-primary d-flex align-items-center gap-2">
-                                    <i class="ph-fill ph-bus"></i> Phân công & Ghi chú nội bộ
+                                    <i class="ph-fill ph-note-pencil"></i> Ghi chú & Yêu cầu
                                 </h6>
                             </div>
                             <div class="card-body-premium p-4">
-                                <div class="row g-4">
-                                    <div class="col-12">
-                                        <div class="form-floating text-dark">
-                                            <select class="form-select fw-medium" id="bus_company_id" name="bus_company_id">
-                                                <option value="">-- Chưa phân công --</option>
-                                                <?php if (!empty($busCompanies)): ?>
-                                                    <?php foreach ($busCompanies as $company): ?>
-                                                        <option value="<?= $company['id'] ?>"
-                                                            <?= ($company['id'] == ($booking['bus_company_id'] ?? '')) ? 'selected' : '' ?>>
-                                                            <?= htmlspecialchars($company['company_name']) ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
-                                            <label for="bus_company_id" class="text-muted small">Nhà xe đối tác</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            <textarea class="form-control fw-medium" id="notes" name="notes" style="height: 120px" placeholder=" "><?= htmlspecialchars($booking['notes'] ?? '') ?></textarea>
-                                            <label for="notes" class="text-muted small">Yêu cầu đặc biệt cho điều hành</label>
-                                        </div>
-                                    </div>
+                                <div class="form-floating">
+                                    <textarea class="form-control fw-medium" id="notes" name="notes" style="height: 120px" placeholder=" "><?= htmlspecialchars($booking['notes'] ?? '') ?></textarea>
+                                    <label for="notes" class="text-muted small">Yêu cầu đặc biệt cho điều hành</label>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-step" id="step-3">
                         <div class="card-premium mb-4 border-0 shadow-sm bg-white">
                             <div class="card-header-premium p-3 px-4 border-bottom border-light">
                                 <h6 class="fw-bold mb-0 text-success d-flex align-items-center gap-2">
@@ -431,10 +309,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                             <div class="col-sm-6 summary-item">
                                                 <span class="label text-muted small d-block">Trạng thái</span>
                                                 <span class="value fw-bold" id="summary-status">--</span>
-                                            </div>
-                                            <div class="col-sm-6 summary-item">
-                                                <span class="label text-muted small d-block">Nhà xe</span>
-                                                <span class="value fw-bold" id="summary-bus-company">Chưa phân công</span>
                                             </div>
                                         </div>
                                     </div>
@@ -534,38 +408,26 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 </main>
 
 <script>
-    // Booking Edit JavaScript (Premium Modernized)
+    // Booking Edit JavaScript
     let currentStep = 1;
-    const totalSteps = 3;
+    const totalSteps = 2;
 
-    // Initialize
     document.addEventListener('DOMContentLoaded', function() {
         initializeForm();
         setupEventListeners();
-        updateSummary(); // Initial summary update
+        updateSummary();
     });
 
     function initializeForm() {
         updateStepDisplay();
         updateNavigationButtons();
-
-        // Auto-select "Bình thường" version (ID=10) if no version is selected
-        const versionSelect = document.getElementById('version_id');
-        if (versionSelect && !versionSelect.value) {
-            const defaultOption = versionSelect.querySelector('option[value="10"]');
-            if (defaultOption) {
-                versionSelect.value = '10';
-                versionSelect.dispatchEvent(new Event('change'));
-            }
-        }
     }
 
     function setupEventListeners() {
-        // Auto-update price when tour is selected
         document.getElementById('tour_id').addEventListener('change', function() {
             const tourId = this.value;
             const selectedOption = this.options[this.selectedIndex];
-            const price = selectedOption.getAttribute('data-price');
+            const price = selectedOption.getAttribute('data-price') || 0;
 
             const departureSelect = document.getElementById('departure_id');
             departureSelect.innerHTML = '<option value="">-- Chọn ngày khởi hành --</option>';
@@ -574,28 +436,19 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 
             if (tourId) {
                 fetchDepartures(tourId);
-                const versionSelect = document.getElementById('version_id');
-                if (versionSelect) {
-                    versionSelect.value = '';
-                }
                 document.getElementById('total_price').value = price;
                 updateSummary();
             }
         });
 
-        // Handle departure selection
         document.getElementById('departure_id').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             if (selectedOption.value) {
                 const departureDate = selectedOption.getAttribute('data-date');
                 const availableSeats = selectedOption.getAttribute('data-seats');
                 const maxSeats = selectedOption.getAttribute('data-max-seats');
-
                 document.getElementById('booking_date').value = departureDate;
-
-                document.getElementById('departure-info').innerHTML =
-                    `<i class="ph-bold ph-info me-1"></i>Còn ${availableSeats}/${maxSeats} chỗ trống`;
-
+                document.getElementById('departure-info').innerHTML = `<i class="ph-bold ph-info me-1"></i>Còn ${availableSeats}/${maxSeats} chỗ trống`;
                 updateSummary();
             } else {
                 document.getElementById('booking_date').value = '';
@@ -603,27 +456,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             }
         });
 
-        // Auto-update price when version is selected
-        const versionSelect = document.getElementById('version_id');
-        if (versionSelect) {
-            versionSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                const priceAdult = selectedOption.getAttribute('data-price-adult');
-
-                if (priceAdult && priceAdult > 0) {
-                    document.getElementById('total_price').value = priceAdult;
-                } else {
-                    const tourSelect = document.getElementById('tour_id');
-                    const tourPrice = tourSelect.options[tourSelect.selectedIndex].getAttribute('data-price');
-                    if (tourPrice) {
-                        document.getElementById('total_price').value = tourPrice;
-                    }
-                }
-                updateSummary();
-            });
-        }
-
-        ['customer_id', 'tour_id', 'version_id', 'departure_id', 'status', 'total_price', 'bus_company_id'].forEach(id => {
+        ['customer_id', 'tour_id', 'status', 'total_price'].forEach(id => {
             const element = document.getElementById(id);
             if (element) {
                 element.addEventListener('change', updateSummary);
@@ -639,7 +472,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
     function fetchDepartures(tourId, selectedDate = null) {
         const departureSelect = document.getElementById('departure_id');
         const infoDiv = document.getElementById('departure-info');
-
         infoDiv.innerHTML = '<i class="ph-bold ph-spinner-gap ph-spin me-1"></i>Đang tải lịch...';
 
         fetch(`<?= BASE_URL_ADMIN ?>&action=bookings/get-departures&tour_id=${tourId}`)
@@ -652,11 +484,9 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         option.value = dep.id;
                         option.textContent = dep.formatted_date;
                         option.setAttribute('data-date', dep.departure_date);
-                        option.setAttribute('data-price-adult', dep.price_adult);
                         option.setAttribute('data-seats', dep.available_seats);
                         option.setAttribute('data-max-seats', dep.max_seats);
 
-                        if (dep.version_name) option.textContent += ` (${dep.version_name})`;
                         if (selectedDate && dep.departure_date === selectedDate) {
                             option.selected = true;
                             setTimeout(() => {
@@ -697,7 +527,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 
     function goToStep(step) {
         if (step > currentStep) {
-            // If going forward, check validation
             for (let i = currentStep; i < step; i++) {
                 if (!validateSpecificStep(i)) return;
             }
@@ -711,12 +540,10 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
     function validateSpecificStep(stepNum) {
         const stepElement = document.getElementById(`step-${stepNum}`);
         const requiredFields = stepElement.querySelectorAll('[required]');
-
         for (let field of requiredFields) {
             if (!field.value.trim()) {
                 field.focus();
-                // Simple modern toast / alert could be better, but keeping alert for now
-                alert('Vui lòng hoàn thành các trường bắt buộc ở bước ' + stepNum);
+                alert('Vui lòng hoàn thành các trường bắt buộc');
                 return false;
             }
         }
@@ -724,7 +551,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
     }
 
     function updateStepDisplay() {
-        // Update progress stepper (Premium style)
         document.querySelectorAll('.stepper-item').forEach(step => {
             step.classList.remove('active', 'completed');
             const stepNum = parseInt(step.dataset.step);
@@ -740,20 +566,14 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             }
         });
 
-        // Update form sections with fade effect
-        document.querySelectorAll('.form-step').forEach(step => {
-            step.classList.remove('active');
-        });
-        const current = document.getElementById(`step-${currentStep}`);
-        current.classList.add('active');
-        
+        document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+        document.getElementById(`step-${currentStep}`).classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function updateNavigationButtons() {
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
-
         if (prevBtn) prevBtn.style.display = currentStep === 1 ? 'none' : 'flex';
         if (nextBtn) nextBtn.style.display = currentStep === totalSteps ? 'none' : 'flex';
     }
@@ -761,7 +581,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
     function validateCurrentStep() {
         const currentStepElement = document.getElementById(`step-${currentStep}`);
         const requiredFields = currentStepElement.querySelectorAll('[required]');
-
         for (let field of requiredFields) {
             if (!field.value.trim()) {
                 field.focus();
@@ -778,16 +597,13 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         const dateInput = document.getElementById('booking_date');
         const statusSelect = document.getElementById('status');
         const priceInput = document.getElementById('total_price');
-        const busCompanySelect = document.getElementById('bus_company_id');
 
         const customerText = customerSelect.options[customerSelect.selectedIndex]?.text || '--';
         const tourText = tourSelect.options[tourSelect.selectedIndex]?.text || '--';
-        const busCompanyText = busCompanySelect?.options[busCompanySelect.selectedIndex]?.text || 'Chưa phân công';
         const price = priceInput.value || '0';
         const statusValue = statusSelect.value;
         const statusText = statusSelect.options[statusSelect.selectedIndex]?.text || '--';
 
-        // Quick summary
         if (document.getElementById('quick-customer')) document.getElementById('quick-customer').textContent = customerText.split('(')[0].trim();
         if (document.getElementById('quick-tour')) document.getElementById('quick-tour').textContent = tourText.split('-')[0].trim();
         if (document.getElementById('quick-price')) document.getElementById('quick-price').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
@@ -798,73 +614,11 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             quickStatusBadge.className = `badge-premium badge-${statusValue} small`;
         }
 
-        // Final summary
         if (document.getElementById('summary-customer')) document.getElementById('summary-customer').textContent = customerText;
         if (document.getElementById('summary-tour')) document.getElementById('summary-tour').textContent = tourText;
         if (document.getElementById('summary-date')) document.getElementById('summary-date').textContent = dateInput.value || '--';
         if (document.getElementById('summary-status')) document.getElementById('summary-status').textContent = statusText;
-        if (document.getElementById('summary-bus-company')) document.getElementById('summary-bus-company').textContent = busCompanyText;
         if (document.getElementById('summary-price')) document.getElementById('summary-price').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
-    }
-
-    // Supplier Row Management
-    let supplierIndex = <?= count($bookingSuppliers ?? []) ?>;
-
-    function addSupplierRow() {
-        const tbody = document.getElementById('suppliers-tbody');
-        const emptyMessage = document.getElementById('empty-suppliers-message');
-        if (emptyMessage) emptyMessage.remove();
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>
-                <select name="suppliers[${supplierIndex}][service_type]" class="form-select form-select-sm" required>
-                    <option value="tour_operator">Tour Operator</option>
-                    <option value="hotel">Khách sạn</option>
-                    <option value="transport">Vận chuyển</option>
-                    <option value="restaurant">Nhà hàng</option>
-                    <option value="guide">Hướng dẫn viên</option>
-                    <option value="other">Khác</option>
-                </select>
-            </td>
-            <td>
-                <select name="suppliers[${supplierIndex}][supplier_id]" class="form-select form-select-sm" required>
-                    <?php foreach ($suppliers as $s): ?>
-                        <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </td>
-            <td>
-                <input type="number" name="suppliers[${supplierIndex}][quantity]" value="1" class="form-control form-control-sm text-center" min="1" required>
-            </td>
-            <td>
-                <input type="number" name="suppliers[${supplierIndex}][price]" value="0" class="form-control form-control-sm text-end" min="0" step="10000">
-            </td>
-            <td>
-                <input type="text" name="suppliers[${supplierIndex}][notes]" class="form-control form-control-sm" placeholder="...">
-            </td>
-            <td class="text-center">
-                <button type="button" class="btn btn-icon-only-sm text-danger" onclick="removeSupplierRow(this)">
-                    <i class="ph-bold ph-trash"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(row);
-        supplierIndex++;
-    }
-
-    function removeSupplierRow(btn) {
-        const row = btn.closest('tr');
-        row.remove();
-        const tbody = document.getElementById('suppliers-tbody');
-        if (tbody.children.length === 0) {
-            tbody.parentElement.parentElement.insertAdjacentHTML('afterend', `
-                <div class="text-center text-muted py-4 border rounded-3 border-dashed mt-2" id="empty-suppliers-message">
-                    <i class="ph-bold ph-building-office fa-2x mb-2 text-light"></i>
-                    <p class="small mb-0">Chưa có nhà cung cấp nào được gán</p>
-                </div>
-            `);
-        }
     }
 </script>
 

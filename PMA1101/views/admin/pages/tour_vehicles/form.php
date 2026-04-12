@@ -78,30 +78,6 @@ $formAction = BASE_URL_ADMIN . '&action=tour_vehicles/' . $action;
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-medium">Nhà xe</label>
-                                    <select name="bus_company_id" id="bus_company_select" class="form-select">
-                                        <option value="">-- Chọn nhà xe / Tự do --</option>
-                                        <?php if (!empty($busCompanies)): ?>
-                                            <?php foreach ($busCompanies as $company): ?>
-                                                <option value="<?= $company['id'] ?>" <?= ($vehicle['bus_company_id'] ?? '') == $company['id'] ? 'selected' : '' ?>>
-                                                    <?= htmlspecialchars($company['company_name']) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </select>
-
-                                    <!-- History Suggestion Container -->
-                                    <div id="vehicle_history_container" class="mt-2 d-none bg-light p-2 rounded border border-dashed">
-                                        <div class="d-flex align-items-center mb-1">
-                                            <i class="fas fa-history text-muted me-1 small"></i>
-                                            <label class="form-label text-muted small fst-italic mb-0">Gợi ý từ lịch sử:</label>
-                                        </div>
-                                        <select id="vehicle_history_select" class="form-select form-select-sm">
-                                            <option value="">-- Chọn xe đã từng dùng --</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
                                     <label class="form-label fw-medium">Biển số xe <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="vehicle_plate" id="vehicle_plate" required value="<?= htmlspecialchars($vehicle['vehicle_plate'] ?? '') ?>" placeholder="VD: 29B-123.45">
                                     <div class="invalid-feedback">Vui lòng nhập biển số xe</div>
@@ -170,70 +146,15 @@ $formAction = BASE_URL_ADMIN . '&action=tour_vehicles/' . $action;
 </main>
 
 <script>
-    // Include the history suggestion script here as it was in the original file
     document.addEventListener('DOMContentLoaded', function() {
-        const busCompanySelect = document.getElementById('bus_company_select');
-        const historyContainer = document.getElementById('vehicle_history_container');
-        const historySelect = document.getElementById('vehicle_history_select');
-
-        // Input fields to autofill
-        const inputFields = {
-            vehicle_plate: document.getElementById('vehicle_plate'),
-            vehicle_type: document.getElementById('vehicle_type'),
-            vehicle_brand: document.getElementById('vehicle_brand'),
-            driver_name: document.getElementById('driver_name'),
-            driver_phone: document.getElementById('driver_phone'),
-            driver_license: document.getElementById('driver_license')
-        };
-
-        busCompanySelect.addEventListener('change', function() {
-            const companyId = this.value;
-            if (!companyId) {
-                historyContainer.classList.add('d-none');
-                return;
+        const form = document.querySelector('.needs-validation');
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
             }
-
-            // Fetch history via AJAX
-            fetch('<?= BASE_URL_ADMIN ?>&action=tour_vehicles/get-history&bus_company_id=' + companyId)
-                .then(response => response.json())
-                .then(data => {
-                    historySelect.innerHTML = '<option value="">-- Chọn xe đã từng dùng --</option>';
-
-                    if (data && data.length > 0) {
-                        data.forEach(item => {
-                            const option = document.createElement('option');
-                            // Store data in dataset for easy retrieval
-                            option.dataset.plate = item.vehicle_plate;
-                            option.dataset.type = item.vehicle_type || '';
-                            option.dataset.brand = item.vehicle_brand || '';
-                            option.dataset.driverName = item.driver_name || '';
-                            option.dataset.driverPhone = item.driver_phone || '';
-                            option.dataset.driverLicense = item.driver_license || '';
-
-                            option.textContent = `${item.vehicle_plate} - ${item.vehicle_type} (${item.driver_name || 'No driver'})`;
-                            historySelect.appendChild(option);
-                        });
-                        historyContainer.classList.remove('d-none');
-                    } else {
-                        historyContainer.classList.add('d-none');
-                    }
-                })
-                .catch(err => console.error('Error fetching vehicle history:', err));
-        });
-
-        // Auto-fill when history item selected
-        historySelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (!selectedOption.value && this.selectedIndex === 0) return;
-
-            // Start filling
-            if (selectedOption.dataset.plate) inputFields.vehicle_plate.value = selectedOption.dataset.plate;
-            if (selectedOption.dataset.type) inputFields.vehicle_type.value = selectedOption.dataset.type;
-            if (selectedOption.dataset.brand) inputFields.vehicle_brand.value = selectedOption.dataset.brand;
-            if (selectedOption.dataset.driverName) inputFields.driver_name.value = selectedOption.dataset.driverName;
-            if (selectedOption.dataset.driverPhone) inputFields.driver_phone.value = selectedOption.dataset.driverPhone;
-            if (selectedOption.dataset.driverLicense) inputFields.driver_license.value = selectedOption.dataset.driverLicense;
-        });
+            form.classList.add('was-validated');
+        }, false);
     });
 </script>
 

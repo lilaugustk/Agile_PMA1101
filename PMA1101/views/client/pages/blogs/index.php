@@ -22,16 +22,16 @@ $latestBlogs = $data['latestBlogs'] ?? [];
                             <article class="card h-100 border-0 shadow-sm overflow-hidden tour-card-hover">
                                 <a href="?action=blog-detail&slug=<?= $blog['slug'] ?>" class="text-decoration-none">
                                     <div class="position-relative" style="height: 220px;">
-                                        <img src="<?= htmlspecialchars($blog['thumbnail'] ?? 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80') ?>" 
+                                        <img src="<?= !empty($blog['thumbnail']) ? BASE_URL . $blog['thumbnail'] : 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80' ?>" 
                                              class="w-100 h-100 object-fit-cover" 
-                                             alt="<?= htmlspecialchars($blog['title']) ?>">
+                                             alt="<?= htmlspecialchars((string)($blog['title'] ?? '')) ?>">
                                         <div class="position-absolute top-0 start-0 m-3">
                                             <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm" style="font-size: 0.75rem;">Tin tức</span>
                                         </div>
                                     </div>
                                     <div class="card-body p-4">
                                         <div class="d-flex align-items-center gap-2 mb-3 text-muted" style="font-size: 0.85rem;">
-                                            <i class="ph ph-calendar"></i> <?= date('d/m/Y', strtotime($blog['published_at'])) ?>
+                                            <i class="ph ph-calendar"></i> <?= !empty($blog['published_at']) ? date('d/m/Y', strtotime($blog['published_at'])) : date('d/m/Y') ?>
                                             <span class="mx-1">•</span>
                                             <i class="ph ph-user"></i> Admin
                                         </div>
@@ -65,12 +65,12 @@ $latestBlogs = $data['latestBlogs'] ?? [];
                         <div class="d-flex flex-column gap-4">
                             <?php foreach ($latestBlogs as $lb): ?>
                                 <a href="?action=blog-detail&slug=<?= $lb['slug'] ?>" class="d-flex align-items-start gap-3 text-decoration-none group">
-                                    <img src="<?= htmlspecialchars($lb['thumbnail'] ?? 'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&q=80') ?>" 
+                                    <img src="<?= !empty($lb['thumbnail']) ? BASE_URL . $lb['thumbnail'] : 'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&q=80' ?>" 
                                          class="rounded object-fit-cover" 
                                          style="width: 80px; height: 60px;" alt="">
                                     <div>
                                         <h6 class="text-dark fw-bold mb-1 line-clamp-2" style="font-size: 0.9rem; line-height: 1.4;"><?= htmlspecialchars($lb['title']) ?></h6>
-                                        <div class="text-muted" style="font-size: 0.75rem;"><i class="ph ph-calendar me-1"></i><?= date('d/m/Y', strtotime($lb['published_at'])) ?></div>
+                                        <div class="text-muted" style="font-size: 0.75rem;"><i class="ph ph-calendar me-1"></i><?= !empty($lb['published_at']) ? date('d/m/Y', strtotime($lb['published_at'])) : date('d/m/Y') ?></div>
                                     </div>
                                 </a>
                             <?php endforeach; ?>

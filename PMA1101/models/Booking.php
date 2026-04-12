@@ -8,9 +8,6 @@ class Booking extends BaseModel
         'id',
         'tour_id',
         'departure_id',
-        'version_id',
-        'customer_id',
-        'bus_company_id',
         'original_price',
         'final_price',
         'total_price',
@@ -70,6 +67,24 @@ class Booking extends BaseModel
             $params[':date_to'] = $filters['date_to'];
         }
 
+        // Bộ lọc danh mục tour
+        if (!empty($filters['category_id'])) {
+            $whereConditions[] = "T.category_id = :category_id";
+            $params[':category_id'] = $filters['category_id'];
+        }
+
+        // Bộ lọc giá (Từ)
+        if (!empty($filters['price_min'])) {
+            $whereConditions[] = "B.final_price >= :price_min";
+            $params[':price_min'] = $filters['price_min'];
+        }
+
+        // Bộ lọc giá (Đến)
+        if (!empty($filters['price_max'])) {
+            $whereConditions[] = "B.final_price <= :price_max";
+            $params[':price_max'] = $filters['price_max'];
+        }
+
         // Phân quyền cho HDV (nếu có)
         if (isset($filters['guide_id']) && !empty($filters['guide_id'])) {
             $whereConditions[] = "EXISTS (SELECT 1 FROM tour_assignments TA WHERE TA.tour_id = B.tour_id AND TA.guide_id = :guide_id)";
@@ -91,13 +106,18 @@ class Booking extends BaseModel
         $totalItems = (int)$countStmt->fetchColumn();
 
         // Xử lý sắp xếp
-        $orderBy = "B.booking_date DESC, B.id DESC";
+        $sortDir = strtoupper($filters['sort_dir'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
+        $orderBy = "B.booking_date $sortDir, B.id $sortDir";
+        
         if (!empty($filters['sort_by'])) {
-            $sortDir = strtoupper($filters['sort_dir'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
             if ($filters['sort_by'] === 'total_price') {
                 $orderBy = "B.final_price $sortDir";
             } elseif ($filters['sort_by'] === 'booking_date') {
                 $orderBy = "B.booking_date $sortDir";
+            } elseif ($filters['sort_by'] === 'customer') {
+                $orderBy = "customer_name $sortDir";
+            } elseif ($filters['sort_by'] === 'tour') {
+                $orderBy = "tour_name $sortDir";
             }
         }
 
@@ -105,12 +125,10 @@ class Booking extends BaseModel
         $sql = "SELECT 
                     B.*, 
                     T.name AS tour_name, 
-                    COALESCE(U.full_name, B.contact_name) AS customer_name,
-                    BC.company_name AS bus_company_name
+                    COALESCE(U.full_name, B.contact_name) AS customer_name
                 FROM bookings AS B 
                 LEFT JOIN tours AS T ON B.tour_id = T.id
                 LEFT JOIN users AS U ON B.customer_id = U.user_id
-                LEFT JOIN bus_companies AS BC ON B.bus_company_id = BC.id
                 WHERE $whereClause
                 ORDER BY $orderBy
                 LIMIT :limit OFFSET :offset";
@@ -154,36 +172,71 @@ class Booking extends BaseModel
         $sql = "SELECT 
                     status,
                     COUNT(*) as count,
-                    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM {$this->table} WHERE 1), 1) as percentage,
-                    SUM(CASE WHEN status = 'completed' THEN final_price ELSE 0 END) as total_revenue
+                    SUM(CASE WHEN status IN ('completed', 'hoan_tat', 'paid', 'da_thanh_toan') THEN final_price ELSE 0 END) as total_revenue
                 FROM {$this->table}
                 WHERE 1
-                GROUP BY status
-                ORDER BY count DESC";
+                GROUP BY status";
 
         $stmt = self::$pdo->query($sql);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Format status names
-        $statusNames = [
+        $mapping = [
+            'pending' => 'cho_xac_nhan',
+            'cho_xac_nhan' => 'cho_xac_nhan',
+            'da_coc' => 'da_coc',
+            'confirmed' => 'da_coc',
+            'hoan_tat' => 'hoan_tat',
+            'completed' => 'hoan_tat',
+            'paid' => 'hoan_tat',
+            'da_thanh_toan' => 'hoan_tat',
+            'da_huy' => 'da_huy',
+            'cancelled' => 'da_huy',
+            'hoan_huy' => 'da_huy',
+            'expired' => 'expired'
+        ];
+
+        $statusLabels = [
             'cho_xac_nhan' => 'Chờ xác nhận',
             'da_coc' => 'Đã cọc',
             'hoan_tat' => 'Hoàn tất',
-            'da_huy' => 'Đã hủy'
+            'da_huy' => 'Đã hủy',
+            'expired' => 'Hết hạn'
         ];
 
-        $totalBookings = array_sum(array_column($results, 'count'));
-        $totalRevenue = array_sum(array_column($results, 'total_revenue'));
+        $unifiedStats = [];
+        foreach ($results as $row) {
+            $key = $mapping[$row['status']] ?? $row['status'];
+            if (!isset($unifiedStats[$key])) {
+                $unifiedStats[$key] = [
+                    'status' => $statusLabels[$key] ?? ucfirst($key),
+                    'count' => 0,
+                    'revenue' => 0
+                ];
+            }
+            $unifiedStats[$key]['count'] += (int)$row['count'];
+            $unifiedStats[$key]['revenue'] += (float)$row['total_revenue'];
+        }
+
+        $totalBookings = array_sum(array_column($unifiedStats, 'count'));
+        $totalRevenue = array_sum(array_column($unifiedStats, 'revenue'));
+
+        $statsArray = [];
+        foreach ($unifiedStats as $key => $item) {
+            $statsArray[] = [
+                'status' => $item['status'],
+                'count' => $item['count'],
+                'percentage' => $totalBookings > 0 ? round(($item['count'] / $totalBookings) * 100, 1) : 0,
+                'revenue' => $item['revenue']
+            ];
+        }
+
+        // Sort by count descending
+        usort($statsArray, function($a, $b) {
+            return $b['count'] <=> $a['count'];
+        });
 
         return [
-            'stats' => array_map(function ($item) use ($statusNames) {
-                return [
-                    'status' => $statusNames[$item['status']] ?? ucfirst($item['status']),
-                    'count' => (int)$item['count'],
-                    'percentage' => (float)$item['percentage'],
-                    'revenue' => (float)$item['total_revenue']
-                ];
-            }, $results),
+            'stats' => $statsArray,
             'total_bookings' => $totalBookings,
             'total_revenue' => $totalRevenue
         ];
@@ -366,20 +419,12 @@ class Booking extends BaseModel
                     B.*, 
                     T.name AS tour_name,
                     T.base_price AS tour_base_price,
-                    T.supplier_id AS tour_supplier_id,
                     COALESCE(U.full_name, B.contact_name) AS customer_name,
                     COALESCE(U.email, B.contact_email) AS customer_email,
-                    COALESCE(U.phone, B.contact_phone) AS customer_phone,
-                    BC.id AS bus_company_id,
-                    BC.company_name AS bus_company_name,
-                    BC.phone AS bus_company_phone,
-                    BC.total_vehicles AS bus_company_vehicles,
-                    BC.vehicle_brand AS bus_company_vehicle_brand,
-                    BC.address AS bus_company_address
+                    COALESCE(U.phone, B.contact_phone) AS customer_phone
                 FROM bookings AS B 
                 LEFT JOIN tours AS T ON B.tour_id = T.id
                 LEFT JOIN users AS U ON B.customer_id = U.user_id
-                LEFT JOIN bus_companies AS BC ON B.bus_company_id = BC.id
                 WHERE B.id = :id";
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute(['id' => $id]);

@@ -2,7 +2,7 @@
 require_once 'models/BaseModel.php';
 
 /**
- * Model quản lý xe cụ thể cho tour
+ * Model quản lý xe cụ thể cho tour (Đã loại bỏ liên kết Nhà xe)
  */
 class TourVehicle extends BaseModel
 {
@@ -10,7 +10,6 @@ class TourVehicle extends BaseModel
     protected $columns = [
         'id',
         'tour_assignment_id',
-        'bus_company_id',
         'vehicle_plate',
         'vehicle_type',
         'vehicle_brand',
@@ -28,9 +27,8 @@ class TourVehicle extends BaseModel
      */
     public function getByTourAssignment($tourAssignmentId)
     {
-        $sql = "SELECT tv.*, bc.company_name 
+        $sql = "SELECT tv.* 
                 FROM {$this->table} tv
-                LEFT JOIN bus_companies bc ON tv.bus_company_id = bc.id
                 WHERE tv.tour_assignment_id = :tour_assignment_id
                 ORDER BY tv.created_at DESC";
 
@@ -40,29 +38,12 @@ class TourVehicle extends BaseModel
     }
 
     /**
-     * Lấy xe theo nhà xe
-     */
-    public function getByBusCompany($busCompanyId)
-    {
-        $sql = "SELECT tv.*, ta.tour_id 
-                FROM {$this->table} tv
-                LEFT JOIN tour_assignments ta ON tv.tour_assignment_id = ta.id
-                WHERE tv.bus_company_id = :bus_company_id
-                ORDER BY tv.created_at DESC";
-
-        $stmt = self::$pdo->prepare($sql);
-        $stmt->execute(['bus_company_id' => $busCompanyId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
      * Lấy chi tiết xe
      */
     public function getById($id)
     {
-        $sql = "SELECT tv.*, bc.company_name, ta.tour_id
+        $sql = "SELECT tv.*, ta.tour_id
                 FROM {$this->table} tv
-                LEFT JOIN bus_companies bc ON tv.bus_company_id = bc.id
                 LEFT JOIN tour_assignments ta ON tv.tour_assignment_id = ta.id
                 WHERE tv.id = :id";
 

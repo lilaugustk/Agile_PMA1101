@@ -6,22 +6,24 @@ $latestBlogs = $data['latestBlogs'] ?? [];
 
 <div class="blog-detail-hero overflow-hidden position-relative" style="margin-top: 80px; height: 500px;">
     <?php if (!empty($blog['thumbnail'])): ?>
-        <img src="<?= htmlspecialchars($blog['thumbnail']) ?>" class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" style="filter: brightness(0.4);" alt="">
+        <img src="<?= BASE_URL . $blog['thumbnail'] ?>" class="w-100 h-100 object-fit-cover position-absolute top-0 start-0" style="filter: brightness(0.5);" alt="">
+    <?php else: ?>
+        <div class="w-100 h-100 position-absolute top-0 start-0 bg-dark opacity-75"></div>
     <?php endif; ?>
     <div class="container h-100 position-relative z-1 d-flex flex-column justify-content-center text-white">
         <div class="row">
             <div class="col-lg-10">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-4" style="font-size: 0.85rem;">
-                        <li class="breadcrumb-item"><a href="?action=/" class="text-white text-decoration-none">Trang chủ</a></li>
-                        <li class="breadcrumb-item"><a href="?action=blogs" class="text-white text-decoration-none">Cẩm nang</a></li>
-                        <li class="breadcrumb-item active text-white-50" aria-current="page">Chi tiết</li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>" class="text-white-50 text-decoration-none">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="?action=blogs" class="text-white-50 text-decoration-none">Cẩm nang</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">Chi tiết</li>
                     </ol>
                 </nav>
                 <div class="badge bg-primary rounded-pill px-3 py-2 mb-4">Tin tức du lịch</div>
-                <h1 class="display-4 fw-bold mb-4 shadow-sm" style="line-height: 1.2;"><?= htmlspecialchars($blog['title']) ?></h1>
+                <h1 class="display-4 fw-bold mb-4 shadow-sm" style="line-height: 1.2;"><?= htmlspecialchars((string)($blog['title'] ?? '')) ?></h1>
                 <div class="d-flex align-items-center gap-4 text-white-50" style="font-size: 0.95rem;">
-                    <span class="d-flex align-items-center gap-2"><i class="ph ph-calendar"></i> <?= date('d/m/Y', strtotime($blog['published_at'])) ?></span>
+                    <span class="d-flex align-items-center gap-2"><i class="ph ph-calendar"></i> <?= !empty($blog['published_at']) ? date('d/m/Y', strtotime($blog['published_at'])) : date('d/m/Y') ?></span>
                     <span class="d-flex align-items-center gap-2"><i class="ph ph-user"></i> Đăng bởi Admin</span>
                 </div>
             </div>
@@ -36,7 +38,7 @@ $latestBlogs = $data['latestBlogs'] ?? [];
                 <div class="card-body p-5">
                     <!-- Article Content -->
                     <div class="blog-content fs-5 text-dark" style="line-height: 1.8;">
-                        <?= $blog['content'] // Assuming HTML content from Admin CKEditor ?>
+                        <?= $blog['content'] ?? 'Nội dung đang được cập nhật...' ?>
                     </div>
 
                     <!-- Tags / Meta -->
@@ -72,12 +74,12 @@ $latestBlogs = $data['latestBlogs'] ?? [];
                             <?php foreach ($latestBlogs as $lb): ?>
                                 <?php if ($lb['id'] == $blog['id']) continue; ?>
                                 <a href="?action=blog-detail&slug=<?= $lb['slug'] ?>" class="d-flex align-items-start gap-3 text-decoration-none group">
-                                    <img src="<?= htmlspecialchars($lb['thumbnail'] ?? 'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&q=80') ?>" 
+                                    <img src="<?= !empty($lb['thumbnail']) ? BASE_URL . $lb['thumbnail'] : 'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&q=80' ?>" 
                                          class="rounded-3 object-fit-cover" 
                                          style="width: 90px; height: 70px;" alt="">
-                                    <div>
-                                        <h6 class="text-dark fw-bold mb-1 line-clamp-2" style="font-size: 0.95rem; line-height: 1.4;"><?= htmlspecialchars($lb['title']) ?></h6>
-                                        <div class="text-muted" style="font-size: 0.8rem;"><i class="ph ph-calendar me-1"></i><?= date('d/m/Y', strtotime($lb['published_at'])) ?></div>
+                                     <div>
+                                         <h6 class="text-dark fw-bold mb-1 line-clamp-2" style="font-size: 0.95rem; line-height: 1.4;"><?= htmlspecialchars((string)($lb['title'] ?? '')) ?></h6>
+                                        <div class="text-muted" style="font-size: 0.8rem;"><i class="ph ph-calendar me-1"></i><?= !empty($lb['published_at']) ? date('d/m/Y', strtotime($lb['published_at'])) : date('d/m/Y') ?></div>
                                     </div>
                                 </a>
                             <?php endforeach; ?>

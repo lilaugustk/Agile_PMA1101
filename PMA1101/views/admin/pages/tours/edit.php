@@ -31,10 +31,8 @@ if (!empty($allImages)) {
 $categories = $categories ?? [];
 $itinerarySchedule = $itinerarySchedule ?? [];
 $pricingOptions = $pricingOptions ?? [];
-$partnerServices = $partnerServices ?? [];
 $policies = $policies ?? [];
 $assignedPolicyIds = $assignedPolicyIds ?? [];
-$versions = $versions ?? [];
 ?>
 
 <?php include_once PATH_VIEW_ADMIN . 'default/header.php'; ?>
@@ -111,8 +109,6 @@ $versions = $versions ?? [];
         <input type="hidden" name="id" value="<?= $tourId ?>">
         <input type="hidden" name="tour_itinerary" id="tour_itinerary">
         <input type="hidden" name="tour_pricing_options" id="tour_pricing_options">
-        <input type="hidden" name="tour_partners" id="tour_partners">
-        <input type="hidden" name="tour_versions" id="tour_versions">
 
         <div class="row g-4">
             <!-- Main Content -->
@@ -276,7 +272,6 @@ $versions = $versions ?? [];
 
                 <!-- Step 4: Final Details -->
                 <div class="form-step d-none" id="step-4">
-                    <!-- Partners -->
 
                     <!-- Policies -->
                     <div class="card-premium border-0 shadow-sm bg-white">

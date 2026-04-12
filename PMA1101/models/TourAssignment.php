@@ -211,6 +211,7 @@ class TourAssignment extends BaseModel
             t.category_id, 
             t.description, 
             t.base_price as tour_base_price,
+            b.departure_id,
             DATE(b.booking_date) as departure_date,
             COUNT(DISTINCT b.id) as booking_count,
             COALESCE(SUM(CASE WHEN bc_count.total IS NOT NULL THEN bc_count.total ELSE 0 END), 0) + COUNT(DISTINCT b.id) as total_customers,
@@ -233,7 +234,7 @@ class TourAssignment extends BaseModel
             AND ta.status = 'active'
         )
         AND t.status = 'active'
-        GROUP BY t.id, t.name, t.category_id, t.description, t.base_price, DATE(b.booking_date)
+        GROUP BY t.id, t.name, t.category_id, t.description, t.base_price, b.departure_id, DATE(b.booking_date)
         ORDER BY DATE(b.booking_date) ASC, t.name ASC";
 
         $stmt = self::$pdo->prepare($sql);
@@ -334,25 +335,8 @@ class TourAssignment extends BaseModel
      */
     public function getTourVersionBreakdown($tourId)
     {
-        $sql = "SELECT 
-                    COALESCE(tv.name, 'Mặc định') as version_name,
-                    b.version_id,
-                    COUNT(DISTINCT b.id) as booking_count,
-                    COALESCE(SUM(bc_count.total), 0) + COUNT(DISTINCT b.id) as customer_count
-                FROM bookings b
-                LEFT JOIN tour_versions tv ON b.version_id = tv.id
-                LEFT JOIN (
-                    SELECT booking_id, COUNT(*) as total 
-                    FROM booking_customers 
-                    GROUP BY booking_id
-                ) bc_count ON b.id = bc_count.booking_id
-                WHERE b.tour_id = :tour_id 
-                    AND b.status NOT IN ('hoan_tat', 'da_huy')
-                GROUP BY b.version_id, tv.name
-                ORDER BY customer_count DESC";
-
-        $stmt = self::$pdo->prepare($sql);
-        $stmt->execute(['tour_id' => $tourId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Module tour_versions đã bị xóa.
+        // Trả về mảng rỗng để không phá vỡ logic giao diện gọi hàm này.
+        return [];
     }
 }

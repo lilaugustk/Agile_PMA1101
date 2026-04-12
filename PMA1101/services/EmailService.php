@@ -35,16 +35,24 @@ class EmailService
         </html>
         ";
 
-        // Simulation: Log to a file instead of sending actual mail
+        // Real implementation using PHP mail() or placeholders for PHPMailer
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= "From: TravelAgile <noreply@travelagile.com>" . "\r\n";
+
+        // Simulation/Log as fallback for local dev
         $logDir = PATH_ROOT . 'logs/emails/';
         if (!is_dir($logDir)) {
             mkdir($logDir, 0777, true);
         }
-        
         $logFile = $logDir . $bookingCode . '_' . time() . '.html';
         file_put_contents($logFile, $message);
-        
-        // Return true if "sent"
-        return true;
+
+        // Attempt real mail sent
+        try {
+            return @mail($to, $subject, $message, $headers);
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }

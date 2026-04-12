@@ -8,7 +8,6 @@ class Tour extends BaseModel
         'id',
         'name',
         'category_id',
-        'supplier_id',
         'description',
         'base_price',
         'status',
@@ -289,59 +288,14 @@ class Tour extends BaseModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createTour($tourData, $pricingOptions = [], $dynamicPricing = [], $itineraries = [], $uploadedImages = [], $policyIds = [], $versions = [])
+    public function createTour($tourData, $pricingOptions = [], $itineraries = [], $uploadedImages = [], $policyIds = [])
     {
         $this->beginTransaction(); // BẮT ĐẦU TRANSACTION
         try {
             // 1. INSERT TOUR CƠ BẢN
             $tourId = $this->insert($tourData);
 
-            // 2. INSERT PRICING OPTIONS VÀ DYNAMIC PRICING
-            if (!empty($pricingOptions)) {
-                $pricingModel = new TourPricing();
-                $dynamicPricingModel = new TourDynamicPricing();
-                $optionLabelToIdMap = [];
-
-                // Insert options and create a map from label to the new ID
-                foreach ($pricingOptions as $option) {
-                    $optionLabel = $option['label'] ?? '';
-                    if (!empty($optionLabel)) {
-                        $optionId = $pricingModel->insert([
-                            'tour_id' => $tourId,
-                            'label' => $optionLabel,
-                            'description' => $option['description'] ?? '',
-                            'created_at' => date('Y-m-d H:i:s'),
-                        ]);
-                        $optionLabelToIdMap[$optionLabel] = $optionId;
-                    }
-                }
-
-                // TODO: Dynamic pricing table structure changed to version_dynamic_pricing
-                // It now uses version_id/departure_id instead of tour_id/pricing_option_id
-                // Temporarily disabled until we update the logic
-                /*
-                if (!empty($dynamicPricing) && !empty($optionLabelToIdMap)) {
-                    foreach ($dynamicPricing as $dp) {
-                        $optionLabel = $dp['option_label'] ?? '';
-                        if (isset($optionLabelToIdMap[$optionLabel])) {
-                            $optionId = $optionLabelToIdMap[$optionLabel];
-                            $dynamicPricingModel->insert([
-                                'version_id' => ...,
-                                'departure_id' => ...,
-                                'apply_type' => 'discount',
-                                'amount' => ...,
-                                'amount_type' => 'cash',
-                                'start_date' => $dp['start_date'] ?: null,
-                                'end_date' => $dp['end_date'] ?: null,
-                                'notes' => $dp['notes'] ?? '',
-                                'created_at' => date('Y-m-d H:i:s'),
-                            ]);
-                        }
-                    }
-                }
-                */
-            }
-
+            // 2. INSERT PRICING OPTIONS đã bị loại bỏ
 
             // 3. INSERT ITINERARIES
             if (!empty($itineraries)) {
@@ -394,23 +348,6 @@ class Tour extends BaseModel
                 }
             }
 
-            // 7. INSERT VERSIONS
-            if (!empty($versions) && is_array($versions)) {
-                $versionModel = new TourVersion();
-                foreach ($versions as $v) {
-                    if (!empty($v['name'])) {
-                        $versionModel->insert([
-                            'tour_id' => $tourId,
-                            'name' => $v['name'],
-                            'start_date' => !empty($v['start_date']) ? $v['start_date'] : null,
-                            'end_date' => !empty($v['end_date']) ? $v['end_date'] : null,
-                            'price' => (float)($v['price'] ?? 0),
-                            'notes' => $v['notes'] ?? '',
-                            'created_at' => date('Y-m-d H:i:s')
-                        ]);
-                    }
-                }
-            }
 
             $this->commit(); // COMMIT TRANSACTION
             return $tourId;
@@ -436,11 +373,7 @@ class Tour extends BaseModel
         try {
             // Load related models
             $imageModel = new TourImage();
-            $pricingModel = new TourPricing();
-            $dynamicPricingModel = new TourDynamicPricing();
             $itineraryModel = new TourItinerary();
-            $partnerModel = new TourPartner();
-            $versionModel = new TourVersion();
             $policyAssignmentModel = new TourPolicyAssignment();
             $bookingModel = new Booking();
             $bookingCustomerModel = new BookingCustomer();
@@ -456,7 +389,7 @@ class Tour extends BaseModel
 
             // 2. Delete DB records in dependent tables
             $imageModel->deleteByTourId($id);
-            $pricingModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
+            // $pricingModel đã bị xóa
             // TODO: version_dynamic_pricing table doesn't have tour_id column
             // $dynamicPricingModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
             $itineraryModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
@@ -596,16 +529,7 @@ class Tour extends BaseModel
                 $itineraryModel->insert($it);
             }
 
-            // 4. Clone pricing options
-            $pricingModel = new TourPricing();
-            $pricingOptions = $pricingModel->select('*', 'tour_id = :tid', ['tid' => $id]);
-            foreach ($pricingOptions as $opt) {
-                unset($opt['id']);
-                $opt['tour_id'] = $newTourId;
-                $opt['created_at'] = date('Y-m-d H:i:s');
-                $pricingModel->insert($opt);
-            }
-
+            // 4. Clone pricing options (Bỏ qua do module đã bị xóa)
             // 5. Clone policies
             $policyAssocModel = new TourPolicyAssignment();
             $policies = $policyAssocModel->select('*', 'tour_id = :tid', ['tid' => $id]);

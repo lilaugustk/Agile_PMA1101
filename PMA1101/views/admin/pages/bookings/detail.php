@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once PATH_VIEW_ADMIN . 'default/header.php';
 include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 
@@ -6,27 +6,27 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 function formatPrice($price)
 {
     if ($price >= 1000000000) {
-        return round($price / 1000000000, ($price / 1000000000) >= 10 ? 0 : 1) . ' tỷ';
+        return round($price / 1000000000, ($price / 1000000000) >= 10 ? 0 : 1) . ' tá»·';
     } elseif ($price >= 1000000) {
         return round($price / 1000000, 1) . ' tr';
     } else {
-        return number_format($price, 0, ',', '.') . 'đ';
+        return number_format($price, 0, ',', '.') . 'Ä‘';
     }
 }
 
 // Status mapping
 $statusMap = [
-    'cho_xac_nhan' => ['text' => 'Chờ xác nhận', 'class' => 'warning', 'icon' => 'clock'],
-    'da_coc' => ['text' => 'Đã cọc', 'class' => 'info', 'icon' => 'credit-card'],
-    'hoan_tat' => ['text' => 'Hoàn tất', 'class' => 'success', 'icon' => 'check-circle'],
-    'da_huy' => ['text' => 'Đã hủy', 'class' => 'danger', 'icon' => 'times-circle'],
-    'pending' => ['text' => 'Chờ thanh toán', 'class' => 'warning', 'icon' => 'hourglass-medium'],
-    'expired' => ['text' => 'Hết hạn', 'class' => 'secondary', 'icon' => 'calendar-x']
+    'cho_xac_nhan' => ['text' => 'Chá» xÃ¡c nháº­n', 'class' => 'warning', 'icon' => 'clock'],
+    'da_coc' => ['text' => 'ÄÃ£ cá»c', 'class' => 'info', 'icon' => 'credit-card'],
+    'hoan_tat' => ['text' => 'HoÃ n táº¥t', 'class' => 'success', 'icon' => 'check-circle'],
+    'da_huy' => ['text' => 'ÄÃ£ há»§y', 'class' => 'danger', 'icon' => 'times-circle'],
+    'pending' => ['text' => 'Chá» thanh toÃ¡n', 'class' => 'warning', 'icon' => 'hourglass-medium'],
+    'expired' => ['text' => 'Háº¿t háº¡n', 'class' => 'secondary', 'icon' => 'calendar-x']
 ];
 
 $currentStatus = $statusMap[$booking['status']] ?? ['text' => 'Unknown', 'class' => 'secondary', 'icon' => 'question'];
 
-// Check edit permission - Chỉ admin mới được edit
+// Check edit permission - Chá»‰ admin má»›i Ä‘Æ°á»£c edit
 $userRole = $_SESSION['user']['role'] ?? 'customer';
 $canEdit = ($userRole === 'admin');
 ?>
@@ -40,21 +40,21 @@ $canEdit = ($userRole === 'admin');
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
                             <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=/" class="text-muted text-decoration-none"><i class="ph-fill ph-house me-1"></i> Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="text-muted text-decoration-none"><i class="ph-fill ph-calendar-check me-1"></i> Quản lý Booking</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Chi tiết #<?= $booking['id'] ?></li>
+                            <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="text-muted text-decoration-none"><i class="ph-fill ph-calendar-check me-1"></i> Quáº£n lÃ½ Booking</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Chi tiáº¿t #<?= $booking['id'] ?></li>
                         </ol>
                     </nav>
                 </div>
                 <div class="header-right d-flex gap-2">
                     <a href="<?= BASE_URL_ADMIN ?>&action=bookings" class="btn btn-light border shadow-sm px-3 py-2">
-                        <i class="ph ph-arrow-left me-1"></i> Quay lại
+                        <i class="ph ph-arrow-left me-1"></i> Quay láº¡i
                     </a>
                     <a href="<?= BASE_URL_ADMIN ?>&action=bookings/exportInvoice&id=<?= $booking['id'] ?>" target="_blank" class="btn btn-outline-info d-flex align-items-center gap-2 px-3 py-2 shadow-sm">
-                        <i class="ph ph-printer"></i> In Hóa Đơn
+                        <i class="ph ph-printer"></i> In HÃ³a ÄÆ¡n
                     </a>
                     <?php if ($canEdit): ?>
                         <a href="<?= BASE_URL_ADMIN ?>&action=bookings/edit&id=<?= $booking['id'] ?>" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm">
-                            <i class="ph-fill ph-pencil-simple"></i> Chỉnh sửa
+                            <i class="ph-fill ph-pencil-simple"></i> Chá»‰nh sá»­a
                         </a>
                     <?php endif; ?>
                 </div>
@@ -93,7 +93,7 @@ $canEdit = ($userRole === 'admin');
                             <i class="ph-fill ph-currency-circle-dollar"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label text-muted small fw-bold">Tổng tiền đơn đặt</span>
+                            <span class="stat-label text-muted small fw-bold">Tá»•ng tiá»n Ä‘Æ¡n Ä‘áº·t</span>
                             <h3 class="stat-value text-dark fw-800 mb-0"><?= formatPrice($booking['total_price'] ?? 0) ?></h3>
                         </div>
                     </div>
@@ -105,7 +105,7 @@ $canEdit = ($userRole === 'admin');
                             <i class="ph-fill ph-pulse"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label text-muted small fw-bold">Trạng thái hiện tại</span>
+                            <span class="stat-label text-muted small fw-bold">Tráº¡ng thÃ¡i hiá»‡n táº¡i</span>
                             <h3 class="stat-value text-dark fw-800 mb-0"><?= $currentStatus['text'] ?></h3>
                         </div>
                     </div>
@@ -117,7 +117,7 @@ $canEdit = ($userRole === 'admin');
                             <i class="ph-fill ph-calendar-blank"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label text-muted small fw-bold">Ngày xác lập</span>
+                            <span class="stat-label text-muted small fw-bold">NgÃ y xÃ¡c láº­p</span>
                             <h3 class="stat-value text-dark fw-800 mb-0"><?= date('d/m/Y', strtotime($booking['booking_date'])) ?></h3>
                         </div>
                     </div>
@@ -129,8 +129,8 @@ $canEdit = ($userRole === 'admin');
                             <i class="ph-fill ph-users-three"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label text-muted small fw-bold">Tổng số khách</span>
-                            <h3 class="stat-value text-dark fw-800 mb-0"><?= (int)$booking['adults'] + (int)$booking['children'] + (int)$booking['infants'] ?> khách</h3>
+                            <span class="stat-label text-muted small fw-bold">Tá»•ng sá»‘ khÃ¡ch</span>
+                            <h3 class="stat-value text-dark fw-800 mb-0"><?= (int)$booking['adults'] + (int)$booking['children'] + (int)$booking['infants'] ?> khÃ¡ch</h3>
                         </div>
                     </div>
                 </div>
@@ -145,25 +145,25 @@ $canEdit = ($userRole === 'admin');
                 <div class="card-premium mb-4 border-0 shadow-sm bg-white">
                     <div class="card-header-premium p-3 px-4 border-bottom border-light">
                         <h6 class="fw-bold mb-0 text-primary d-flex align-items-center gap-2">
-                            <i class="ph-fill ph-info"></i> Thông tin đơn đặt
+                            <i class="ph-fill ph-info"></i> ThÃ´ng tin Ä‘Æ¡n Ä‘áº·t
                         </h6>
                     </div>
                     <div class="card-body-premium p-4">
                         <div class="row g-4">
                             <div class="col-md-6 col-lg-3">
-                                <label class="text-muted small fw-bold d-block mb-1">Mã tham chiếu</label>
+                                <label class="text-muted small fw-bold d-block mb-1">MÃ£ tham chiáº¿u</label>
                                 <div class="fw-bold text-dark">#<?= htmlspecialchars($booking['id']) ?></div>
                             </div>
                             <div class="col-md-6 col-lg-3">
-                                <label class="text-muted small fw-bold d-block mb-1">Thời điểm khởi tạo</label>
+                                <label class="text-muted small fw-bold d-block mb-1">Thá»i Ä‘iá»ƒm khá»Ÿi táº¡o</label>
                                 <div class="text-dark"><?= date('d/m/Y H:i', strtotime($booking['booking_date'])) ?></div>
                             </div>
                             <div class="col-md-6 col-lg-3">
-                                <label class="text-muted small fw-bold d-block mb-1">Giá trị giao dịch</label>
-                                <div class="text-danger fw-800 fs-5"><?= number_format($booking['total_price'], 0, ',', '.') ?> ₫</div>
+                                <label class="text-muted small fw-bold d-block mb-1">GiÃ¡ trá»‹ giao dá»‹ch</label>
+                                <div class="text-danger fw-800 fs-5"><?= number_format($booking['total_price'], 0, ',', '.') ?> â‚«</div>
                             </div>
                             <div class="col-md-6 col-lg-3">
-                                <label class="text-muted small fw-bold d-block mb-1 text-uppercase">Trạng thái vận hành</label>
+                                <label class="text-muted small fw-bold d-block mb-1 text-uppercase">Tráº¡ng thÃ¡i váº­n hÃ nh</label>
                                 <div class="d-flex align-items-center mt-1">
                                     <span id="status-badge" class="badge-premium badge-<?= $currentStatus['class'] ?> shadow-sm px-3 py-2 rounded-pill" data-status="<?= $booking['status'] ?>" style="font-size: 0.75rem;">
                                         <i class="ph-fill ph-circle me-1" style="font-size: 6px;"></i>
@@ -175,12 +175,12 @@ $canEdit = ($userRole === 'admin');
                                                 <i class="ph-bold ph-dots-three-vertical"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3">
-                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="cho_xac_nhan" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-clock me-2"></i> Chờ xác nhận</a></li>
-                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="da_coc" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-credit-card me-2"></i> Đã cọc</a></li>
-                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="hoan_tat" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-check-circle me-2"></i> Hoàn tất</a></li>
+                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="cho_xac_nhan" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-clock me-2"></i> Chá» xÃ¡c nháº­n</a></li>
+                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="da_coc" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-credit-card me-2"></i> ÄÃ£ cá»c</a></li>
+                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="hoan_tat" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-check-circle me-2"></i> HoÃ n táº¥t</a></li>
                                                 <li><hr class="dropdown-divider opacity-50"></li>
-                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="pending" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-hourglass-medium me-2"></i> Chờ thanh toán</a></li>
-                                                <li><a class="dropdown-item py-2 status-change-btn text-danger" href="#" data-status="da_huy" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-x-circle me-2"></i> Hủy đơn</a></li>
+                                                <li><a class="dropdown-item py-2 status-change-btn" href="#" data-status="pending" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-hourglass-medium me-2"></i> Chá» thanh toÃ¡n</a></li>
+                                                <li><a class="dropdown-item py-2 status-change-btn text-danger" href="#" data-status="da_huy" data-booking-id="<?= $booking['id'] ?>"><i class="ph ph-x-circle me-2"></i> Há»§y Ä‘Æ¡n</a></li>
                                             </ul>
                                         </div>
                                     <?php endif; ?>
@@ -190,7 +190,7 @@ $canEdit = ($userRole === 'admin');
                                 <div class="col-12 mt-3">
                                     <div class="alert alert-warning border-0 bg-warning bg-opacity-10 p-2 mb-0 rounded-3 small text-warning-emphasis d-flex align-items-center gap-2">
                                         <i class="ph-fill ph-timer fs-5"></i>
-                                        <span>Giữ chỗ sẽ hết hạn vào: <strong><?= date('H:i d/m/Y', strtotime($booking['expires_at'])) ?></strong></span>
+                                        <span>Giá»¯ chá»— sáº½ háº¿t háº¡n vÃ o: <strong><?= date('H:i d/m/Y', strtotime($booking['expires_at'])) ?></strong></span>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -202,11 +202,11 @@ $canEdit = ($userRole === 'admin');
                 <div class="card-premium mb-4 border-0 shadow-sm bg-white overflow-hidden">
                     <div class="card-header-premium p-3 px-4 border-bottom border-light d-flex justify-content-between align-items-center bg-white">
                         <h6 class="fw-bold mb-0 text-success d-flex align-items-center gap-2">
-                            <i class="ph-fill ph-users-three"></i> Danh sách hành khách (<?= count($companions) + 1 ?>)
+                            <i class="ph-fill ph-users-three"></i> Danh sÃ¡ch hÃ nh khÃ¡ch (<?= count($companions) + 1 ?>)
                         </h6>
                         <?php if ($canEdit): ?>
                             <button type="button" class="btn btn-sm btn-primary-light d-flex align-items-center gap-1 px-3 shadow-none border" id="add-companion-btn" data-booking-id="<?= $booking['id'] ?>">
-                                <i class="ph-bold ph-plus"></i> Thêm khách
+                                <i class="ph-bold ph-plus"></i> ThÃªm khÃ¡ch
                             </button>
                         <?php endif; ?>
                     </div>
@@ -215,7 +215,7 @@ $canEdit = ($userRole === 'admin');
                         <div class="guest-card-premium border rounded-4 p-4 mb-4 position-relative overflow-hidden" 
                              style="background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.05), transparent);">
                             <div class="position-absolute top-0 end-0 p-3">
-                                <span class="badge bg-primary px-3 py-2 rounded-pill small" style="letter-spacing: 0.5px;">Hành khách chính</span>
+                                <span class="badge bg-primary px-3 py-2 rounded-pill small" style="letter-spacing: 0.5px;">HÃ nh khÃ¡ch chÃ­nh</span>
                             </div>
                             
                             <div class="d-flex align-items-start gap-4">
@@ -225,7 +225,7 @@ $canEdit = ($userRole === 'admin');
                                 <div class="flex-grow-1">
                                     <div class="border-bottom pb-2 mb-3">
                                         <h4 class="fw-800 text-dark mb-1">
-                                            <?= htmlspecialchars($booking['contact_name'] ?: ($booking['customer_name'] ?: 'Khách vãng lai')) ?>
+                                            <?= htmlspecialchars($booking['contact_name'] ?: ($booking['customer_name'] ?: 'KhÃ¡ch vÃ£ng lai')) ?>
                                         </h4>
                                         <div class="d-flex align-items-center gap-3">
                                             <span class="text-muted small d-flex align-items-center gap-1">
@@ -246,15 +246,15 @@ $canEdit = ($userRole === 'admin');
                                     <div class="d-flex gap-4">
                                         <div class="passenger-badge text-center">
                                             <div class="fw-bold text-dark fs-5"><?= $booking['adults'] ?></div>
-                                            <div class="extra-small text-muted text-uppercase">Người lớn</div>
+                                            <div class="extra-small text-muted text-uppercase">NgÆ°á»i lá»›n</div>
                                         </div>
                                         <div class="passenger-badge text-center">
                                             <div class="fw-bold text-dark fs-5"><?= $booking['children'] ?></div>
-                                            <div class="extra-small text-muted text-uppercase">Trẻ em</div>
+                                            <div class="extra-small text-muted text-uppercase">Tráº» em</div>
                                         </div>
                                         <div class="passenger-badge text-center">
                                             <div class="fw-bold text-dark fs-5"><?= $booking['infants'] ?></div>
-                                            <div class="extra-small text-muted text-uppercase">Em bé</div>
+                                            <div class="extra-small text-muted text-uppercase">Em bÃ©</div>
                                         </div>
                                     </div>
                                 </div>
@@ -273,7 +273,7 @@ $canEdit = ($userRole === 'admin');
                                                         <i class="ph-fill ph-user"></i>
                                                     </div>
                                                     <div>
-                                                        <p class="text-muted extra-small mb-0 fw-bold">Khách #<?= $index + 1 ?></p>
+                                                        <p class="text-muted extra-small mb-0 fw-bold">KhÃ¡ch #<?= $index + 1 ?></p>
                                                         <h6 class="mb-0 small fw-bold text-dark"><?= htmlspecialchars($companion['full_name']) ?></h6>
                                                     </div>
                                                 </div>
@@ -295,10 +295,10 @@ $canEdit = ($userRole === 'admin');
                                                                                     "passenger_type" => $companion["passenger_type"] ?? "adult",
                                                                                     "special_request" => $companion["special_request"] ?? ""
                                                                                 ]) ?>'>
-                                                                <i class="ph ph-pencil-simple me-2"></i>Sửa</a></li>
+                                                                <i class="ph ph-pencil-simple me-2"></i>Sá»­a</a></li>
                                                             <li><a class="dropdown-item py-2 small text-danger delete-companion-btn" href="#" 
                                                                 data-companion-id="<?= $companion['id'] ?>" data-booking-id="<?= $booking['id'] ?>">
-                                                                <i class="ph ph-trash me-2"></i>Xóa</a></li>
+                                                                <i class="ph ph-trash me-2"></i>XÃ³a</a></li>
                                                         </ul>
                                                     </div>
                                                 <?php endif; ?>
@@ -307,19 +307,19 @@ $canEdit = ($userRole === 'admin');
                                             <div class="row g-2 border-top pt-2 mt-1">
                                                 <div class="col-4">
                                                     <div class="info-mini">
-                                                        <small class="text-muted extra-small fw-bold">Giới tính</small>
+                                                        <small class="text-muted extra-small fw-bold">Giá»›i tÃ­nh</small>
                                                         <p class="mb-0 small text-dark"><?= htmlspecialchars($companion['gender'] ?? 'N/A') ?></p>
                                                     </div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="info-mini">
-                                                        <small class="text-muted extra-small fw-bold">Phòng</small>
+                                                        <small class="text-muted extra-small fw-bold">PhÃ²ng</small>
                                                         <p class="mb-0 small text-dark"><?= htmlspecialchars($companion['room_type'] ?? 'N/A') ?></p>
                                                     </div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="info-mini">
-                                                        <small class="text-muted extra-small fw-bold">Loại</small>
+                                                        <small class="text-muted extra-small fw-bold">Loáº¡i</small>
                                                         <p class="mb-0 small text-dark text-capitalize"><?= htmlspecialchars($companion['passenger_type'] ?? 'adult') ?></p>
                                                     </div>
                                                 </div>
@@ -327,7 +327,7 @@ $canEdit = ($userRole === 'admin');
                                                     <div class="p-2 rounded-2 bg-white border border-dashed text-muted extra-small d-flex justify-content-between align-items-center">
                                                         <div class="text-truncate" style="max-width: 80%;">
                                                             <i class="ph ph-note-pencil me-1"></i>
-                                                            <?= !empty($companion['special_request']) ? htmlspecialchars($companion['special_request']) : 'Không có yêu cầu' ?>
+                                                            <?= !empty($companion['special_request']) ? htmlspecialchars($companion['special_request']) : 'KhÃ´ng cÃ³ yÃªu cáº§u' ?>
                                                         </div>
                                                         <?php if ($canEdit): ?>
                                                             <button class="btn-text-only p-0 border-0 bg-transparent text-primary edit-special-request-btn"
@@ -347,56 +347,7 @@ $canEdit = ($userRole === 'admin');
                         <?php else: ?>
                             <div class="text-center text-muted py-5 border rounded-4 border-dashed bg-light bg-opacity-25">
                                 <i class="ph-fill ph-user-plus fs-1 mb-2 opacity-25"></i>
-                                <p class="small mb-0 fw-medium">Chưa ghi nhận khách đi cùng cho đơn đặt này.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Price Calculator Card -->
-                <?php if ($canEdit && !empty($booking['version_id'])): ?>
-                    <?php
-                    $bookingCustomerModel = new BookingCustomer();
-                    $calculation = $bookingCustomerModel->calculateTotalPrice($booking['id'], $booking['tour_id'], $booking['version_id']);
-                    $breakdown = $calculation['breakdown'];
-                    ?>
-                    <div class="card-premium mb-4 border-0 shadow-sm bg-white overflow-hidden rounded-4">
-                        <div class="p-3 px-4 bg-warning bg-opacity-10 border-bottom border-warning border-opacity-25">
-                            <h6 class="fw-bold mb-0 text-warning-emphasis small d-flex align-items-center gap-2">
-                                <i class="ph-fill ph-calculator"></i> TỔNG HỢP CHI PHÍ ƯỚC TÍNH
-                            </h6>
-                        </div>
-                        <div class="card-body-premium p-4">
-                            <div class="price-breakdown d-grid gap-3">
-                                <?php foreach ($breakdown as $type => $data): ?>
-                                    <?php if ($data['count'] > 0): ?>
-                                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-dashed">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="bg-light p-1 rounded-2 text-muted">
-                                                    <i class="ph-fill ph-<?= $type == 'adults' ? 'user' : ($type == 'children' ? 'child' : 'baby') ?>"></i>
-                                                </div>
-                                                <span class="text-muted small fw-medium"><?= $type == 'adults' ? 'Người lớn' : ($type == 'children' ? 'Trẻ em' : 'Em bé') ?> (×<?= $data['count'] ?>)</span>
-                                            </div>
-                                            <div class="text-end">
-                                                <div class="text-dark small fw-bold"><?= number_format($data['subtotal']) ?> ₫</div>
-                                                <div class="extra-small text-muted"><?= number_format($data['price']) ?> ₫/khách</div>
-                                            </div>
-                                        </div>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
-
-                            <div class="total-recalc-box mt-4 p-4 bg-danger bg-opacity-10 rounded-4 border border-danger border-opacity-10 d-flex justify-content-between align-items-center">
-                                <div>
-                                    <p class="text-danger extra-small fw-bold text-uppercase mb-1 letter-spacing-1">Ước tính lại tổng thu</p>
-                                    <h3 class="mb-0 text-danger fw-800"><?= number_format($calculation['total']) ?> ₫</h3>
-                                </div>
-                                <form method="POST" action="<?= BASE_URL_ADMIN ?>&action=bookings/detail&id=<?= $booking['id'] ?>">
-                                    <input type="hidden" name="update_price" value="1">
-                                    <input type="hidden" name="calculated_total" value="<?= $calculation['total'] ?>">
-                                    <button type="submit" class="btn btn-danger-premium rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2" onclick="return confirm('Cập nhật tổng tiền đơn hàng thành <?= number_format($calculation['total']) ?> ₫?')">
-                                        <i class="ph-fill ph-arrows-counter-clockwise"></i>
-                                        Cập nhật
+                                <p class="small mb-0 fw-medium">ChÆ°a ghi nháCáº­p nháº­t
                                     </button>
                                 </form>
                             </div>
@@ -409,7 +360,7 @@ $canEdit = ($userRole === 'admin');
                     <div class="card-premium mb-4 border-0 shadow-sm bg-white overflow-hidden rounded-4">
                         <div class="p-3 px-4 bg-light border-bottom">
                             <h6 class="fw-bold mb-0 text-muted small d-flex align-items-center gap-2">
-                                <i class="ph-fill ph-note"></i> GHI CHÚ ĐIỀU HÀNH
+                                <i class="ph-fill ph-note"></i> GHI CHÃš ÄIá»€U HÃ€NH
                             </h6>
                         </div>
                         <div class="card-body-premium p-4">
@@ -427,19 +378,19 @@ $canEdit = ($userRole === 'admin');
                 <div class="card-premium mb-4 border-0 shadow-sm bg-white overflow-hidden rounded-4">
                     <div class="p-3 px-4 bg-light bg-opacity-50 border-bottom">
                         <h6 class="fw-bold mb-0 text-success small d-flex align-items-center gap-2">
-                            <i class="ph-fill ph-path"></i> THÔNG TIN TOUR
+                            <i class="ph-fill ph-path"></i> THÃ”NG TIN TOUR
                         </h6>
                     </div>
                     <div class="p-4">
                         <div class="tour-small-card mb-4 p-3 bg-light rounded-3">
-                            <h6 class="fw-bold text-dark mb-2"><?= htmlspecialchars($booking['tour_name'] ?? 'Chưa cập nhật') ?></h6>
+                            <h6 class="fw-bold text-dark mb-2"><?= htmlspecialchars($booking['tour_name'] ?? 'ChÆ°a cáº­p nháº­t') ?></h6>
                             <div class="d-flex align-items-center text-muted small">
                                 <i class="ph-fill ph-tag me-2 text-success"></i>
-                                <span>Giá niêm yết: <strong><?= number_format($booking['tour_base_price'] ?? 0) ?> ₫</strong></span>
+                                <span>GiÃ¡ niÃªm yáº¿t: <strong><?= number_format($booking['tour_base_price'] ?? 0) ?> â‚«</strong></span>
                             </div>
                         </div>
                         <a href="<?= BASE_URL_ADMIN ?>&action=tours/detail&id=<?= $tour['id'] ?>" class="btn btn-outline-success w-100 py-2 rounded-3 d-flex align-items-center justify-content-center gap-2 fw-medium">
-                            <i class="ph-bold ph-eye"></i> Chi tiết sản phẩm
+                            <i class="ph-bold ph-eye"></i> Chi tiáº¿t sáº£n pháº©m
                         </a>
                     </div>
                 </div>
@@ -448,69 +399,35 @@ $canEdit = ($userRole === 'admin');
                 <div class="card-premium mb-4 border-0 shadow-sm bg-white overflow-hidden rounded-4">
                     <div class="p-3 px-4 bg-light bg-opacity-50 border-bottom">
                         <h6 class="fw-bold mb-0 text-info small d-flex align-items-center gap-2">
-                            <i class="ph-fill ph-users-four"></i> ĐIỀU HÀNH & VẬN TẢI
+                            <i class="ph-fill ph-users-four"></i> ÄIá»€U HÃ€NH & Váº¬N Táº¢I
                         </h6>
                     </div>
                     <div class="p-4">
                         <div class="assignment-list d-grid gap-4">
                             <div class="assignment-item">
-                                <p class="text-muted extra-small fw-bold text-uppercase mb-2 letter-spacing-1">Hướng dẫn viên chỉ định</p>
+                                <p class="text-muted extra-small fw-bold text-uppercase mb-2 letter-spacing-1">HÆ°á»›ng dáº«n viÃªn chá»‰ Ä‘á»‹nh</p>
                                 <div class="d-flex align-items-center p-2 rounded-3 border bg-light-subtle">
                                     <div class="avatar-circle-sm bg-white shadow-sm text-info me-3 d-flex align-items-center justify-content-center border" style="width: 40px; height: 40px; border-radius: 10px;">
                                         <i class="ph-fill ph-identification-card fs-5"></i>
                                     </div>
-                                    <span class="fw-bold text-dark small"><?= htmlspecialchars($booking['guide_name'] ?? 'Chưa phân công') ?></span>
-                                </div>
-                            </div>
-                            <div class="assignment-item">
-                                <p class="text-muted extra-small fw-bold text-uppercase mb-2 letter-spacing-1">Nhà xe / Đơn vị vận chuyển</p>
-                                <div class="d-flex align-items-center p-2 rounded-3 border bg-light-subtle">
-                                    <div class="avatar-circle-sm bg-white shadow-sm text-primary me-3 d-flex align-items-center justify-content-center border" style="width: 40px; height: 40px; border-radius: 10px;">
-                                        <i class="ph-fill ph-bus fs-5"></i>
-                                    </div>
-                                    <span class="fw-bold text-dark small"><?= htmlspecialchars($booking['bus_company_name'] ?? 'Chưa có thông tin') ?></span>
+                                    <span class="fw-bold text-dark small"><?= htmlspecialchars($booking['guide_name'] ?? 'ChÆ°a phÃ¢n cÃ´ng') ?></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Suppliers Assignment Details -->
-                <div class="card-premium mb-4 border-0 shadow-sm bg-white overflow-hidden rounded-4">
-                    <div class="p-3 px-4 bg-light bg-opacity-50 border-bottom">
-                        <h6 class="fw-bold mb-0 text-warning small d-flex align-items-center gap-2">
-                            <i class="ph-fill ph-buildings"></i> CUNG ỨNG DỊCH VỤ
-                        </h6>
-                    </div>
-                    <div class="p-4">
-                        <?php
-                        $bsaModel = new BookingSupplierAssignment();
-                        $bookingSuppliers = $bsaModel->getByBookingId($booking['id']);
-                        ?>
-
-                        <?php if (!empty($bookingSuppliers)): ?>
-                            <div class="supplier-compact-list">
-                                <?php foreach ($bookingSuppliers as $bs): ?>
-                                    <div class="supplier-compact-item p-2 border-bottom mb-2">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold small text-truncate" style="max-width: 70%;"><?= htmlspecialchars($bs['supplier_name']) ?></span>
-                                            <span class="badge bg-light text-dark extra-small"><?= htmlspecialchars($bs['service_type']) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between mt-1 extra-small text-muted">
-                                            <span>Số lượng: <?= $bs['quantity'] ?></span>
-                                            <span class="text-primary"><?= number_format($bs['price']) ?> ₫</span>
-                                        </div>
-                                    </div>
+                
                                 <?php endforeach; ?>
                             </div>
                             <div class="alert alert-light border mt-3 mb-0 p-2 text-center">
-                                <small class="text-muted">Tổng chi phí:</small>
-                                <strong class="ms-1 text-danger"><?= number_format($bsaModel->getTotalCostByBookingId($booking['id'])) ?> ₫</strong>
+                                <small class="text-muted">Tá»•ng chi phÃ­:</small>
+                                <strong class="ms-1 text-danger"><?= number_format($bsaModel->getTotalCostByBookingId($booking['id'])) ?> â‚«</strong>
                             </div>
                         <?php else: ?>
                             <div class="text-center py-3 text-muted">
                                 <i class="ph-bold ph-building-office text-light fa-2x mb-2"></i>
-                                <p class="small mb-0">Không có dữ liệu supplier</p>
+                                <p class="small mb-0">KhÃ´ng cÃ³ dá»¯ liá»‡u supplier</p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -526,7 +443,7 @@ $canEdit = ($userRole === 'admin');
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="companionModalTitle">Thêm Khách Đi Kèm</h5>
+                    <h5 class="modal-title" id="companionModalTitle">ThÃªm KhÃ¡ch Äi KÃ¨m</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -535,58 +452,58 @@ $canEdit = ($userRole === 'admin');
                         <input type="hidden" id="companion-booking-id" name="booking_id" value="<?= $booking['id'] ?>">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Họ tên <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">Há» tÃªn <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="companion-name" name="name" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Giới tính</label>
+                                <label class="form-label fw-bold">Giá»›i tÃ­nh</label>
                                 <select class="form-select" id="companion-gender" name="gender">
-                                    <option value="">Chọn</option>
+                                    <option value="">Chá»n</option>
                                     <option value="Nam">Nam</option>
-                                    <option value="Nữ">Nữ</option>
-                                    <option value="Khác">Khác</option>
+                                    <option value="Ná»¯">Ná»¯</option>
+                                    <option value="KhÃ¡c">KhÃ¡c</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Ngày sinh</label>
+                                <label class="form-label fw-bold">NgÃ y sinh</label>
                                 <input type="date" class="form-control" id="companion-birth-date" name="birth_date">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Điện thoại</label>
+                                <label class="form-label fw-bold">Äiá»‡n thoáº¡i</label>
                                 <input type="tel" class="form-control" id="companion-phone" name="phone">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">CMND/Hộ chiếu</label>
+                                <label class="form-label fw-bold">CMND/Há»™ chiáº¿u</label>
                                 <input type="text" class="form-control" id="companion-id-card" name="id_card">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Loại phòng</label>
+                                <label class="form-label fw-bold">Loáº¡i phÃ²ng</label>
                                 <select class="form-select" id="companion-room-type" name="room_type">
-                                    <option value="">Chọn loại phòng</option>
-                                    <option value="đơn">Phòng đơn</option>
-                                    <option value="đôi">Phòng đôi</option>
-                                    <option value="ghép">Ghép phòng</option>
+                                    <option value="">Chá»n loáº¡i phÃ²ng</option>
+                                    <option value="Ä‘Æ¡n">PhÃ²ng Ä‘Æ¡n</option>
+                                    <option value="Ä‘Ã´i">PhÃ²ng Ä‘Ã´i</option>
+                                    <option value="ghÃ©p">GhÃ©p phÃ²ng</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Loại khách <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">Loáº¡i khÃ¡ch <span class="text-danger">*</span></label>
                                 <select class="form-select" id="companion-passenger-type" name="passenger_type" required>
-                                    <option value="">Chọn loại khách</option>
-                                    <option value="adult" selected>Người lớn</option>
-                                    <option value="child">Trẻ em</option>
-                                    <option value="infant">Em bé</option>
+                                    <option value="">Chá»n loáº¡i khÃ¡ch</option>
+                                    <option value="adult" selected>NgÆ°á»i lá»›n</option>
+                                    <option value="child">Tráº» em</option>
+                                    <option value="infant">Em bÃ©</option>
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label fw-bold">Yêu cầu đặc biệt</label>
+                                <label class="form-label fw-bold">YÃªu cáº§u Ä‘áº·c biá»‡t</label>
                                 <textarea class="form-control" id="companion-special-request" name="special_request" rows="3"></textarea>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" id="saveCompanionBtn">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Há»§y</button>
+                    <button type="button" class="btn btn-primary" id="saveCompanionBtn">LÆ°u</button>
                 </div>
             </div>
         </div>
@@ -595,7 +512,7 @@ $canEdit = ($userRole === 'admin');
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Cập Nhật Yêu Cầu Đặc Biệt</h5>
+                    <h5 class="modal-title">Cáº­p Nháº­t YÃªu Cáº§u Äáº·c Biá»‡t</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -603,20 +520,20 @@ $canEdit = ($userRole === 'admin');
                         <input type="hidden" id="sr-companion-id">
                         <input type="hidden" id="sr-booking-id">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Yêu cầu đặc biệt</label>
+                            <label class="form-label fw-bold">YÃªu cáº§u Ä‘áº·c biá»‡t</label>
                             <textarea class="form-control" id="sr-special-request" rows="4"
-                                placeholder="Ví dụ: Ăn chay, dị ứng hải sản, cần xe lăn..."></textarea>
+                                placeholder="VÃ­ dá»¥: Ä‚n chay, dá»‹ á»©ng háº£i sáº£n, cáº§n xe lÄƒn..."></textarea>
                             <small class="text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Ghi chú các yêu cầu đặc biệt của khách để phục vụ tốt hơn
+                                Ghi chÃº cÃ¡c yÃªu cáº§u Ä‘áº·c biá»‡t cá»§a khÃ¡ch Ä‘á»ƒ phá»¥c vá»¥ tá»‘t hÆ¡n
                             </small>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Há»§y</button>
                     <button type="button" class="btn btn-primary" id="saveSpecialRequestBtn">
-                        <i class="fas fa-save me-1"></i>Lưu
+                        <i class="fas fa-save me-1"></i>LÆ°u
                     </button>
                 </div>
             </div>
@@ -668,7 +585,7 @@ $canEdit = ($userRole === 'admin');
                         // Update UI
                         const displayElement = document.getElementById('special-request-' + companionId);
                         if (displayElement) {
-                            displayElement.innerHTML = specialRequest || '<span class="text-muted">Chưa có</span>';
+                            displayElement.innerHTML = specialRequest || '<span class="text-muted">ChÆ°a cÃ³</span>';
                         }
 
                         // Update button data
@@ -681,12 +598,12 @@ $canEdit = ($userRole === 'admin');
                         alert(data.message);
                         specialRequestModal.hide();
                     } else {
-                        alert('Lỗi: ' + data.message);
+                        alert('Lá»—i: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi cập nhật');
+                    alert('CÃ³ lá»—i xáº£y ra khi cáº­p nháº­t');
                 });
         });
     });
@@ -714,7 +631,7 @@ $canEdit = ($userRole === 'admin');
         if (addBtn) {
             addBtn.addEventListener('click', function() {
                 // Reset form for adding
-                document.getElementById('companionModalTitle').textContent = 'Thêm Khách Đi Kèm';
+                document.getElementById('companionModalTitle').textContent = 'ThÃªm KhÃ¡ch Äi KÃ¨m';
                 document.getElementById('companionForm').reset();
                 document.getElementById('companion-id').value = '';
                 companionModal.show();
@@ -728,7 +645,7 @@ $canEdit = ($userRole === 'admin');
                 const data = JSON.parse(this.dataset.companion);
 
                 // Set modal title
-                document.getElementById('companionModalTitle').textContent = 'Chỉnh Sửa Khách Đi Kèm';
+                document.getElementById('companionModalTitle').textContent = 'Chá»‰nh Sá»­a KhÃ¡ch Äi KÃ¨m';
 
                 // Set companion ID for update
                 document.getElementById('companion-id').value = companionId;
@@ -756,7 +673,7 @@ $canEdit = ($userRole === 'admin');
                 const card = this.closest('.guest-item');
                 const name = card.querySelector('h6').textContent.trim();
 
-                if (!confirm(`Bạn có chắc muốn xóa khách "${name}"?`)) {
+                if (!confirm(`Báº¡n cÃ³ cháº¯c muá»‘n xÃ³a khÃ¡ch "${name}"?`)) {
                     return;
                 }
 
@@ -777,12 +694,12 @@ $canEdit = ($userRole === 'admin');
                             alert(data.message);
                             location.reload();
                         } else {
-                            alert('Lỗi: ' + data.message);
+                            alert('Lá»—i: ' + data.message);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Có lỗi xảy ra khi xóa khách');
+                        alert('CÃ³ lá»—i xáº£y ra khi xÃ³a khÃ¡ch');
                     });
             });
         });
@@ -797,12 +714,12 @@ $canEdit = ($userRole === 'admin');
                 const passengerType = document.getElementById('companion-passenger-type').value;
 
                 if (!name) {
-                    alert('Vui lòng nhập họ tên khách');
+                    alert('Vui lÃ²ng nháº­p há» tÃªn khÃ¡ch');
                     return;
                 }
 
                 if (!passengerType) {
-                    alert('Vui lòng chọn loại khách');
+                    alert('Vui lÃ²ng chá»n loáº¡i khÃ¡ch');
                     return;
                 }
 
@@ -840,7 +757,7 @@ $canEdit = ($userRole === 'admin');
                             companionModal.hide();
                             location.reload();
                         } else {
-                            alert('Lỗi: ' + data.message);
+                            alert('Lá»—i: ' + data.message);
                         }
                     })
                     .catch(error => {

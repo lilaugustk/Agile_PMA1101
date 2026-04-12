@@ -71,7 +71,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         <thead class="bg-light">
                             <tr>
                                 <th class="ps-4 py-3 text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Biển số</th>
-                                <th class="py-3 text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nhà xe</th>
                                 <th class="py-3 text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Loại xe</th>
                                 <th class="py-3 text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Tài xế</th>
                                 <th class="py-3 text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Liên hệ</th>
@@ -82,7 +81,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                         <tbody>
                             <?php if (empty($vehicles)): ?>
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="6" class="text-center py-5 text-muted">
                                         <div class="d-flex flex-column align-items-center justify-content-center">
                                             <div style="width: 60px; height: 60px; background: #f8f9fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
                                                 <i class="fas fa-bus fa-2x text-secondary opacity-50"></i>
@@ -102,9 +101,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                                 </div>
                                                 <span class="fw-bold text-dark"><?= htmlspecialchars($v['vehicle_plate']) ?></span>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <span class="text-secondary text-sm font-weight-bold"><?= htmlspecialchars($v['company_name'] ?? '---') ?></span>
                                         </td>
                                         <td>
                                             <span class="badge bg-light text-dark border"><?= htmlspecialchars($v['vehicle_type']) ?></span>

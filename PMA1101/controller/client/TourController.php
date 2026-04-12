@@ -44,7 +44,40 @@ class ClientTourController
         $stmtCat->execute();
         $categories = $stmtCat->fetchAll(PDO::FETCH_ASSOC);
 
-        // 3. Stats for 'Why choose us' counter
+        // 3. Fetch upcoming tours with availability (limit 6)
+        // Tours having a departure >= today, status 'open' and available seats > 0
+        $stmtUpcoming = $pdo->prepare("
+            SELECT 
+                t.id, t.name, t.base_price,
+                tc.name as category_name,
+                td.departure_date,
+                td.max_seats,
+                td.booked_seats,
+                (td.max_seats - td.booked_seats) as available_seats,
+                (SELECT image_url FROM tour_gallery_images WHERE tour_id = t.id AND main_img = 1 LIMIT 1) as main_image,
+                (SELECT AVG(rating) FROM tour_feedbacks WHERE tour_id = t.id) as avg_rating,
+                (SELECT COUNT(*) FROM tour_feedbacks WHERE tour_id = t.id) as review_count
+            FROM tours t
+            JOIN tour_departures td ON t.id = td.tour_id
+            INNER JOIN (
+                SELECT tour_id, MIN(departure_date) as soonest_date
+                FROM tour_departures
+                WHERE departure_date >= CURDATE() AND status = 'open' AND max_seats > booked_seats
+                GROUP BY tour_id
+            ) min_td ON td.tour_id = min_td.tour_id AND td.departure_date = min_td.soonest_date
+            LEFT JOIN tour_categories tc ON t.category_id = tc.id
+            WHERE t.status = 'active'
+            ORDER BY td.departure_date ASC
+            LIMIT 6
+        ");
+        $stmtUpcoming->execute();
+        $upcomingTours = $stmtUpcoming->fetchAll(PDO::FETCH_ASSOC);
+
+        // 4. Fetch latest blogs (limit 3)
+        $blogModel = new Blog();
+        $latestBlogs = $blogModel->getLatest(3);
+
+        // 4. Stats for 'Why choose us' counter
         $stats = [
             'total_tours' => $this->model->count('status = "active"'),
             'total_customers' => 1500, // Placeholder
@@ -159,10 +192,9 @@ class ClientTourController
         // Fetch tour details using the same logic as Admin but for display
         $pdo = BaseModel::getPdo();
         $stmt = $pdo->prepare("
-            SELECT t.*, tc.name as category_name, s.name as supplier_name
+            SELECT t.*, tc.name as category_name
             FROM tours t 
             LEFT JOIN tour_categories tc ON t.category_id = tc.id 
-            LEFT JOIN suppliers s ON t.supplier_id = s.id
             WHERE t.id = :id
         ");
         $stmt->execute(['id' => $id]);
@@ -175,8 +207,7 @@ class ClientTourController
         }
 
         // Fetch related data
-        $pricingModel = new TourPricing();
-        $pricingOptions = $pricingModel->getByTourId($id);
+        // Model Tour Pricing đã bị loại bỏ
 
         $itineraryModel = new TourItinerary();
         $itinerarySchedule = $itineraryModel->select('*', 'tour_id = :tid', ['tid' => $id], 'day_number ASC');

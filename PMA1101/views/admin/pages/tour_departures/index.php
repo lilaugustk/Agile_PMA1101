@@ -70,81 +70,134 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             <div class="d-flex align-items-center gap-2">
                 <i class="ph-fill ph-calendar-check text-primary"></i>
                 <h6 class="fw-bold mb-0">Danh sách Chuyến đi</h6>
-                <span class="badge bg-light text-muted border ms-2 rounded-pill"><?= number_format($pagination['total']) ?> bản ghi</span>
+                <div class="d-flex align-items-center gap-2 ms-2">
+                    <span class="badge bg-light text-muted border rounded-pill"><?= number_format($pagination['total']) ?> bản ghi</span>
+                    <a href="<?= BASE_URL_ADMIN ?>&action=tours/sync-departures" class="btn btn-xs btn-outline-info d-flex align-items-center gap-1 py-1 rounded-pill" title="Đồng bộ số chỗ thực tế">
+                        <i class="ph ph-arrows-counter-clockwise"></i> Sync
+                    </a>
+                </div>
             </div>
         </div>
         <div class="table-responsive bg-white">
+            <style>
+                .badge { font-weight: 500; }
+                .btn-xs { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+                
+                /* Animation cho trạng thái vượt quá số lượng */
+                @keyframes pulse-red-border {
+                    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+                    70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+                }
+                .overbooked-pulse {
+                    animation: pulse-red-border 2s infinite;
+                    border: 1px solid rgba(220, 53, 69, 0.5);
+                }
+            </style>
             <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4 py-3" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b;">Thông tin Tour</th>
-                        <th class="py-3" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b;">Khởi hành</th>
-                        <th class="py-3" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b;">Trạng thái</th>
-                        <th class="text-center py-3" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b;">Lấp đầy</th>
-                        <th class="text-end py-3" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b;">Doanh thu</th>
-                        <th class="text-end pe-4 py-3" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b;">Thao tác</th>
+                <thead>
+                    <tr class="bg-light bg-opacity-50">
+                        <th class="ps-4 py-3 border-0" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px;">Thông tin Tour</th>
+                        <th class="py-3 border-0" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px;">Khởi hành</th>
+                        <th class="py-3 border-0" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px;">Trạng thái</th>
+                        <th class="py-3 border-0" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px;">Lấp đầy</th>
+                        <th class="text-end py-3 border-0" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px;">Doanh thu</th>
+                        <th class="text-end pe-4 py-3 border-0" style="font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px;">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="border-top-0">
                     <?php if (!empty($departures)): ?>
                         <?php foreach ($departures as $dep): ?>
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="fw-bold text-dark mb-1"><?= htmlspecialchars($dep['tour_name']) ?></div>
-                                    <div class="d-flex align-items-center gap-2 small text-muted">
-                                        <i class="ph ph-hash"></i> CODE: <?= str_pad($dep['id'], 5, '0', STR_PAD_LEFT) ?>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="bg-primary-subtle text-primary p-2 rounded-2">
-                                            <i class="ph ph-calendar-blank"></i>
+                            <tr class="transition-all hover-bg-light">
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark fs-6 mb-1"><?= htmlspecialchars($dep['tour_name']) ?></span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-light text-muted border-0 fw-normal rounded-pill px-2 py-1" style="font-size: 0.7rem;">
+                                                <i class="ph ph-hash me-1"></i>CODE: <?= str_pad($dep['id'], 5, '0', STR_PAD_LEFT) ?>
+                                            </span>
                                         </div>
-                                        <div class="fw-medium"><?= date('d/m/Y', strtotime($dep['departure_date'])) ?></div>
                                     </div>
                                 </td>
-                                <td>
+                                <td class="py-3">
+                                    <div class="d-inline-flex align-items-center gap-2 px-2 py-1 bg-primary-subtle bg-opacity-50 rounded-3 border border-primary border-opacity-10">
+                                        <i class="ph-fill ph-calendar-blank text-primary" style="font-size: 1rem;"></i>
+                                        <span class="fw-bold text-primary small"><?= date('d/m/Y', strtotime($dep['departure_date'])) ?></span>
+                                    </div>
+                                </td>
+                                <td class="py-3">
                                     <?php 
                                     $statusMap = [
-                                        'open' => ['class' => 'success', 'label' => 'ĐANG MỞ'],
-                                        'guaranteed' => ['class' => 'primary', 'label' => 'CHẮC CHẮN'],
-                                        'closed' => ['class' => 'secondary', 'label' => 'ĐÃ ĐÓNG'],
-                                        'cancelled' => ['class' => 'danger', 'label' => 'ĐÃ HỦY']
+                                        'open' => ['class' => 'success', 'label' => 'Đang mở', 'icon' => 'ph-circle-wavy-check'],
+                                        'guaranteed' => ['class' => 'primary', 'label' => 'Chắc chắn', 'icon' => 'ph-shield-check'],
+                                        'closed' => ['class' => 'secondary', 'label' => 'Đã đóng', 'icon' => 'ph-lock'],
+                                        'cancelled' => ['class' => 'danger', 'label' => 'Đã hủy', 'icon' => 'ph-x-circle']
                                     ];
-                                    $s = $statusMap[$dep['status']] ?? ['class' => 'light', 'label' => strtoupper($dep['status'])];
+                                    $s = $statusMap[$dep['status']] ?? ['class' => 'light', 'label' => strtoupper($dep['status']), 'icon' => 'ph-info'];
                                     ?>
-                                    <span class="badge bg-<?= $s['class'] ?>-subtle text-<?= $s['class'] ?> fw-bold" style="font-size: 0.65rem; padding: 0.4rem 0.6rem;">
-                                        <?= $s['label'] ?>
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex flex-column align-items-center gap-1">
-                                        <div class="small fw-bold text-dark"><?= $dep['booked_seats'] ?> / <?= $dep['max_seats'] ?></div>
-                                        <?php $perc = ($dep['booked_seats'] / max(1, $dep['max_seats'])) * 100; ?>
-                                        <div class="progress w-100" style="height: 6px; max-width: 80px; border-radius: 10px;">
-                                            <div class="progress-bar bg-<?= $perc > 80 ? 'danger' : ($perc > 50 ? 'primary' : 'success') ?>" 
-                                                 style="width: <?= min(100, $perc) ?>%"></div>
-                                        </div>
+                                    <div class="d-flex align-items-center gap-1 text-<?= $s['class'] ?> fw-bold small">
+                                        <i class="ph-fill <?= $s['icon'] ?>"></i>
+                                        <span class="text-uppercase" style="letter-spacing: 0.3px; font-size: 0.7rem;"><?= $s['label'] ?></span>
                                     </div>
                                 </td>
-                                <td class="text-end fw-bold text-dark">
-                                    <?= number_format($dep['revenue'] ?? 0, 0, ',', '.') ?> ₫
+                                <td class="py-3" style="min-width: 140px;">
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold text-dark" style="font-size: 0.8rem;"><?= $dep['booked_seats'] ?> <span class="text-muted fw-normal">/ <?= $dep['max_seats'] ?></span></span>
+                                            <?php $perc = ($dep['booked_seats'] / max(1, $dep['max_seats'])) * 100; ?>
+                                            <span class="badge bg-<?= $perc > 90 ? 'danger' : ($perc > 60 ? 'warning' : 'success') ?>-subtle text-<?= $perc > 90 ? 'danger' : ($perc > 60 ? 'warning' : 'success') ?> rounded-pill" style="font-size: 0.65rem;"><?= round($perc) ?>%</span>
+                                        </div>
+                                        <div class="progress <?= $perc > 100 ? 'overbooked-pulse' : '' ?>" style="height: 8px; border-radius: 10px; background-color: #f1f5f9;">
+                                            <div class="progress-bar rounded-pill shadow-none <?= $perc > 100 ? 'bg-danger' : ($perc > 90 ? 'bg-warning' : 'bg-success') ?> <?= $perc > 80 ? 'progress-bar-striped progress-bar-animated' : '' ?>" 
+                                                 style="width: <?= min(100, $perc) ?>%"></div>
+                                        </div>
+                                        <?php if ($perc > 100): ?>
+                                            <div class="d-flex align-items-center gap-1 mt-1 text-danger fw-bold" style="font-size: 0.65rem;">
+                                                <i class="ph-fill ph-warning-octagon"></i> VƯỢT QUÁ GIỚI HẠN
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
-                                <td class="text-end pe-4">
+                                <td class="text-end py-3">
+                                    <div class="d-flex flex-column align-items-end">
+                                        <span class="fw-bold text-dark fs-6"><?= number_format($dep['revenue'] ?? 0, 0, ',', '.') ?> <small class="fw-medium">₫</small></span>
+                                        <small class="text-muted" style="font-size: 0.65rem;">Tổng doanh thu</small>
+                                    </div>
+                                </td>
+                                <td class="text-end pe-4 py-3">
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            Vận hành
+                                        <button class="btn btn-modern btn-xs btn-light border dropdown-toggle px-3 py-2 shadow-sm d-flex align-items-center gap-2 ms-auto" type="button" data-bs-toggle="dropdown" style="border-radius: 10px;">
+                                            <i class="ph-fill ph-gear"></i> Vận hành
                                         </button>
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" style="border-radius: 12px; font-size: 0.85rem;">
-                                            <li><a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2" href="<?= BASE_URL_ADMIN ?>&action=tours/departure-resources&id=<?= $dep['id'] ?>">
-                                                <i class="ph ph-truck text-primary"></i> Gán Tài nguyên & NCC
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2" style="border-radius: 16px; min-width: 220px;">
+                                            <li class="px-2 py-1 text-muted small fw-bold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Quản lý chuyến đi</li>
+                                            <li><a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center gap-3" href="<?= BASE_URL_ADMIN ?>&action=tours/departure-resources&id=<?= $dep['id'] ?>">
+                                                <div class="icon-box bg-primary-subtle text-primary rounded-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="ph ph-truck"></i>
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-bold small">Tài nguyên & NCC</span>
+                                                    <small class="text-muted extra-small">Gán nhà xe, HDV, NCC</small>
+                                                </div>
                                             </a></li>
-                                            <li><a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2" href="<?= BASE_URL_ADMIN ?>&action=bookings&departure_id=<?= $dep['id'] ?>">
-                                                <i class="ph ph-users text-info"></i> Danh sách hành khách
+                                            <li><a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center gap-3" href="<?= BASE_URL_ADMIN ?>&action=bookings&departure_id=<?= $dep['id'] ?>">
+                                                <div class="icon-box bg-info-subtle text-info rounded-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="ph ph-users"></i>
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-bold small">Danh sách khách</span>
+                                                    <small class="text-muted extra-small">Xem/In danh sách đoàn</small>
+                                                </div>
                                             </a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 text-danger" href="#">
-                                                <i class="ph ph-x-circle"></i> Hủy chuyến
+                                            <li><hr class="dropdown-divider mx-2"></li>
+                                            <li><a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center gap-3 text-danger" href="#">
+                                                <div class="icon-box bg-danger-subtle text-danger rounded-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="ph ph-x-circle"></i>
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-bold small">Hủy chuyến</span>
+                                                    <small class="text-muted extra-small">Dừng vận hành tour này</small>
+                                                </div>
                                             </a></li>
                                         </ul>
                                     </div>
@@ -152,7 +205,10 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr><td colspan="6" class="text-center py-5 text-muted">Không tìm thấy lịch khởi hành phù hợp.</td></tr>
+                        <tr><td colspan="6" class="text-center py-5 text-muted">
+                            <i class="ph ph-magnifying-glass fs-1 d-block mb-3 opacity-25"></i>
+                            Không tìm thấy lịch khởi hành phù hợp.
+                        </td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

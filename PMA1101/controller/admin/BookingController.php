@@ -13,15 +13,18 @@ class BookingController
     {
         // Lấy thông tin phân trang và bộ lọc
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-        $perPage = 15;
+        $perPage = isset($_GET['per_page']) ? max(1, (int)$_GET['per_page']) : 15;
 
         $filters = [
-            'keyword'   => isset($_GET['keyword']) ? trim($_GET['keyword']) : '',
-            'status'    => isset($_GET['status']) ? trim($_GET['status']) : '',
-            'date_from' => $_GET['date_from'] ?? '',
-            'date_to'   => $_GET['date_to'] ?? '',
-            'sort_by'   => $_GET['sort_by'] ?? 'booking_date',
-            'sort_dir'  => $_GET['sort_dir'] ?? 'DESC'
+            'keyword'     => isset($_GET['keyword']) ? trim($_GET['keyword']) : '',
+            'status'      => isset($_GET['status']) ? trim($_GET['status']) : '',
+            'category_id' => isset($_GET['category_id']) ? trim($_GET['category_id']) : '',
+            'price_min'   => isset($_GET['price_min']) ? trim($_GET['price_min']) : '',
+            'price_max'   => isset($_GET['price_max']) ? trim($_GET['price_max']) : '',
+            'date_from'   => $_GET['date_from'] ?? '',
+            'date_to'     => $_GET['date_to'] ?? '',
+            'sort_by'     => $_GET['sort_by'] ?? 'booking_date',
+            'sort_dir'    => $_GET['sort_dir'] ?? 'DESC'
         ];
 
         // Lấy thông tin user hiện tại
@@ -49,6 +52,11 @@ class BookingController
         // Lấy thống kê
         $stats = $this->model->getStats();
 
+        // Lấy danh mục tour để phục vụ bộ lọc
+        require_once 'models/TourCategory.php';
+        $categoryModel = new TourCategory();
+        $categories = $categoryModel->select('*', null, [], 'name ASC');
+
         require_once PATH_VIEW_ADMIN . 'pages/bookings/index.php';
     }
 
@@ -57,13 +65,9 @@ class BookingController
         // Load customers and tours data for dropdown
         $customerModel = new UserModel();
         $tourModel = new Tour();
-        $versionModel = new TourVersion();
-        $supplierModel = new Supplier();
 
         $customers = $customerModel->select('*', "role = :role", ['role' => 'customer']);
         $tours = $tourModel->select('*', null, [], 'name ASC');
-        $versions = $versionModel->getActiveVersionsWithPrices();
-        $suppliers = $supplierModel->select();
 
         require_once PATH_VIEW_ADMIN . 'pages/bookings/create.php';
     }
@@ -79,7 +83,6 @@ class BookingController
             // Validate inputs
             $customer_id = $_POST['customer_id'] ?? null;
             $tour_id = $_POST['tour_id'] ?? null;
-            $version_id = $_POST['version_id'] ?? null; // Phiên bản tour (tùy chọn)
             $booking_date = $_POST['booking_date'] ?? null;
             $total_price = $_POST['total_price'] ?? null;
             $status = $_POST['status'] ?? 'cho_xac_nhan';
@@ -92,11 +95,26 @@ class BookingController
                 exit;
             }
 
+            // --- CAPACITY CHECK ---
+            if (!empty($_POST['departure_id'])) {
+                require_once 'models/TourDeparture.php';
+                $departureModel = new TourDeparture();
+                $departure = $departureModel->findById($_POST['departure_id']);
+                if ($departure) {
+                    $requestedSeats = (int)($_POST['adults'] ?? 1) + (int)($_POST['children'] ?? 0);
+                    $availableSeats = $departure['max_seats'] - $departure['booked_seats'];
+                    if ($availableSeats < $requestedSeats) {
+                        $_SESSION['error'] = "Số lượng chỗ không đủ! Chuyến đi này chỉ còn <b>{$availableSeats}</b> chỗ trống.";
+                        header('Location:' . BASE_URL_ADMIN . '&action=bookings/create');
+                        exit;
+                    }
+                }
+            }
+
             // Insert booking
             $booking_id = $this->model->insert([
                 'customer_id' => !empty($customer_id) ? $customer_id : null,
                 'tour_id' => $tour_id,
-                'version_id' => !empty($version_id) ? $version_id : null,
                 'departure_id' => $_POST['departure_id'] ?? null,
                 'booking_date' => $booking_date,
                 'total_price' => $total_price,
@@ -113,24 +131,6 @@ class BookingController
                 'created_by' => $_SESSION['user']['user_id'] ?? null
             ]);
 
-
-            // Tự động thêm supplier từ tour vào booking_suppliers_assignment
-            if ($booking_id) {
-                $tourModel = new Tour();
-                $tour = $tourModel->find('*', 'id = :id', ['id' => $tour_id]);
-
-                if (!empty($tour['supplier_id'])) {
-                    $bsaModel = new BookingSupplierAssignment();
-                    $bsaModel->addSupplierToBooking(
-                        $booking_id,
-                        $tour['supplier_id'],
-                        'tour_operator',
-                        1,
-                        0,
-                        'Supplier mặc định từ tour'
-                    );
-                }
-            }
 
             // Insert booking customers (companions)
             if (!empty($_POST['companion_name'])) {
@@ -152,23 +152,13 @@ class BookingController
                         ]);
                     }
                 }
-
-                // Recalculate total price based on passenger types
-                $calculation = $bookingCustomerModel->calculateTotalPrice($booking_id, $tour_id, $version_id);
-
-                // Update booking with calculated price
-                $this->model->update([
-                    'total_price' => $calculation['total'],
-                    'final_price' => $calculation['total']
-                ], 'id = :id', ['id' => $booking_id]);
             }
 
-            // Phase 7: Cập nhật số chỗ đã đặt trong lịch khởi hành
+            // Phase 7: Cập nhật số chỗ đã đặt trong lịch khởi hành (Đã chuyển sang dùng sync tự động)
             if (!empty($_POST['departure_id'])) {
                 require_once 'models/TourDeparture.php';
                 $departureModel = new TourDeparture();
-                $passengerCount = (int)($_POST['adults'] ?? 1) + (int)($_POST['children'] ?? 0);
-                $departureModel->adjustBookedSeats($_POST['departure_id'], $passengerCount);
+                $departureModel->syncBookedSeats($_POST['departure_id']);
             }
 
             $_SESSION['success'] = 'Tạo đơn đặt tour thành công';
@@ -263,70 +253,13 @@ class BookingController
         // Load customers and tours data for dropdown
         $customerModel = new UserModel();
         $tourModel = new Tour();
-        $versionModel = new TourVersion();
 
         $customers = $customerModel->select('*', "role = :role", ['role' => 'customer']);
         $tours = $tourModel->select('*', null, [], 'name ASC');
-        $versions = $versionModel->getActiveVersionsWithPrices();
-
-        // If booking has an inactive version, add it to the list so it can be displayed
-        if ($booking['version_id']) {
-            $currentVersion = $versionModel->findById($booking['version_id']);
-            if ($currentVersion && $currentVersion['status'] === 'inactive') {
-                // Check if version is not already in the list
-                $versionExists = false;
-                foreach ($versions as $v) {
-                    if ($v['id'] == $booking['version_id']) {
-                        $versionExists = true;
-                        break;
-                    }
-                }
-
-                if (!$versionExists) {
-                    // Get version with prices
-                    $versionPriceModel = new TourVersionPrice();
-                    $priceInfo = $versionPriceModel->getByVersionId($booking['version_id']);
-                    $currentVersion = array_merge($currentVersion, $priceInfo ?: []);
-                    $currentVersion['is_inactive'] = true; // Mark as inactive for UI
-                    $versions[] = $currentVersion;
-                }
-            }
-        }
-
-        // Get bus companies list
-        $busCompanyModel = new BusCompany();
-        $busCompanies = $busCompanyModel->getActiveBusCompanies();
 
         // Get guides list
         $guideModel = new Guide();
         $guides = $guideModel->getAll();
-
-        // Get suppliers list
-        $supplierModel = new Supplier();
-        $suppliers = $supplierModel->select();
-
-        // Get booking suppliers (many-to-many)
-        $bsaModel = new BookingSupplierAssignment();
-        $bookingSuppliers = $bsaModel->getByBookingId($id);
-
-        // Auto-add tour supplier if booking has no suppliers yet
-        if (empty($bookingSuppliers) && !empty($booking['tour_supplier_id'])) {
-            // Tự động thêm supplier từ tour cho booking cũ
-            $bsaModel->addSupplierToBooking(
-                $id,
-                $booking['tour_supplier_id'],
-                'tour_operator',
-                1,
-                0,
-                'Supplier mặc định từ tour (tự động thêm)'
-            );
-            // Reload suppliers
-            $bookingSuppliers = $bsaModel->getByBookingId($id);
-        }
-
-        // Load version prices for passenger type pricing
-        $versionPriceModel = new TourVersionPrice();
-        $versionPrices = $versionPriceModel->getPriceForBooking($booking['tour_id'], $booking['version_id']);
 
         require_once PATH_VIEW_ADMIN . 'pages/bookings/edit.php';
     }
@@ -364,26 +297,15 @@ class BookingController
             $total_price = $_POST['total_price'] ?? null;
             $status = $_POST['status'] ?? 'cho_xac_nhan';
             $notes = $_POST['notes'] ?? '';
-            $version_id = $_POST['version_id'] ?? null;
-
-            // Basic validation
-            if (!$customer_id || !$tour_id || !$booking_date || !$total_price || !$status) {
-                $_SESSION['error'] = 'Vui lòng điền đầy đủ thông tin bắt buộc';
-                header('Location:' . BASE_URL_ADMIN . '&action=bookings/edit&id=' . $id);
-                exit;
-            }
-
-            // Update booking (không có supplier_id nữa)
+            // Update booking
             $this->model->update([
                 'customer_id' => !empty($customer_id) ? $customer_id : null,
                 'tour_id' => $tour_id,
-                'version_id' => !empty($version_id) ? $version_id : null,
                 'departure_id' => $_POST['departure_id'] ?? null,
                 'booking_date' => $booking_date,
                 'total_price' => $total_price,
                 'final_price' => $total_price,
                 'status' => $status,
-                'bus_company_id' => !empty($_POST['bus_company_id']) ? $_POST['bus_company_id'] : null,
                 'notes' => $notes,
                 'adults' => (int)($_POST['adults'] ?? 1),
                 'children' => (int)($_POST['children'] ?? 0),
@@ -394,31 +316,12 @@ class BookingController
                 'contact_address' => $_POST['contact_address'] ?? ''
             ], 'id = :id', ['id' => $id]);
 
-            // Cập nhật booking suppliers (many-to-many)
-            if (isset($_POST['suppliers']) && is_array($_POST['suppliers'])) {
-                $bsaModel = new BookingSupplierAssignment();
-                $bsaModel->updateSuppliersForBooking($id, $_POST['suppliers']);
-            }
 
-            // NOTE: Companions are managed separately via AJAX endpoints
-            // (addCompanion, updateCompanion, deleteCompanion)
-            // Do NOT delete and recreate companions here to prevent data loss
-
-            // Recalculate total price based on version and companions
-            // NOTE: Customer (booker) is always counted as 1 adult by default
-            $bookingCustomerModel = new BookingCustomer();
-            $companions = $bookingCustomerModel->getByBooking($id);
-
-            // Always recalculate if version_id is set (even without companions)
-            // because customer (booker) counts as 1 adult
-            if ($version_id || !empty($companions)) {
-                $calculation = $bookingCustomerModel->calculateTotalPrice($id, $tour_id, $version_id);
-
-                // Update booking with calculated price
-                $this->model->update([
-                    'total_price' => $calculation['total'],
-                    'final_price' => $calculation['total']
-                ], 'id = :id', ['id' => $id]);
+            // Tự động đồng bộ số lượng chỗ sau khi update
+            if (!empty($_POST['departure_id'])) {
+                require_once 'models/TourDeparture.php';
+                $departureModel = new TourDeparture();
+                $departureModel->syncBookedSeats($_POST['departure_id']);
             }
 
             $_SESSION['success'] = 'Cập nhật đơn đặt tour thành công';
@@ -457,11 +360,10 @@ class BookingController
             if ($result) {
                 // Phase 7: Trả lại số chỗ
                 $booking = $this->model->getById($id);
-                if ($booking && !empty($booking['departure_id']) && $booking['status'] !== 'da_huy') {
+                if ($booking && !empty($booking['departure_id'])) {
                     require_once 'models/TourDeparture.php';
                     $departureModel = new TourDeparture();
-                    $passengerCount = (int)($booking['adults'] ?? 1) + (int)($booking['children'] ?? 0);
-                    $departureModel->adjustBookedSeats($booking['departure_id'], -$passengerCount);
+                    $departureModel->syncBookedSeats($booking['departure_id']);
                 }
                 $_SESSION['success'] = 'Xóa booking thành công';
             } else {
@@ -470,9 +372,39 @@ class BookingController
         } catch (Exception $e) {
             $_SESSION['error'] = 'Lỗi: ' . $e->getMessage();
         }
-
         header('Location:' . BASE_URL_ADMIN . '&action=bookings');
         exit;
+    }
+
+    public function invoice()
+    {
+        $id = $_GET['id'] ?? null;
+
+        if (!$id) {
+            $_SESSION['error'] = 'Không tìm thấy booking';
+            header('Location:' . BASE_URL_ADMIN . '&action=bookings');
+            exit;
+        }
+
+        // Lấy thông tin chi tiết booking
+        $booking = $this->model->getBookingWithDetails($id);
+        if (!$booking) {
+            $_SESSION['error'] = 'Không tìm thấy dữ liệu booking';
+            header('Location:' . BASE_URL_ADMIN . '&action=bookings');
+            exit;
+        }
+
+        // Lấy danh sách khách đi cùng
+        require_once 'models/BookingCustomer.php';
+        $bcModel = new BookingCustomer();
+        $customers = $bcModel->getByBooking($id);
+
+        // Lấy thông tin thanh toán (Lịch sử thanh toán)
+        require_once 'models/Payment.php';
+        $paymentModel = new Payment();
+        $payments = $paymentModel->select('*', 'booking_id = :bid', ['bid' => $id], 'payment_date DESC');
+
+        require_once PATH_VIEW_ADMIN . 'pages/bookings/invoice.php';
     }
 
     /**
@@ -520,18 +452,7 @@ class BookingController
             if ($booking && !empty($booking['departure_id'])) {
                 require_once 'models/TourDeparture.php';
                 $departureModel = new TourDeparture();
-                $passengerCount = (int)($booking['adults'] ?? 1) + (int)($booking['children'] ?? 0);
-                
-                if ($newStatus === 'da_huy') {
-                    // Nếu hủy -> giảm số chỗ
-                    $departureModel->adjustBookedSeats($booking['departure_id'], -$passengerCount);
-                } else {
-                    // Nếu từ trạng thái hủy chuyển sang trạng thái khác -> tăng lại số chỗ
-                    // Ở đây cần kiểm tra trạng thái cũ, nhưng updateStatus cơ bản đã ghi đè.
-                    // Logic đơn giản: Nếu trước đó là 'da_huy' thì mới tăng. 
-                    // Tuy nhiên model->updateStatus không trả về trạng thái cũ.
-                    // Tạm thời: tăng nếu không phải hủy (Cần cẩn thận duplicate tăng)
-                }
+                $departureModel->syncBookedSeats($booking['departure_id']);
             }
 
             // Lấy tên trạng thái để hiển thị
@@ -1082,8 +1003,7 @@ class BookingController
                     'price_child' => $dep['price_child'] ?: ($dep['price_adult'] ?: $basePrice),
                     'price_infant' => $dep['price_infant'] ?: 0,
                     'available_seats' => $dep['available_seats'],
-                    'max_seats' => $dep['max_seats'],
-                    'version_name' => $dep['version_name'] ?? null
+                    'max_seats' => $dep['max_seats']
                 ];
             }, $departures);
 

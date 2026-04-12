@@ -51,13 +51,13 @@ $isGuide = $userRole === 'guide';
             </li>
 
             <li class="menu-item">
-                <a class="menu-link dropdown-toggles d-flex justify-content-between align-items-center <?= isParentActive(['tours', 'policies', 'suppliers', 'tours_categories', 'tours_versions', 'tours_history']) ?>"
+                <a class="menu-link dropdown-toggles d-flex justify-content-between align-items-center <?= isParentActive(['tours', 'policies', 'tours_categories', 'tours_history']) ?>"
                     href="#" data-bs-toggle="collapse" data-bs-target="#tourMenu"
-                    aria-expanded="<?= isCollapseShow(['tours', 'policies', 'suppliers', 'tours_categories', 'tours_versions', 'tours_history']) ? 'true' : 'false' ?>">
+                    aria-expanded="<?= isCollapseShow(['tours', 'policies', 'tours_categories', 'tours_history']) ? 'true' : 'false' ?>">
                     <div class="d-flex align-items-center gap-2"><i class="ph ph-map-trifold"></i> Tour</div>
                     <i class="ph ph-caret-down" style="font-size: 0.9rem;"></i>
                 </a>
-                <div class="collapse <?= isCollapseShow(['tours', 'policies', 'suppliers', 'tours_categories', 'tours_versions', 'tours_history']) ?>" id="tourMenu">
+                <div class="collapse <?= isCollapseShow(['tours', 'policies', 'tours_categories', 'tours_history']) ?>" id="tourMenu">
                     <ul class="sidebar-menu pb-0 pt-2 ps-3 m-0" style="border-left: 1px solid var(--border-light); margin-left: 0.8rem !important; padding-right: 0;">
                         <li class="menu-item">
                             <a class="menu-link py-2 <?= isActive('tours') ?>" href="<?= BASE_URL_ADMIN ?>&action=tours">
@@ -70,18 +70,8 @@ $isGuide = $userRole === 'guide';
                             </a>
                         </li>
                         <li class="menu-item">
-                            <a class="menu-link py-2 <?= isActive('tours_versions') ?>" href="<?= BASE_URL_ADMIN ?>&action=tours_versions">
-                                <i class="ph ph-git-branch" style="font-size: 1.1rem;"></i> Phiên bản Tour
-                            </a>
-                        </li>
-                        <li class="menu-item">
                             <a class="menu-link py-2 <?= isActive('policies') ?>" href="<?= BASE_URL_ADMIN ?>&action=policies">
                                 <i class="ph ph-file-text" style="font-size: 1.1rem;"></i> Chính sách
-                            </a>
-                        </li>
-                        <li class="menu-item">
-                            <a class="menu-link py-2 <?= isActive('suppliers') ?>" href="<?= BASE_URL_ADMIN ?>&action=suppliers">
-                                <i class="ph ph-handshake" style="font-size: 1.1rem;"></i> Nhà cung cấp
                             </a>
                         </li>
                         <li class="menu-item">
@@ -121,26 +111,9 @@ $isGuide = $userRole === 'guide';
 
         <?php if ($isAdmin): ?>
             <li class="menu-item">
-                <a class="menu-link dropdown-toggles d-flex justify-content-between align-items-center <?= isParentActive(['guides', 'bus-companies']) ?>"
-                    href="#" data-bs-toggle="collapse" data-bs-target="#staffMenu"
-                    aria-expanded="<?= isCollapseShow(['guides', 'bus-companies']) ? 'true' : 'false' ?>">
-                    <div class="d-flex align-items-center gap-2"><i class="ph ph-users-three"></i> Nhân Sự</div>
-                    <i class="ph ph-caret-down" style="font-size: 0.9rem;"></i>
+                <a class="menu-link <?= isActive('guides') ?>" href="<?= BASE_URL_ADMIN ?>&action=guides">
+                    <i class="ph ph-user-focus"></i> Quản lý Guide
                 </a>
-                <div class="collapse <?= isCollapseShow(['guides', 'bus-companies']) ?>" id="staffMenu">
-                    <ul class="sidebar-menu pb-0 pt-2 ps-3 m-0" style="border-left: 1px solid var(--border-light); margin-left: 0.8rem !important; padding-right: 0;">
-                        <li class="menu-item">
-                            <a class="menu-link py-2 <?= isActive('guides') ?>" href="<?= BASE_URL_ADMIN ?>&action=guides">
-                                <i class="ph ph-user-focus" style="font-size: 1.1rem;"></i> Quản lý Guide
-                            </a>
-                        </li>
-                        <li class="menu-item">
-                            <a class="menu-link py-2 <?= isActive('bus-companies') ?>" href="<?= BASE_URL_ADMIN ?>&action=bus-companies">
-                                <i class="ph ph-bus" style="font-size: 1.1rem;"></i> Quản lý Nhà Xe
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
 
             <li class="menu-item">

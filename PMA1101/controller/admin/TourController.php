@@ -73,10 +73,6 @@ class TourController
         $categoryModel = new TourCategory();
         $categories = $categoryModel->select();
 
-        // Load suppliers for supplier dropdown
-        $supplierModel = new Supplier();
-        $suppliers = $supplierModel->select();
-
         require_once PATH_VIEW_ADMIN . 'pages/tours/create.php';
     }
 
@@ -110,7 +106,6 @@ class TourController
             $tourData = [
                 'name' => trim($_POST['name']),
                 'category_id' => (int)$_POST['category_id'],
-                'supplier_id' => !empty($_POST['supplier_id']) ? (int)$_POST['supplier_id'] : null,
                 'description' => trim($_POST['description'] ?? ''),
                 'base_price' => (float)$_POST['base_price'],
             ];
@@ -205,12 +200,11 @@ class TourController
 
             // Parse JSON data from form
             $pricingOptions = json_decode($_POST['tour_pricing_options'] ?? '[]', true);
-            $dynamicPricing = json_decode($_POST['version_dynamic_pricing'] ?? '[]', true);
             $itineraries = json_decode($_POST['tour_itinerary'] ?? '[]', true);
             $policyIds = $_POST['policies'] ?? [];
 
-            // Create tour with all related data including versions
-            $tourId = $this->model->createTour($tourData, $pricingOptions, $dynamicPricing, $itineraries, $uploadedImages, $policyIds);
+            // Create tour with all related data
+            $tourId = $this->model->createTour($tourData, $pricingOptions, $itineraries, $uploadedImages, $policyIds);
 
             $_SESSION['success'] = 'Tour đã được tạo thành công!';
             header('Location: ' . BASE_URL_ADMIN . '&action=tours');
@@ -243,10 +237,6 @@ class TourController
         $categoryModel = new TourCategory();
         $categories = $categoryModel->select();
 
-        // Load suppliers
-        $supplierModel = new Supplier();
-        $suppliers = $supplierModel->select();
-
         // Load policies
         $policyModel = new TourPolicy();
         $policies = $policyModel->select();
@@ -256,9 +246,6 @@ class TourController
         $assignedPolicyIds = array_column($assignedPolicies, 'policy_id');
 
         // Related entities
-        $pricingModel = new TourPricing();
-        $pricingOptions = $pricingModel->getByTourId($id);
-
         $dynamicPricing = []; // Temporarily empty until we update the logic
 
         $itineraryModel = new TourItinerary();
@@ -314,7 +301,6 @@ class TourController
             $tourData = [
                 'name' => trim($_POST['name']),
                 'category_id' => (int)$_POST['category_id'],
-                'supplier_id' => !empty($_POST['supplier_id']) ? (int)$_POST['supplier_id'] : null,
                 'description' => $_POST['description'] ?? '',
                 'base_price' => (float)$_POST['base_price'],
                 'updated_at' => date('Y-m-d H:i:s'),
@@ -511,19 +497,9 @@ class TourController
             $itineraries = json_decode($_POST['tour_itinerary'] ?? '[]', true);
 
             // For simplicity: delete existing related rows and re-insert
-            $pricingModel = new TourPricing();
+            // Model TourPricing đã được xóa.
             $dynamicPricingModel = new TourDynamicPricing();
             $itineraryModel = new TourItinerary();
-
-            $pricingModel->delete('tour_id = :tid', ['tid' => $id]);
-            foreach ($pricingOptions as $opt) {
-                $optionId = $pricingModel->insert([
-                    'tour_id' => $id,
-                    'label' => $opt['label'] ?? '',
-                    'description' => $opt['description'] ?? '',
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]);
-            }
 
             $itineraryModel->delete('tour_id = :tid', ['tid' => $id]);
             foreach ($itineraries as $index => $it) {
@@ -718,9 +694,7 @@ class TourController
             return;
         }
 
-        // Load related data for detail view
-        $pricingModel = new TourPricing();
-        $pricingOptions = $pricingModel->getByTourId($id);
+        // Model Tour Pricing đã bị loại bỏ
 
         // TODO: Dynamic pricing now uses version_id/departure_id instead of tour_id
         // $dynamicPricingModel = new TourDynamicPricing();
@@ -728,9 +702,6 @@ class TourController
 
         $itineraryModel = new TourItinerary();
         $itinerarySchedule = $itineraryModel->select('*', 'tour_id = :tid', ['tid' => $id], 'day_number ASC');
-
-        $partnerModel = new TourPartner();
-        $partnerServices = $partnerModel->getByTourId($id);
 
         $policyAssignmentModel = new TourPolicyAssignment();
         $assignedPolicies = $policyAssignmentModel->getByTourId($id);
@@ -1082,14 +1053,7 @@ class TourController
                 $galleryModel->insert($img);
             }
 
-            // 4. Nhân bản Pricing Options
-            $pricingModel = new TourPricing();
-            $pricing = $pricingModel->select('*', 'tour_id = :tid', ['tid' => $id]);
-            foreach ($pricing as $p) {
-                unset($p['id']);
-                $p['tour_id'] = $newTourId;
-                $pricingModel->insert($p);
-            }
+            // 4. Giá (TourPricing) đã bị loại bỏ
 
             // 5. Nhân bản Policy Assignments
             $policyModel = new TourPolicyAssignment();
@@ -1149,74 +1113,40 @@ class TourController
     }
 
     /**
+     * Đồng bộ số lượng chỗ thực tế cho tất cả các lịch khởi hành gần đây
+     */
+    public function syncDepartures()
+    {
+        require_once 'models/TourDeparture.php';
+        $departureModel = new TourDeparture();
+        
+        try {
+            $departureModel->syncBookedSeats();
+            $_SESSION['success'] = 'Đã đồng bộ số lượng chỗ thực tế từ dữ liệu booking thành công!';
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Lỗi khi đồng bộ dữ liệu: ' . $e->getMessage();
+        }
+        
+        header('Location: ' . BASE_URL_ADMIN . '&action=tours/departures');
+        exit;
+    }
+
+    /**
      * Giao diện gán tài nguyên (NCC, Xe, Khách sạn) cho 1 chuyến đi
      */
     public function manageDepartureResources()
     {
-        $id = $_GET['id'] ?? null;
-        if (!$id) {
-            header('Location: ' . BASE_URL_ADMIN . '&action=tours/departures');
-            exit;
-        }
-
-        require_once 'models/TourDeparture.php';
-        require_once 'models/DepartureResource.php';
-        require_once 'models/Supplier.php';
-
-        $departureModel = new TourDeparture();
-        $resourceModel = new DepartureResource();
-        $supplierModel = new Supplier();
-
-        $departure = $departureModel->findById($id);
-        if (!$departure) {
-            $_SESSION['error'] = 'Không tìm thấy lịch khởi hành.';
-            header('Location: ' . BASE_URL_ADMIN . '&action=tours/departures');
-            exit;
-        }
-
-        $resources = $resourceModel->getByDepartureId($id);
-        $suppliers = $supplierModel->select();
-        $totalRevenue = $departureModel->getTotalRevenue($id);
-
-        require_once 'views/admin/pages/tour_departures/resources.php';
+        // Tính năng đã bị loại bỏ
+        $_SESSION['error'] = 'Tính năng này đã bị loại bỏ khỏi hệ thống.';
+        header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+        exit;
     }
 
-    /**
-     * Lưu thông tin tài nguyên đoàn
-     */
     public function saveDepartureResources()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') exit;
-
-        $departureId = $_POST['departure_id'] ?? null;
-        if (!$departureId) exit;
-
-        require_once 'models/DepartureResource.php';
-        $resourceModel = new DepartureResource();
-
-        // Xóa cũ và insert mới (Dễ quản lý)
-        $resourceModel->delete('departure_id = :did', ['did' => $departureId]);
-
-        if (!empty($_POST['resources']) && is_array($_POST['resources'])) {
-            foreach ($_POST['resources'] as $res) {
-                if (!empty($res['supplier_id'])) {
-                    $qty = (int)($res['quantity'] ?? 1);
-                    $price = (float)($res['unit_price'] ?? 0);
-                    $resourceModel->insert([
-                        'departure_id' => $departureId,
-                        'supplier_id' => $res['supplier_id'],
-                        'service_type' => $res['service_type'] ?? 'other',
-                        'quantity' => $qty,
-                        'unit_price' => $price,
-                        'total_amount' => $qty * $price,
-                        'notes' => $res['notes'] ?? ''
-                    ]);
-                }
-            }
-        }
-
-        $_SESSION['success'] = 'Cập nhật tài nguyên đoàn thành công.';
-        header('Location: ' . BASE_URL_ADMIN . '&action=tours/departure-resources&id=' . $departureId);
+        // Tính năng đã bị loại bỏ
+        $_SESSION['error'] = 'Tính năng này đã bị loại bỏ khỏi hệ thống.';
+        header('Location: ' . BASE_URL_ADMIN . '&action=tours');
         exit;
     }
 }

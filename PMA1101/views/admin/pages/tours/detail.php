@@ -6,7 +6,6 @@ $tour = $tour ?? null;
 $allImages = $allImages ?? [];
 $pricingOptions = $pricingOptions ?? [];
 $itinerarySchedule = $itinerarySchedule ?? [];
-$partnerServices = $partnerServices ?? [];
 $departures = $departures ?? [];
 $policies = $policies ?? [];
 
@@ -544,76 +543,8 @@ if (empty($galleryUrls)) {
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Supplier Card -->
-                <?php if (!empty($tour['supplier_id'])): ?>
-                    <div class="card card-premium mb-4 border-0 shadow-sm">
-                        <div class="card-header bg-white border-bottom border-light py-3">
-                            <h5 class="card-title mb-0 fw-bold d-flex align-items-center gap-2" style="font-size: 1rem;">
-                                <i class="ph-fill ph-buildings text-info"></i>
-                                Nhà cung cấp
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <?php
-                            $supplierModel = new Supplier();
-                            $supplier = $supplierModel->find('*', 'id = :id', ['id' => $tour['supplier_id']]);
-                            ?>
-                            <?php if ($supplier): ?>
-                                <div class="supplier-info">
-                                    <h6 class="mb-3 text-primary fw-bold d-flex align-items-center gap-2">
-                                        <i class="ph-fill ph-hand-shake"></i>
-                                        <?= htmlspecialchars($supplier['name']) ?>
-                                    </h6>
-
-                                    <div class="vstack gap-2" style="font-size: 0.9rem;">
-                                        <?php if (!empty($supplier['type'])): ?>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <i class="ph ph-tag text-muted"></i>
-                                                <span class="text-muted">Loại:</span>
-                                                <span class="badge bg-info-subtle text-info fw-bold"><?= htmlspecialchars($supplier['type']) ?></span>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($supplier['contact_person'])): ?>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <i class="ph ph-user text-muted"></i>
-                                                <span class="text-muted">Liên hệ:</span>
-                                                <span class="text-dark fw-medium"><?= htmlspecialchars($supplier['contact_person']) ?></span>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($supplier['phone'])): ?>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <i class="ph ph-phone text-muted"></i>
-                                                <span class="text-muted">SĐT:</span>
-                                                <a href="tel:<?= $supplier['phone'] ?>" class="text-primary text-decoration-none fw-medium"><?= htmlspecialchars($supplier['phone']) ?></a>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($supplier['email'])): ?>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <i class="ph ph-envelope text-muted"></i>
-                                                <span class="text-muted">Email:</span>
-                                                <a href="mailto:<?= $supplier['email'] ?>" class="text-primary text-decoration-none fw-medium"><?= htmlspecialchars($supplier['email']) ?></a>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($supplier['address'])): ?>
-                                            <div class="d-flex align-items-start gap-2 pt-1 border-top border-light mt-1">
-                                                <i class="ph ph-map-pin text-muted mt-1"></i>
-                                                <div>
-                                                    <div class="text-muted small">Địa chỉ:</div>
-                                                    <span class="text-dark" style="font-size: 0.85rem;"><?= htmlspecialchars($supplier['address']) ?></span>
-                                                </div>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php else: ?>
-                                <div class="text-center text-muted py-4">
-                                    <i class="ph ph-warning-circle fa-2x mb-2 op-3"></i>
-                                    <p class="mb-0 small">Không tìm thấy thông tin</p>
                                 </div>
                             <?php endif; ?>
                         </div>

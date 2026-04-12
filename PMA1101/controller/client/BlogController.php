@@ -2,13 +2,12 @@
 
 require_once 'models/Blog.php';
 
-class ClientBlogController extends BaseController
+class ClientBlogController
 {
     private $blogModel;
 
     public function __construct()
     {
-        parent::__construct();
         $this->blogModel = new Blog();
     }
 
@@ -17,11 +16,12 @@ class ClientBlogController extends BaseController
         $blogs = $this->blogModel->getAllPublished();
         $latestBlogs = $this->blogModel->getLatest(3);
 
-        $this->render('blogs/index', [
+        $data = [
             'blogs' => $blogs,
             'latestBlogs' => $latestBlogs,
             'title' => 'Cẩm nang du lịch & Tin tức'
-        ]);
+        ];
+        require_once PATH_VIEW_CLIENT . 'pages/blogs/index.php';
     }
 
     public function detail()
@@ -40,10 +40,11 @@ class ClientBlogController extends BaseController
 
         $latestBlogs = $this->blogModel->getLatest(5);
 
-        $this->render('blogs/detail', [
+        $data = [
             'blog' => $blog,
             'latestBlogs' => $latestBlogs,
-            'title' => $blog['title']
-        ]);
+            'title' => $blog['title'] ?? 'Chi tiết bài viết'
+        ];
+        require_once PATH_VIEW_CLIENT . 'pages/blogs/detail.php';
     }
 }

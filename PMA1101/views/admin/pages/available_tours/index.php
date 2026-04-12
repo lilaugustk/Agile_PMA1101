@@ -193,8 +193,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             </div>
         </div>
     <?php endif; ?>
-    </div>
-</main>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -101,13 +101,13 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="ps-4 py-3 text-muted fw-bold" style="font-size: 0.8rem; width: 60px;">ID</th>
-                                <th class="py-3 text-muted fw-bold" style="font-size: 0.8rem;">DANH MỤC</th>
-                                <th class="py-3 text-muted fw-bold" style="font-size: 0.8rem;">MÔ TẢ</th>
-                                <th class="py-3 text-muted fw-bold text-center" style="font-size: 0.8rem;">TOUR</th>
-                                <th class="py-3 text-muted fw-bold text-center" style="font-size: 0.8rem;">GIÁ TB</th>
-                                <th class="py-3 text-muted fw-bold" style="font-size: 0.8rem;">NGÀY TẠO</th>
-                                <th class="pe-4 py-3 text-muted fw-bold text-end" style="font-size: 0.8rem;">THAO TÁC</th>
+                                <th class="ps-4 py-3 text-muted fw-bold" style="width: 60px;">ID</th>
+                                <th class="py-3 text-muted fw-bold">DANH MỤC</th>
+                                <th class="py-3 text-muted fw-bold">MÔ TẢ</th>
+                                <th class="py-3 text-muted fw-bold text-center">TOUR</th>
+                                <th class="py-3 text-muted fw-bold text-center">GIÁ TB</th>
+                                <th class="py-3 text-muted fw-bold">NGÀY TẠO</th>
+                                <th class="pe-4 py-3 text-muted fw-bold text-end">THAO TÁC</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -115,7 +115,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                 <tr>
                                     <td class="ps-4 fw-bold text-muted">#<?= $category['id'] ?></td>
                                     <td>
-                                        <div class="fw-bold text-dark fs-6"><?= htmlspecialchars($category['name']) ?></div>
+                                        <div class="fw-bold text-dark"><?= htmlspecialchars($category['name']) ?></div>
                                         <div class="small text-muted font-monospace opacity-75"><?= htmlspecialchars($category['slug'] ?? '') ?></div>
                                     </td>
                                     <td>
@@ -124,7 +124,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge rounded-pill <?= ($category['tour_count'] ?? 0) > 0 ? 'bg-success-subtle text-success' : 'bg-light text-muted border' ?>" style="font-size: 0.75rem;">
+                                        <span class="badge rounded-pill <?= ($category['tour_count'] ?? 0) > 0 ? 'bg-success-subtle text-success' : 'bg-light text-muted border' ?>">
                                             <?= $category['tour_count'] ?? 0 ?> tour
                                         </span>
                                     </td>

@@ -21,25 +21,35 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="input-group-custom text-start border-end pe-3 ps-md-3">
+                    <div class="input-group-custom text-start border-end pe-3 ps-md-3 position-relative custom-dropdown" id="dropdown-category">
                         <label class="text-uppercase text-muted small fw-bold mb-1 d-block"><i class="ph-fill ph-calendar-blank me-1 text-primary"></i> Loại hình</label>
-                        <select name="category" class="form-select border-0 shadow-none p-0 fs-5 fw-medium bg-transparent cursor-pointer">
-                            <option value="">Tất cả</option>
+                        <div class="dropdown-trigger cursor-pointer d-flex align-items-center justify-content-between">
+                            <span class="current-value fs-5 fw-medium">Tất cả</span>
+                            <i class="ph-bold ph-caret-down text-muted" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <input type="hidden" name="category" value="">
+                        <div class="dropdown-menu-custom shadow-lg border-0 rounded-3 overflow-hidden">
+                            <div class="dropdown-item-custom py-2 px-3 selected" data-value="">Tất cả</div>
                             <?php foreach($categories as $cat): ?>
-                                <option value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
+                                <div class="dropdown-item-custom py-2 px-3" data-value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></div>
                             <?php endforeach; ?>
-                        </select>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="input-group-custom text-start pe-3 ps-md-3">
+                    <div class="input-group-custom text-start pe-3 ps-md-3 position-relative custom-dropdown" id="dropdown-duration">
                         <label class="text-uppercase text-muted small fw-bold mb-1 d-block"><i class="ph-fill ph-clock me-1 text-primary"></i> Thời lượng</label>
-                        <select name="duration" class="form-select border-0 shadow-none p-0 fs-5 fw-medium bg-transparent cursor-pointer">
-                            <option value="">Bất kỳ</option>
-                            <option value="1-3">1 - 3 ngày</option>
-                            <option value="4-7">4 - 7 ngày</option>
-                            <option value="over-7">Trên 7 ngày</option>
-                        </select>
+                        <div class="dropdown-trigger cursor-pointer d-flex align-items-center justify-content-between">
+                            <span class="current-value fs-5 fw-medium">Bất kỳ</span>
+                            <i class="ph-bold ph-caret-down text-muted" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <input type="hidden" name="duration" value="">
+                        <div class="dropdown-menu-custom shadow-lg border-0 rounded-3 overflow-hidden">
+                            <div class="dropdown-item-custom py-2 px-3 selected" data-value="">Bất kỳ</div>
+                            <div class="dropdown-item-custom py-2 px-3" data-value="1-3">1 - 3 ngày</div>
+                            <div class="dropdown-item-custom py-2 px-3" data-value="4-7">4 - 7 ngày</div>
+                            <div class="dropdown-item-custom py-2 px-3" data-value="over-7">Trên 7 ngày</div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-2 mt-4 mt-md-0 d-grid">
@@ -169,58 +179,154 @@
     </div>
 </section>
 
-<!-- 4. Vì Sao Chọn Chúng Tôi -->
-<section class="py-5 position-relative" style="background-color: #008C72; color: white;">
-    <!-- Background Pattern -->
-    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-    
-    <div class="container py-5 position-relative z-1">
-        <div class="row align-items-center mb-5">
-            <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
-                <h6 class="text-white-50 fw-bold text-uppercase tracking-tight">Cam Kết Của Chúng Tôi</h6>
-                <h2 class="display-5 fw-bold mb-4">Vì Sao Khách Hàng Chọn AgileTravel?</h2>
-                <p class="lead text-white-50 mb-4 text-justify">
-                    Hơn một thập kỷ hoạt động, chúng tôi tự hào là người bạn đồng hành tin cậy, mang đến hành trình trọn vẹn và an tâm tuyệt đối cho hàng triệu khách hàng.
-                </p>
-                <div class="row g-4 mt-2">
-                    <div class="col-6">
-                        <h2 class="display-4 fw-bolder mb-0 counter"><?= $stats['total_tours'] ?></h2>
-                        <span class="text-white-50 text-uppercase small fw-bold">Tour Đa Dạng</span>
+<!-- Section: Chuyến đi sắp khởi hành (Upcoming Tours) -->
+<?php if (!empty($upcomingTours)): ?>
+<section class="py-5 py-lg-6 bg-light-subtle">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div data-aos="fade-right">
+                <h6 class="text-primary fw-bold text-uppercase tracking-tight">Cơ Hội Cuối Cùng</h6>
+                <h2 class="display-6 fw-bold text-dark mb-0">Hành Trình Sắp Khởi Hành</h2>
+            </div>
+            <div data-aos="fade-left">
+                <a href="<?= BASE_URL ?>?action=tours" class="text-primary fw-bold text-decoration-none d-flex align-items-center gap-2">
+                    Khám Phá Thêm <i class="ph-bold ph-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <?php foreach($upcomingTours as $index => $tour): ?>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="<?= $index * 100 ?>">
+                <div class="card border-0 shadow-soft h-100 rounded-4 overflow-hidden hover-reveal transition-all">
+                    <!-- Image Wrapper -->
+                    <div class="position-relative overflow-hidden" style="height: 220px;">
+                        <?php $imgUrl = !empty($tour['main_image']) ? BASE_ASSETS_UPLOADS . $tour['main_image'] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=600&auto=format&fit=crop'; ?>
+                        <img src="<?= $imgUrl ?>" class="w-100 h-100 object-fit-cover transition-all" alt="<?= htmlspecialchars($tour['name']) ?>">
+                        
+                        <!-- Badges -->
+                        <div class="position-absolute top-0 end-0 m-3 z-2">
+                            <span class="badge bg-white text-primary rounded-pill px-3 py-2 fw-bold shadow-sm d-flex align-items-center gap-1">
+                                <i class="ph-fill ph-calendar-blank"></i> <?= date('d/m', strtotime($tour['departure_date'])) ?>
+                            </span>
+                        </div>
+                        
+                        <div class="position-absolute bottom-0 start-0 m-3 z-2">
+                            <span class="badge bg-danger rounded-pill px-3 py-2 fw-medium shadow-sm">
+                                Chỉ còn <?= $tour['available_seats'] ?> chỗ
+                            </span>
+                        </div>
+
+                        <div class="img-overlay-dark position-absolute w-100 h-100 top-0 start-0 d-flex align-items-center justify-content-center opacity-0 transition-all">
+                            <a href="<?= BASE_URL ?>?action=tour-detail&id=<?= $tour['id'] ?>" class="btn btn-primary rounded-pill px-4 fw-bold">Đặt Ngay</a>
+                        </div>
                     </div>
-                    <div class="col-6">
-                        <h2 class="display-4 fw-bolder mb-0"><span class="counter"><?= $stats['total_customers'] ?></span>+</h2>
-                        <span class="text-white-50 text-uppercase small fw-bold">Khách Hàng/Năm</span>
+
+                    <!-- Content -->
+                    <div class="card-body p-4">
+                        <div class="text-primary small fw-bold text-uppercase mb-2 lh-1"><?= htmlspecialchars($tour['category_name'] ?? 'Tour') ?></div>
+                        <h5 class="card-title fw-bold mb-3 line-clamp-1">
+                            <a href="<?= BASE_URL ?>?action=tour-detail&id=<?= $tour['id'] ?>" class="text-dark text-decoration-none"><?= htmlspecialchars($tour['name']) ?></a>
+                        </h5>
+                        
+                        <div class="d-flex align-items-center gap-3 text-muted small mb-4">
+                            <span class="d-flex align-items-center gap-1"><i class="ph ph-clock"></i> <?= $tour['duration_days'] ?? '1' ?> ngày</span>
+                            <span class="d-flex align-items-center gap-1"><i class="ph ph-users"></i> Tối đa <?= $tour['max_seats'] ?> kh</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <div class="price">
+                                <span class="text-muted small d-block">Giá chỉ từ</span>
+                                <span class="fs-5 fw-bold text-dark"><?= number_format($tour['base_price'], 0, ',', '.') ?>đ</span>
+                            </div>
+                            <div class="rating text-warning small">
+                                <i class="ph-fill ph-star"></i>
+                                <span class="text-dark fw-bold"><?= number_format($tour['avg_rating'] ?: 5.0, 1) ?></span>
+                                <span class="text-muted">(<?= $tour['review_count'] ?>)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5 offset-lg-1">
-                <div class="row g-4">
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- 4. Vì Sao Chọn Chúng Tôi -->
+<section class="py-5 py-lg-6 position-relative overflow-hidden" style="background: linear-gradient(135deg, #008C72 0%, #006b57 100%); color: white;">
+    <!-- Abstract Decorative Elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 pointer-events-none" style="z-index: 0;">
+        <div class="position-absolute rounded-circle" style="width: 400px; height: 400px; top: -200px; left: -200px; background: rgba(255, 255, 255, 0.03);"></div>
+        <div class="position-absolute rounded-circle" style="width: 600px; height: 600px; bottom: -300px; right: -200px; background: rgba(255, 255, 255, 0.03);"></div>
+        <div class="position-absolute w-100 h-100 top-0 start-0 opacity-5" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 50px 50px;"></div>
+    </div>
+    
+    <div class="container py-5 position-relative z-1">
+        <div class="row align-items-center mb-5">
+            <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right">
+                <div class="pe-lg-5">
+                    <h6 class="text-white-50 fw-bold text-uppercase tracking-tight mb-3 d-flex align-items-center gap-2">
+                        <span class="bg-white-50" style="width: 30px; height: 2px;"></span> Cam Kết Của Chúng Tôi
+                    </h6>
+                    <h2 class="display-5 fw-bold mb-4 text-white">Vì Sao Khách Hàng Chọn AgileTravel?</h2>
+                    <p class="lead opacity-75 mb-5 text-justify fw-light" style="line-height: 1.8;">
+                        Hơn một thập kỷ hoạt động, chúng tôi tự hào là người bạn đồng hành tin cậy, mang đến hành trình trọn vẹn và an tâm tuyệt đối cho hàng triệu khách hàng mỗi năm.
+                    </p>
+                    
+                    <div class="row g-4 mt-2">
+                        <div class="col-6">
+                            <div class="counter-box p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 shadow-sm">
+                                <h2 class="display-4 fw-bolder mb-0 text-white counter"><?= $stats['total_tours'] ?></h2>
+                                <span class="text-white-50 text-uppercase small fw-bold tracking-wider">Tour Đa Dạng</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="counter-box p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 shadow-sm">
+                                <h2 class="display-4 fw-bolder mb-0 text-white"><span class="counter"><?= $stats['total_customers'] ?></span>+</h2>
+                                <span class="text-white-50 text-uppercase small fw-bold tracking-wider">Khách Hàng/Năm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-4 box-features">
                     <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-                        <div class="bg-white text-dark p-4 rounded-4 h-100 shadow-lg hover-lift transition-all">
-                            <i class="ph-fill ph-shield-check text-primary fs-1 mb-3"></i>
-                            <h5 class="fw-bold mb-2">An Toàn Tuyệt Đối</h5>
-                            <p class="text-muted small mb-0">Bảo hiểm du lịch trọn gói cho 100% chuyến đi.</p>
+                        <div class="feature-card bg-white p-4 rounded-4 h-100 shadow-lg hover-lift transition-all border border-white border-opacity-20">
+                            <div class="icon-box bg-primary-subtle rounded-4 mb-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 60px; height: 60px;">
+                                <i class="ph-fill ph-shield-check text-primary fs-1"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-3">An Toàn Tuyệt Đối</h5>
+                            <p class="text-muted small mb-0 lh-base">Bảo hiểm du lịch trọn gói cho 100% chuyến đi của khách hàng.</p>
                         </div>
                     </div>
                     <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
-                        <div class="bg-white text-dark p-4 rounded-4 h-100 shadow-lg hover-lift transition-all mt-md-4">
-                            <i class="ph-fill ph-wallet text-primary fs-1 mb-3"></i>
-                            <h5 class="fw-bold mb-2">Giá Tốt Nhất</h5>
-                            <p class="text-muted small mb-0">Cam kết không phát sinh ẩn phí, hoàn tiền nếu tìm được giá tốt hơn.</p>
+                        <div class="feature-card bg-white p-4 rounded-4 h-100 shadow-lg hover-lift transition-all border border-white border-opacity-20">
+                            <div class="icon-box bg-success-subtle rounded-4 mb-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 60px; height: 60px;">
+                                <i class="ph-fill ph-wallet text-success fs-1"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-3">Giá Tốt Nhất</h5>
+                            <p class="text-muted small mb-0 lh-base">Cam kết không phát sinh ẩn phí, hoàn tiền nếu tìm được giá tốt hơn.</p>
                         </div>
                     </div>
                     <div class="col-md-6" data-aos="fade-up" data-aos-delay="300">
-                        <div class="bg-white text-dark p-4 rounded-4 h-100 shadow-lg hover-lift transition-all mt-md-n4">
-                            <i class="ph-fill ph-headset text-primary fs-1 mb-3"></i>
-                            <h5 class="fw-bold mb-2">Hỗ Trợ 24/7</h5>
-                            <p class="text-muted small mb-0">Đội ngũ CSKH chuyên nghiệp luôn sẵn sàng mọi lúc.</p>
+                        <div class="feature-card bg-white p-4 rounded-4 h-100 shadow-lg hover-lift transition-all border border-white border-opacity-20">
+                            <div class="icon-box bg-info-subtle rounded-4 mb-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 60px; height: 60px;">
+                                <i class="ph-fill ph-headset text-info fs-1"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-3">Hỗ Trợ 24/7</h5>
+                            <p class="text-muted small mb-0 lh-base">Đội ngũ CSKH chuyên nghiệp luôn sẵn sàng hỗ trợ mọi lúc mọi nơi.</p>
                         </div>
                     </div>
                     <div class="col-md-6" data-aos="fade-up" data-aos-delay="400">
-                        <div class="bg-white text-dark p-4 rounded-4 h-100 shadow-lg hover-lift transition-all">
-                            <i class="ph-fill ph-star text-primary fs-1 mb-3"></i>
-                            <h5 class="fw-bold mb-2">Chất Lượng Cao</h5>
-                            <p class="text-muted small mb-0">Lưu trú 4-5 sao, dịch vụ ăn uống và di chuyển đẳng cấp.</p>
+                        <div class="feature-card bg-white p-4 rounded-4 h-100 shadow-lg hover-lift transition-all border border-white border-opacity-20">
+                            <div class="icon-box bg-warning-subtle rounded-4 mb-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 60px; height: 60px;">
+                                <i class="ph-fill ph-star text-warning fs-1"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-3">Chất Lượng Cao</h5>
+                            <p class="text-muted small mb-0 lh-base">Lưu trú 4-5 sao, dịch vụ ăn uống và di chuyển sang trọng nhất.</p>
                         </div>
                     </div>
                 </div>
@@ -229,7 +335,62 @@
     </div>
 </section>
 
-<!-- 5. Testimonials (Swiper Carousel) -->
+<!-- 5. Latest Blogs Section -->
+<section class="py-5 py-lg-6">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div data-aos="fade-right">
+                <h6 class="text-primary fw-bold text-uppercase tracking-tight">Blog & Tin Tức</h6>
+                <h2 class="display-6 fw-bold text-dark mb-0">Bài Viết Mới Nhất</h2>
+            </div>
+            <div data-aos="fade-left">
+                <a href="<?= BASE_URL ?>?action=blogs" class="btn btn-link text-decoration-none fw-bold text-primary p-0 d-flex align-items-center gap-2">
+                    Xem Tất Cả <i class="ph-bold ph-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <?php if (!empty($latestBlogs)): ?>
+                <?php foreach ($latestBlogs as $index => $blog): ?>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="<?= $index * 100 ?>">
+                    <article class="card h-100 border-0 shadow-sm overflow-hidden tour-card-hover rounded-4">
+                        <a href="<?= BASE_URL ?>?action=blog-detail&slug=<?= $blog['slug'] ?>" class="text-decoration-none">
+                            <div class="position-relative overflow-hidden" style="height: 220px;">
+                                <img src="<?= htmlspecialchars($blog['thumbnail'] ?? 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80') ?>" 
+                                     class="w-100 h-100 object-fit-cover transition-all blog-card-img" 
+                                     alt="<?= htmlspecialchars($blog['title']) ?>">
+                                <div class="position-absolute top-0 start-0 m-3">
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-medium shadow-sm" style="font-size: 0.75rem;">Kiến thức</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
+                                    <i class="ph ph-calendar"></i> <?= !empty($blog['published_at']) ? date('d/m/Y', strtotime($blog['published_at'])) : date('d/m/Y') ?>
+                                    <span class="mx-1 opacity-50">•</span>
+                                    <i class="ph ph-user"></i> Admin
+                                </div>
+                                <h5 class="fw-bold text-dark mb-3 line-clamp-2" style="min-height: 52px; line-height: 1.4; transition: var(--transition-base);">
+                                    <?= htmlspecialchars($blog['title']) ?>
+                                </h5>
+                                <p class="text-muted small mb-0 line-clamp-2 opacity-75">
+                                    <?= htmlspecialchars($blog['short_description'] ?? '') ?>
+                                </p>
+                            </div>
+                        </a>
+                    </article>
+                </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center py-5 bg-light rounded-4">
+                    <p class="text-muted mb-0">Hiện chưa có bài viết nào được đăng tải.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<!-- 6. Testimonials (Swiper Carousel) -->
 <section class="py-5 py-lg-6 bg-light">
     <div class="container py-4">
         <div class="text-center mb-5" data-aos="fade-up">
@@ -332,8 +493,77 @@
     .tour-card:hover img {
         transform: scale(1.1);
     }
+
+    /* Upcoming Tours Section Styles */
+    .hover-reveal .img-overlay-dark {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(2px);
+    }
+    .hover-reveal:hover .img-overlay-dark {
+        opacity: 1 !important;
+    }
+    .hover-reveal:hover img {
+        transform: scale(1.08);
+    }
+    .hover-reveal:hover {
+        border-color: var(--primary-color) !important;
+    }
+    .bg-light-subtle {
+        background-color: #f8fafc;
+    }
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
     .hover-text-primary:hover {
         color: var(--primary-color) !important;
+    }
+
+    /* Custom Dropdown Styling */
+    .dropdown-menu-custom {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: white;
+        z-index: 1000;
+        display: none;
+        margin-top: 15px;
+        transform: translateY(10px);
+        transition: all 0.2s ease;
+        opacity: 0;
+        visibility: hidden;
+    }
+    .custom-dropdown.active .dropdown-menu-custom {
+        display: block;
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    .dropdown-item-custom {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+        color: #4b5563;
+    }
+    .dropdown-item-custom:hover {
+        background-color: #f3f4f6;
+        color: #008C72;
+        padding-left: 20px !important;
+    }
+    .dropdown-item-custom.selected {
+        background-color: #f3f4f6;
+        color: #008C72;
+        font-weight: 600;
+    }
+    .dropdown-trigger i {
+        transition: transform 0.2s ease;
+    }
+    .custom-dropdown.active .dropdown-trigger i {
+        transform: rotate(180deg);
     }
 </style>
 
@@ -388,6 +618,47 @@
                     slidesPerView: 3,
                 },
             }
+        });
+
+        // Custom Dropdown Logic
+        const dropdowns = document.querySelectorAll('.custom-dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            const trigger = dropdown.querySelector('.dropdown-trigger');
+            const menu = dropdown.querySelector('.dropdown-menu-custom');
+            const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+            const items = dropdown.querySelectorAll('.dropdown-item-custom');
+            const currentValueText = dropdown.querySelector('.current-value');
+            
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                // Close other dropdowns
+                dropdowns.forEach(d => {
+                    if (d !== dropdown) d.classList.remove('active');
+                });
+                dropdown.classList.toggle('active');
+            });
+            
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    const val = this.dataset.value;
+                    const text = this.innerText;
+                    
+                    hiddenInput.value = val;
+                    currentValueText.innerText = text;
+                    
+                    // Update classes
+                    items.forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    dropdown.classList.remove('active');
+                });
+            });
+        });
+        
+        // Click outside to close
+        document.addEventListener('click', function() {
+            dropdowns.forEach(d => d.classList.remove('active'));
         });
     });
 </script>

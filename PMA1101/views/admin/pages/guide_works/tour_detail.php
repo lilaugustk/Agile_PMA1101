@@ -140,13 +140,7 @@ $statusColors = [
                             <div class="fw-bold text-dark"><?= htmlspecialchars(is_array($tour) ? ($tour['category_name'] ?? 'N/A') : 'N/A') ?></div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-light rounded p-2 text-primary"><i class="ph ph-buildings"></i></div>
-                        <div>
-                            <div class="text-muted small fw-medium">Nhà cung cấp</div>
-                            <div class="fw-bold text-dark"><?= htmlspecialchars(is_array($tour) ? ($tour['supplier_name'] ?? 'N/A') : 'N/A') ?></div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
             <div class="col-md-6 ps-md-4">
@@ -182,22 +176,13 @@ $statusColors = [
                         <div class="fw-bold text-dark"><?= htmlspecialchars(is_array($assignment) ? ($assignment['driver_name'] ?? 'Chưa phân công') : 'Chưa phân công') ?></div>
                     </div>
                 </div>
-              <?php else: ?>
-                <div class="alert bg-warning-subtle text-warning border-0 d-flex align-items-center gap-3 p-3 mb-0" style="border-radius: 12px;">
-                  <i class="ph-fill ph-warning-circle fs-3"></i>
-                  <div class="small fw-medium">Chưa có phân công Guide cho tour này.</div>
-                </div>
               <?php endif; ?>
             </div>
           </div>
-          <?php if (!empty($tour['description'])): ?>
-            <div class="mt-4 pt-4 border-top">
-              <h6 class="fw-bold text-dark pb-2"><i class="ph ph-article me-2"></i>Mô tả chi tiết</h6>
-              <p class="text-muted mb-0 small lh-lg"><?= nl2br(htmlspecialchars($tour['description'])) ?></p>
-            </div>
-          <?php endif; ?>
         </div>
       </div>
+
+
 
       <!-- Customer List with Check-in -->
       <?php if (!empty($allCustomers)): ?>

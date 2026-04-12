@@ -28,43 +28,12 @@
     <div class="row">
         <!-- Left Content -->
         <div class="col-lg-8">
-            <!-- Overview Cards -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="info-card-box text-center h-100 hover-lift">
-                        <div class="info-card-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h6 class="text-uppercase text-muted small fw-bold">Thời gian</h6>
-                        <p class="h5 mb-0 fw-bold"><?= htmlspecialchars($tour['duration_days'] ?? 'N/A') ?> Ngày</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="info-card-box text-center h-100 hover-lift">
-                        <div class="info-card-icon">
-                            <i class="fas fa-user-friends"></i>
-                        </div>
-                        <h6 class="text-uppercase text-muted small fw-bold">Quy mô</h6>
-                        <p class="h5 mb-0 fw-bold"><?= htmlspecialchars($tour['max_participants'] ?? 'N/A') ?> chỗ</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="info-card-box text-center h-100 hover-lift">
-                        <div class="info-card-icon">
-                            <i class="fas fa-plane-departure"></i>
-                        </div>
-                        <h6 class="text-uppercase text-muted small fw-bold">Khởi hành</h6>
-                        <p class="h5 mb-0 fw-bold">Hàng tuần</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Description -->
             <section class="mb-5">
                 <h3 class="mb-4 text-primary">Giới thiệu tour</h3>
                 <div class="bg-white p-4 rounded shadow-soft">
                     <div class="tour-description text-justify">
-                        <?= nl2br($tour['description']) ?>
+                        <?= nl2br((string)($tour['description'] ?? '')) ?>
                     </div>
                 </div>
             </section>
@@ -139,6 +108,47 @@
                 }
                 .accordion-button::after {
                     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230d6efd'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+                }
+
+                /* Capacity Styling */
+                .day-cell.is-full {
+                    background-color: #f1f5f9 !important;
+                    color: #94a3b8 !important;
+                    cursor: not-allowed !important;
+                    pointer-events: none;
+                    opacity: 0.8;
+                }
+                .day-cell.is-full::after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    width: 100%;
+                    height: 1px;
+                    background: #cbd5e1;
+                    transform: rotate(-15deg);
+                }
+                .full-label {
+                    font-size: 10px;
+                    color: #ef4444;
+                    font-weight: bold;
+                    margin-top: 2px;
+                    text-transform: uppercase;
+                }
+                .hot-label {
+                    font-size: 9px;
+                    background: #fee2e2;
+                    color: #dc2626;
+                    padding: 1px 4px;
+                    border-radius: 4px;
+                    font-weight: 600;
+                    margin-top: 2px;
+                    border: 1px solid #fecaca;
+                }
+                .day-cell.disabled-too-soon {
+                    cursor: not-allowed;
+                    opacity: 0.6;
+                    background: #f8fafc;
                 }
             </style>
             <?php endif; ?>
@@ -351,6 +361,12 @@
 
                         const departure = departures.find(d => d.date === currentDateStr);
                         if (departure) {
+                            // Check capacity
+                            const maxSeats = parseInt(departure.max_seats) || 0;
+                            const bookedSeats = parseInt(departure.booked_seats) || 0;
+                            const availableSeats = maxSeats - bookedSeats;
+                            const isFull = availableSeats <= 0;
+
                             // Check 7-day restriction
                             const depDate = new Date(departure.date);
                             depDate.setHours(0,0,0,0);
@@ -364,7 +380,14 @@
                             priceDiv.innerText = formatCompactPrice(departure.price);
                             div.appendChild(priceDiv);
 
-                            if (depDate < minDate) {
+                            if (isFull) {
+                                div.classList.add('has-departure', 'is-full');
+                                div.title = "Đã hết chỗ";
+                                const fullLabel = document.createElement('div');
+                                fullLabel.className = 'full-label';
+                                fullLabel.innerText = 'Hết chỗ';
+                                div.appendChild(fullLabel);
+                            } else if (depDate < minDate) {
                                 div.classList.add('has-departure', 'disabled-too-soon');
                                 div.title = "Đã quá hạn đăng ký (Yêu cầu đặt trước 7 ngày)";
                             } else {
@@ -376,6 +399,13 @@
                                 const selectedId = document.getElementById('departureSelect').value;
                                 if (selectedId == departure.id) {
                                     div.classList.add('selected');
+                                }
+
+                                if (availableSeats <= 5) {
+                                    const hotLabel = document.createElement('div');
+                                    hotLabel.className = 'hot-label';
+                                    hotLabel.innerText = `Còn ${availableSeats} chỗ`;
+                                    div.appendChild(hotLabel);
                                 }
                             }
                         } else {
@@ -397,9 +427,20 @@
                     const fullPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(departure.price);
                     document.getElementById('selectedDateDisplay').innerText = `Bạn chọn ngày: ${formattedDate} - Giá: ${fullPrice}`;
 
+                    // Sidebar remaining seats display
                     const sidebarSelectedDate = document.getElementById('sidebarSelectedDate');
                     const sidebarDateText = document.getElementById('sidebarDateText');
-                    sidebarDateText.innerText = `Ngày: ${formattedDate} - Giá: ${fullPrice}`;
+                    const maxSeats = parseInt(departure.max_seats) || 0;
+                    const bookedSeats = parseInt(departure.booked_seats) || 0;
+                    const availableSeats = maxSeats - bookedSeats;
+
+                    sidebarDateText.innerHTML = `
+                        <div class="fw-bold fs-6">Ngày: ${formattedDate}</div>
+                        <div class="text-primary fw-bold">Giá: ${fullPrice}</div>
+                        <div class="mt-1 small ${availableSeats <= 5 ? 'text-danger fw-bold' : 'text-muted'}">
+                            <i class="fas fa-user-friends me-1"></i> Còn trống ${availableSeats} chỗ
+                        </div>
+                    `;
                     sidebarSelectedDate.classList.remove('d-none');
                 }
 
@@ -440,93 +481,95 @@
 
         <!-- Right Stick Sidebar -->
         <div class="col-lg-4">
-            <div class="booking-card card shadow-lg sticky-top" style="top: 20px; z-index: 100;">
-                <div class="card-header text-center">
-                    <p class="text-muted mb-1 text-uppercase small ls-1">Giá trọn gói chỉ từ</p>
-                    <div class="booking-price">
-                        <?= number_format($tour['base_price'], 0, ',', '.') ?> <span class="fs-5 text-dark">đ</span>
+            <div class="sticky-top" style="top: 100px; z-index: 10;">
+                <div class="booking-card card shadow-lg mb-4">
+                    <div class="card-header text-center bg-white border-bottom py-3">
+                        <p class="text-muted mb-1 text-uppercase small ls-1">Giá trọn gói chỉ từ</p>
+                        <div class="booking-price">
+                            <?= number_format($tour['base_price'], 0, ',', '.') ?> <span class="fs-5 text-dark">đ</span>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body p-4 booking-form">
-                    <div class="mb-4 text-center">
-                         <p class="text-muted small"><i class="far fa-calendar-alt me-1"></i> Kiểm tra lịch khởi hành bên dưới</p>
-                         <button class="btn btn-outline-primary btn-sm w-100" onclick="document.getElementById('tour-calendar-section').scrollIntoView({behavior: 'smooth'})">
-                            Xem lịch & chọn ngày
-                         </button>
-                    </div>
-                    
-                     <!-- Hidden input for selected departure (synced with calendar) -->
-                     <input type="hidden" id="departureSelect" value="">
-                     <div id="sidebarSelectedDate" class="alert alert-success p-2 small mb-3 d-none">
-                        <i class="fas fa-check-circle me-1"></i> <span id="sidebarDateText"></span>
-                     </div>
+                    <div class="card-body p-4 booking-form">
+                        <div class="mb-4 text-center">
+                            <p class="text-muted small"><i class="far fa-calendar-alt me-1"></i> Kiểm tra lịch khởi hành bên dưới</p>
+                            <button class="btn btn-outline-primary btn-sm w-100" onclick="document.getElementById('tour-calendar-section').scrollIntoView({behavior: 'smooth'})">
+                                Xem lịch & chọn ngày
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden input for selected departure (synced with calendar) -->
+                        <input type="hidden" id="departureSelect" value="">
+                        <div id="sidebarSelectedDate" class="alert alert-success p-2 small mb-3 d-none">
+                            <i class="fas fa-check-circle me-1"></i> <span id="sidebarDateText"></span>
+                        </div>
 
-                    <div class="d-grid gap-3">
-                        <button class="btn btn-book-now text-white btn-lg shadow-sm" type="button" onclick="bookNow()">
-                            <i class="fas fa-paper-plane me-2"></i> Đặt Tour Ngay
-                        </button>
-                        <button class="btn btn-outline-primary btn-lg" type="button">
-                            <i class="fas fa-headset me-2"></i> Tư vấn miễn phí
-                        </button>
-                    </div>
+                        <div class="d-grid gap-3">
+                            <button class="btn btn-book-now text-white btn-lg shadow-sm" type="button" onclick="bookNow()">
+                                <i class="fas fa-paper-plane me-2"></i> Đặt Tour Ngay
+                            </button>
+                            <button class="btn btn-outline-primary btn-lg" type="button">
+                                <i class="fas fa-headset me-2"></i> Tư vấn miễn phí
+                            </button>
+                        </div>
 
-                    <hr class="my-4 opacity-10">
+                        <hr class="my-4 opacity-10">
 
-                    <div class="d-flex align-items-center bg-light p-3 rounded">
-                        <div class="flex-shrink-0">
-                            <div class="bg-white p-2 rounded-circle shadow-sm text-primary">
-                                <i class="fas fa-building fa-lg"></i>
+                        <div class="d-flex align-items-center bg-light p-3 rounded">
+                            <div class="flex-shrink-0">
+                                <div class="bg-white p-2 rounded-circle shadow-sm text-primary">
+                                    <i class="fas fa-building fa-lg"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <p class="mb-0 text-muted small text-uppercase fw-bold">Đơn vị tổ chức</p>
+                                <span class="fw-bold text-dark"><?= htmlspecialchars($tour['supplier_name'] ?? 'VietTravel') ?></span>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="mb-0 text-muted small text-uppercase fw-bold">Đơn vị tổ chức</p>
-                            <span class="fw-bold text-dark"><?= htmlspecialchars($tour['supplier_name'] ?? 'VietTravel') ?></span>
+                        <div class="mt-4 pt-3 border-top text-center">
+                            <p class="text-muted small mb-2"><i class="fas fa-lock me-1"></i> Cam kết bảo mật thông tin</p>
+                            <p class="text-muted fs-7 mb-0">Hỗ trợ 24/7: <a href="tel:19008888" class="text-primary text-decoration-none fw-bold">1900 8888</a></p>
                         </div>
                     </div>
-                        <div class="mt-4 pt-3 border-top text-center">
-                        <p class="text-muted small mb-2"><i class="fas fa-lock me-1"></i> Cam kết bảo mật thông tin</p>
-                        <p class="text-muted fs-7 mb-0">Hỗ trợ 24/7: <a href="tel:19008888" class="text-primary text-decoration-none fw-bold">1900 8888</a></p>
+                </div>
+
+                <!-- Share & QR Code Card -->
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden share-card">
+                    <div class="card-body p-4 text-center">
+                        <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-share-alt me-2 text-primary"></i>Chia sẻ Tour này</h6>
+                        <div id="tour-qr-code" class="d-flex justify-content-center mb-3 p-2 bg-light rounded-3" style="min-height: 140px;">
+                            <!-- QR Code will be rendered here -->
+                        </div>
+                        <p class="small text-muted mb-3">Quét mã QR để xem trên điện thoại hoặc chia sẻ nhanh cho bạn bè</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="copyTourUrl()">
+                                <i class="fas fa-link me-1"></i> Sao chép liên kết
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Share & QR Code Card (Phase 7) -->
-            <div class="card shadow-sm border-0 mt-4 rounded-4 overflow-hidden">
-                <div class="card-body p-4 text-center">
-                    <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-share-alt me-2 text-primary"></i>Chia sẻ Tour này</h6>
-                    <div id="tour-qr-code" class="d-flex justify-content-center mb-3 p-2 bg-light rounded-3" style="min-height: 140px;">
-                        <!-- QR Code will be rendered here -->
-                    </div>
-                    <p class="small text-muted mb-3">Quét mã QR để xem trên điện thoại hoặc chia sẻ nhanh cho bạn bè</p>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="copyTourUrl()">
-                            <i class="fas fa-link me-1"></i> Sao chép liên kết
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    new QRCode(document.getElementById("tour-qr-code"), {
-                        text: window.location.href,
-                        width: 140,
-                        height: 140,
-                        colorDark : "#1e293b",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        new QRCode(document.getElementById("tour-qr-code"), {
+                            text: window.location.href,
+                            width: 140,
+                            height: 140,
+                            colorDark : "#1e293b",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.H
+                        });
                     });
-                });
 
-                function copyTourUrl() {
-                    navigator.clipboard.writeText(window.location.href).then(function() {
-                        alert('Đã sao chép liên kết tour!');
-                    }, function(err) {
-                        console.error('Không thể sao chép: ', err);
-                    });
-                }
-            </script>
+                    function copyTourUrl() {
+                        navigator.clipboard.writeText(window.location.href).then(function() {
+                            alert('Đã sao chép liên kết tour!');
+                        }, function(err) {
+                            console.error('Không thể sao chép: ', err);
+                        });
+                    }
+                </script>
+            </div>
         </div>
     </div>
 </div>

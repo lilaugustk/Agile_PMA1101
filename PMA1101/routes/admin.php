@@ -5,11 +5,8 @@
 require_once 'controller/admin/AuthorController.php';
 require_once 'controller/admin/DashboardController.php';
 require_once 'controller/admin/TourController.php';
-require_once 'controller/admin/TourVersionController.php';
 require_once 'controller/admin/BookingController.php';
 require_once 'controller/admin/GuideController.php';
-require_once 'controller/admin/SupplierController.php';
-require_once 'controller/admin/BusCompanyController.php';
 require_once 'controller/admin/ReportController.php';
 require_once 'controller/admin/PolicyController.php';
 require_once 'controller/admin/TourCategoryController.php';
@@ -56,6 +53,7 @@ match ($action) {
     'tours/by-status'                       => (new TourController)->getByStatus(),
     'tours/add-departure'                   => (new TourController)->addDeparture(),
     'tours/departures'                       => (new TourController)->listDepartures(),
+    'tours/sync-departures'                 => (new TourController)->syncDepartures(),
     'tours/departure-resources'             => (new TourController)->manageDepartureResources(),
     'tours/save-departure-resources'         => (new TourController)->saveDepartureResources(),
 
@@ -67,15 +65,6 @@ match ($action) {
     'tours_categories/update'               => (new TourCategoryController)->update(),
     'tours_categories/delete'               => (new TourCategoryController)->delete(),
 
-    // Tour Versions
-    'tours_versions'                        => (new TourVersionController)->index(),
-    'tours_versions/create'                 => (new TourVersionController)->create(),
-    'tours_versions/store'                  => (new TourVersionController)->store(),
-    'tours_versions/edit'                   => (new TourVersionController)->edit(),
-    'tours_versions/update'                 => (new TourVersionController)->update(),
-    'tours_versions/delete'                 => (new TourVersionController)->delete(),
-    'tours_versions/toggle-status'          => (new TourVersionController)->toggleStatus(),
-    'tours_versions/tour_mapping'           => (new TourVersionController)->tourMapping(),
 
 
     'tours/itineraries'                     => (new ItineraryController)->index(),
@@ -154,14 +143,6 @@ match ($action) {
     'guides/accept-booking'                 => (new TourAssignmentController)->acceptBooking(), // AJAX
     'guides/remove-assignment'              => (new TourAssignmentController)->removeAssignmentByAdmin(), // AJAX
 
-    // Bus Companies (Nhà xe)
-    'bus-companies'                         => (new BusCompanyController)->index(),
-    'bus-companies/create'                  => (new BusCompanyController)->create(),
-    'bus-companies/store'                   => (new BusCompanyController)->store(),
-    'bus-companies/edit'                    => (new BusCompanyController)->edit(),
-    'bus-companies/update'                  => (new BusCompanyController)->update(),
-    'bus-companies/delete'                  => (new BusCompanyController)->delete(),
-    'bus-companies/detail'                  => (new BusCompanyController)->detail(),
 
     // Users
     'users'                                 => (new UserController)->index(),
@@ -202,14 +183,6 @@ match ($action) {
     'policies/update'             => (new PolicyController)->update(),
     'policies/delete'             => (new PolicyController)->delete(),
 
-    // Nhà cung cấp
-    'suppliers'             => (new SupplierController)->index(),
-    'suppliers/create'             => (new SupplierController)->create(),
-    'suppliers/store'             => (new SupplierController)->store(),
-    'suppliers/edit'             => (new SupplierController)->edit(),
-    'suppliers/update'             => (new SupplierController)->update(),
-    'suppliers/delete'             => (new SupplierController)->delete(),
-    'suppliers/detail'             => (new SupplierController)->detail(),
 
     // Quản lý xe
     'tour_vehicles'             => (new TourVehicleController)->index(),
@@ -218,5 +191,4 @@ match ($action) {
     'tour_vehicles/edit'        => (new TourVehicleController)->edit(),
     'tour_vehicles/update'      => (new TourVehicleController)->update(),
     'tour_vehicles/delete'      => (new TourVehicleController)->delete(),
-    'tour_vehicles/get-history' => (new TourVehicleController)->getHistoryByCompany(), // AJAX route
 };

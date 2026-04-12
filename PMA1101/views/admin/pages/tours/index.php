@@ -351,29 +351,26 @@ if (!isset($isAjax)) {
                                     </div>
                                     
                                     <!-- Actions & Toggles Bar -->
-                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3 p-2 bg-light rounded" style="font-size: 0.85rem;">
-                                        <!-- Toggles -->
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="form-check form-switch mb-0">
-                                                <input class="form-check-input toggle-status" type="checkbox" role="switch" data-id="<?= $tour['id'] ?>" <?= ($tour['status'] ?? 'active') === 'active' ? 'checked' : '' ?>>
-                                                <label class="form-check-label text-muted toggle-label">
-                                                    <span class="toggle-text d-none"><?= ($tour['status'] ?? 'active') === 'active' ? 'Hoạt động' : 'Tạm ẩn' ?></span>
-                                                    Trạng thái
-                                                </label>
+                                    <div class="mt-3 p-2 bg-light rounded-4 border border-light-subtle" style="font-size: 0.82rem;">
+                                        <!-- Toggles Row -->
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div class="form-check form-switch mb-0 d-flex align-items-center gap-2">
+                                                <input class="form-check-input mt-0 toggle-status" type="checkbox" role="switch" data-id="<?= $tour['id'] ?>" <?= ($tour['status'] ?? 'active') === 'active' ? 'checked' : '' ?> style="width: 28px; height: 16px; cursor: pointer;">
+                                                <label class="form-check-label text-muted small fw-semibold">Hoạt động</label>
                                             </div>
-                                            <div class="form-check mb-0 ms-2">
-                                                <input class="form-check-input toggle-featured" type="checkbox" data-id="<?= $tour['id'] ?>" <?= ($tour['featured'] ?? 0) ? 'checked' : '' ?>>
-                                                <label class="form-check-label text-warning"><i class="ph-fill ph-star"></i> Nổi Bật</label>
+                                            <div class="form-check mb-0 d-flex align-items-center gap-1">
+                                                <input class="form-check-input mt-0 toggle-featured" type="checkbox" data-id="<?= $tour['id'] ?>" <?= ($tour['featured'] ?? 0) ? 'checked' : '' ?> style="cursor: pointer;">
+                                                <label class="form-check-label text-warning small fw-bold"><i class="ph-fill ph-star"></i></label>
                                             </div>
                                         </div>
                                         
-                                        <!-- Actions -->
-                                        <div class="d-flex justify-content-end gap-1">
-                                            <a href="<?= BASE_URL_ADMIN . '&action=tours/detail&id=' . $tour['id'] ?>" class="btn btn-sm bg-white text-primary border shadow-sm" title="Chi tiết"><i class="ph ph-eye"></i></a>
-                                            <a href="<?= BASE_URL_ADMIN . '&action=tours/edit&id=' . $tour['id'] ?>" class="btn btn-sm bg-white text-muted border shadow-sm" title="Sửa"><i class="ph ph-pencil-simple"></i></a>
-                                            <a href="<?= BASE_URL_ADMIN . '&action=tours/clone&id=' . $tour['id'] ?>" class="btn btn-sm bg-white text-success border shadow-sm" title="Nhân bản" onclick="return confirm('Bạn có chắc chắn muốn nhân bản tour này?')"><i class="ph ph-copy"></i></a>
-                                            <button type="button" class="btn btn-sm bg-white text-info border shadow-sm btn-qr" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>" title="Lấy Link & QR"><i class="ph ph-qr-code"></i></button>
-                                            <button type="button" class="btn btn-sm bg-white text-danger border shadow-sm delete-tour" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>" title="Xóa vào thùng rác"><i class="ph ph-trash"></i></button>
+                                        <!-- Actions Row -->
+                                        <div class="d-flex justify-content-center gap-1 pt-2 border-top border-white">
+                                            <a href="<?= BASE_URL_ADMIN . '&action=tours/detail&id=' . $tour['id'] ?>" class="btn btn-icon-only shadow-sm border-0 bg-white text-primary" title="Chi tiết"><i class="ph ph-eye"></i></a>
+                                            <a href="<?= BASE_URL_ADMIN . '&action=tours/edit&id=' . $tour['id'] ?>" class="btn btn-icon-only shadow-sm border-0 bg-white text-dark" title="Sửa"><i class="ph ph-pencil-simple"></i></a>
+                                            <a href="<?= BASE_URL_ADMIN . '&action=tours/clone&id=' . $tour['id'] ?>" class="btn btn-icon-only shadow-sm border-0 bg-white text-success" title="Nhân bản" onclick="return confirm('Bạn có chắc chắn muốn nhân bản tour này?')"><i class="ph ph-copy"></i></a>
+                                            <button type="button" class="btn btn-icon-only shadow-sm border-0 bg-white text-info btn-qr" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>" title="Lấy Link & QR"><i class="ph ph-qr-code"></i></button>
+                                            <button type="button" class="btn btn-icon-only shadow-sm border-0 bg-white text-danger delete-tour" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>" title="Xóa vào thùng rác"><i class="ph ph-trash"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -491,6 +488,20 @@ if (!isset($isAjax)) {
 }
 .tours-grid.list-view .tour-card-modern .card > .card-media-wrapper img.main-img {
     height: 100%;
+}
+.btn-icon-only {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+}
+.btn-icon-only:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    filter: brightness(0.95);
 }
 </style>
 
@@ -686,6 +697,51 @@ if (!isset($isAjax)) {
 </main>
 <?php endif; ?>
 
+    <!-- QR Modal -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: var(--radius-xl);">
+                <div class="modal-header border-0 pb-0 shadow-none bg-transparent">
+                    <h5 class="modal-title fw-bold" id="qr-tour-name">Mã QR Tour</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center pt-4">
+                    <div id="qrcode" class="d-inline-block p-3 bg-white shadow-sm border rounded-4 mb-4"></div>
+                    
+                    <div class="input-group mb-3 border rounded-3 overflow-hidden shadow-sm">
+                        <span class="input-group-text border-0 bg-light"><i class="ph ph-link"></i></span>
+                        <input type="text" id="tour-link" class="form-control border-0" readonly>
+                        <button class="btn btn-primary border-0" type="button" onclick="copyTourLink()">
+                            <i class="ph ph-copy"></i>
+                        </button>
+                    </div>
+                    <p class="text-muted small mb-0"><i class="ph ph-info me-1"></i> Quét mã hoặc copy link để chia sẻ tour này</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pb-4">
+                    <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal" style="border-radius: 10px;">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function copyTourLink() {
+        const linkInput = document.getElementById('tour-link');
+        linkInput.select();
+        document.execCommand('copy');
+        
+        const btn = event.currentTarget;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="ph ph-check text-white"></i>';
+        btn.classList.replace('btn-primary', 'btn-success');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+            btn.classList.replace('btn-success', 'btn-primary');
+        }, 2000);
+    }
+    </script>
+
 <?php if (isset($isAjax)) exit; ?>
 <script>
 // AJAX Search Implementation
@@ -826,12 +882,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function handleQRClick() {
             const tourId = this.dataset.id;
-            const publicUrl = `<?= BASE_URL ?>?action=tour-detail&id=${tourId}`;
+            // Public URL simulation - should point to client tour detail
+            const publicUrl = `<?= BASE_URL ?>index.php?action=tour-detail&id=${tourId}`;
             document.getElementById('qr-tour-name').textContent = this.dataset.name;
             document.getElementById('tour-link').value = publicUrl;
+            
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = '';
-            new QRCode(qrContainer, { text: publicUrl, width: 180, height: 180 });
+            
+            try {
+                // Use QRCode library from footer
+                new QRCode(qrContainer, {
+                    text: publicUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } catch (e) {
+                // Fallback to Google Charts API if library fails
+                qrContainer.innerHTML = `<img src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(publicUrl)}&choe=UTF-8" />`;
+            }
+            
             new bootstrap.Modal(document.getElementById('qrModal')).show();
         }
     }
