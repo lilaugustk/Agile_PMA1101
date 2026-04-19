@@ -1,6 +1,7 @@
 <?php
 require_once 'models/User.php';
 require_once 'models/Booking.php';
+require_once 'models/CustomerProfileModel.php';
 
 class ClientAccountController
 {
@@ -15,8 +16,12 @@ class ClientAccountController
 
     public function profile()
     {
+        $userId = $_SESSION['user']['user_id'];
         $userModel = new User();
-        $user = $userModel->getById($_SESSION['user']['user_id']);
+        $user = $userModel->getById($userId);
+        
+        $profileModel = new CustomerProfileModel();
+        $profile = $profileModel->getByUserId($userId);
         
         $error = $_SESSION['error'] ?? null;
         $success = $_SESSION['success'] ?? null;
@@ -58,13 +63,27 @@ class ClientAccountController
             $data['password'] = $_POST['password'];
         }
 
-        if ($userModel->updateUser($userId, $data)) {
+        $resUser = $userModel->updateUser($userId, $data);
+
+        // Update detailed profile
+        $profileModel = new CustomerProfileModel();
+        $profileData = [
+            'full_name'  => $fullName,
+            'phone'      => $phone,
+            'gender'     => $_POST['gender'] ?? null,
+            'birth_date' => $_POST['birth_date'] ?? null,
+            'id_card'    => $_POST['id_card'] ?? null,
+            'address'    => $_POST['address'] ?? null,
+        ];
+        $resProfile = $profileModel->upsertProfile($userId, $profileData);
+
+        if ($resUser || $resProfile) {
             // Update session
             $_SESSION['user']['full_name'] = $fullName;
             $_SESSION['user']['phone'] = $phone;
             $_SESSION['success'] = 'Cập nhật thông tin thành công!';
         } else {
-            $_SESSION['error'] = 'Cập nhật thất bại, vui lòng thử lại sau.';
+            $_SESSION['error'] = 'Cập nhật thất bại hoặc không có thay đổi nào.';
         }
 
         header('Location: ' . BASE_URL . '?action=profile');
@@ -76,6 +95,13 @@ class ClientAccountController
         $bookingModel = new Booking();
         $userId = $_SESSION['user']['user_id'];
         $bookings = $bookingModel->getByCustomerId($userId);
+
+        // Ưu tiên hiển thị đơn có ngày đặt gần nhất trước.
+        usort($bookings, function ($a, $b) {
+            $aTime = strtotime($a['booking_date'] ?? '1970-01-01 00:00:00');
+            $bTime = strtotime($b['booking_date'] ?? '1970-01-01 00:00:00');
+            return $bTime <=> $aTime;
+        });
 
         require_once PATH_VIEW_CLIENT . 'account/bookings.php';
     }

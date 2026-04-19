@@ -9,7 +9,8 @@ $filters = $data['filters'] ?? [];
 $filterOptions = $data['filterOptions'] ?? [];
 ?>
 
-<main class="content">
+<main class="dashboard">
+    <div class="dashboard-container">
     <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
         <div>
             <nav aria-label="breadcrumb">
@@ -32,46 +33,49 @@ $filterOptions = $data['filterOptions'] ?? [];
 
     <!-- Filter Section -->
     <div class="card card-premium border-0 shadow-sm mb-4">
-        <div class="card-body py-3">
+        <div class="card-body p-3">
             <form action="" method="GET" class="row g-3 align-items-end">
                 <input type="hidden" name="mode" value="admin">
                 <input type="hidden" name="action" value="reports/financial">
                 
-                <div class="col-12 col-md-3">
-                    <label class="form-label mb-1 text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase;">Từ ngày</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white border-end-0"><i class="ph ph-calendar text-muted"></i></span>
-                        <input type="date" name="date_from" class="form-control border-start-0 ps-0" value="<?= $filters['date_from'] ?? date('Y-m-01') ?>">
+                <div class="col-12 col-md-3 col-xl-2">
+                    <label class="form-label mb-1 text-muted fw-bold" style="font-size: 0.7rem; text-transform: uppercase;">Từ ngày</label>
+                    <div class="input-group input-group-sm shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="ph ph-calendar"></i></span>
+                        <input type="date" name="date_from" class="form-control border-start-0 ps-0" value="<?= $filters['date_from'] ?? date('Y-m-01') ?>" style="border-radius: 0 8px 8px 0;">
                     </div>
                 </div>
 
-                <div class="col-12 col-md-3">
-                    <label class="form-label mb-1 text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase;">Đến ngày</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white border-end-0"><i class="ph ph-calendar text-muted"></i></span>
-                        <input type="date" name="date_to" class="form-control border-start-0 ps-0" value="<?= $filters['date_to'] ?? date('Y-m-d') ?>">
+                <div class="col-12 col-md-3 col-xl-2">
+                    <label class="form-label mb-1 text-muted fw-bold" style="font-size: 0.7rem; text-transform: uppercase;">Đến ngày</label>
+                    <div class="input-group input-group-sm shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="ph ph-calendar"></i></span>
+                        <input type="date" name="date_to" class="form-control border-start-0 ps-0" value="<?= $filters['date_to'] ?? date('Y-m-d') ?>" style="border-radius: 0 8px 8px 0;">
                     </div>
                 </div>
 
-                 <div class="col-12 col-md-4">
-                    <label class="form-label mb-1 text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase;">Tour</label>
-                    <select name="tour_id" class="form-select form-select-sm shadow-none">
-                        <option value="">Tất cả Tour</option>
-                        <?php if (!empty($filterOptions['tours'])): ?>
-                            <?php foreach ($filterOptions['tours'] as $tour): ?>
-                                <option value="<?= $tour['id'] ?>" <?= ($filters['tour_id'] ?? '') == $tour['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($tour['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
+                 <div class="col-12 col-md-4 col-xl-6">
+                    <label class="form-label mb-1 text-muted fw-bold" style="font-size: 0.7rem; text-transform: uppercase;">Phân tích theo Tour</label>
+                    <div class="input-group input-group-sm shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="ph ph-airplane-tilt"></i></span>
+                        <select name="tour_id" class="form-select no-choices border-start-0 ps-0 shadow-none">
+                            <option value="">Tất cả các Tour trong hệ thống</option>
+                            <?php if (!empty($filterOptions['tours'])): ?>
+                                <?php foreach ($filterOptions['tours'] as $tour): ?>
+                                    <option value="<?= $tour['id'] ?>" <?= ($filters['tour_id'] ?? '') == $tour['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($tour['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="col-12 col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary w-100 shadow-sm d-flex align-items-center justify-content-center gap-2">
-                        <i class="ph ph-funnel"></i> Lọc
+                <div class="col-12 col-md-2 col-xl-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary flex-grow-1 shadow-sm d-flex align-items-center justify-content-center gap-2" style="border-radius: 8px; min-height: 38px;">
+                        <i class="ph ph-funnel"></i> Lọc dữ liệu
                     </button>
-                    <button type="button" onclick="resetFilters()" class="btn btn-sm btn-light border shadow-sm px-3">
+                    <button type="button" onclick="resetFilters()" class="btn btn-sm btn-light border shadow-sm px-3 d-flex align-items-center justify-content-center" title="Đặt lại" style="border-radius: 8px; min-height: 38px;">
                         <i class="ph ph-arrow-counter-clockwise"></i>
                     </button>
                 </div>
@@ -136,7 +140,6 @@ $filterOptions = $data['filterOptions'] ?? [];
                     <div class="d-flex align-items-center justify-content-center text-primary border border-primary-subtle rounded-circle" style="width: 32px; height: 32px; background: var(--primary-subtle);">
                         <i class="ph ph-trend-up" style="font-size: 1rem;"></i>
                     </div>
-                    <span class="badge rounded-pill bg-primary-subtle text-primary" style="font-size: 0.7rem;"><?= number_format($financialData['actual_profit_margin'] ?? 0, 1) ?>% Margin</span>
                 </div>
                 <div>
                     <p class="text-muted fw-semibold mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Lợi Nhuận Thực</p>
@@ -194,12 +197,7 @@ $filterOptions = $data['filterOptions'] ?? [];
                         <tr>
                             <th class="border-0 ps-3">#</th>
                             <th class="border-0">Tên Tour</th>
-                            <th class="border-0 text-end">Booking</th>
-                            <th class="border-0 text-end">Doanh Thu</th>
-                            <th class="border-0 text-end">Dự toán (BSA)</th>
-                            <th class="border-0 text-end">Thực tế (Logs)</th>
-                            <th class="border-0 text-end">Chênh lệch</th>
-                            <th class="border-0 text-end pe-3">Lợi Nhuận Thực</th>
+                            <th class="border-0 text-end pe-3">Doanh Thu</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -213,32 +211,12 @@ $filterOptions = $data['filterOptions'] ?? [];
                                         </div>
                                         <div class="text-muted" style="font-size: 0.7rem;"><?= htmlspecialchars($tour['category_name'] ?? 'N/A') ?></div>
                                     </td>
-                                    <td class="text-end fw-medium"><?= number_format($tour['booking_count'] ?? 0) ?></td>
-                                    <td class="text-end fw-bold text-success"><?= number_format($tour['revenue'] ?? 0, 0, ',', '.') ?></td>
-                                    <td class="text-end text-muted"><?= number_format($tour['estimated_expense'] ?? 0, 0, ',', '.') ?></td>
-                                    <td class="text-end text-danger fw-medium"><?= number_format($tour['actual_expense'] ?? 0, 0, ',', '.') ?></td>
-                                    <td class="text-end">
-                                        <?php $variance = $tour['variance'] ?? 0; ?>
-                                        <span class="fw-bold <?= $variance >= 0 ? 'text-success' : 'text-danger' ?>">
-                                            <?= $variance > 0 ? '+' : '' ?><?= number_format($variance, 0, ',', '.') ?>
-                                        </span>
-                                    </td>
-                                    <td class="text-end pe-3">
-                                        <div class="fw-bold <?= ($tour['profit'] ?? 0) >= 0 ? 'text-primary' : 'text-danger' ?>">
-                                            <?= number_format($tour['profit'] ?? 0, 0, ',', '.') ?>
-                                        </div>
-                                        <div style="font-size: 0.7rem;">
-                                            <?php $margin = $tour['profit_margin'] ?? 0; ?>
-                                            <span class="badge <?= $margin >= 20 ? 'text-success' : ($margin >= 10 ? 'text-warning' : 'text-danger') ?> p-0">
-                                                <?= number_format($margin, 1) ?>% Margin
-                                            </span>
-                                        </div>
-                                    </td>
+                                    <td class="text-end pe-3 fw-bold text-success"><?= number_format($tour['revenue'] ?? 0, 0, ',', '.') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" class="text-center py-5">
+                                <td colspan="3" class="text-center py-5">
                                     <div class="text-muted">
                                         <i class="ph ph-folder-open fa-3x mb-3"></i>
                                         <p>Chưa có dữ liệu phù hợp với bộ lọc.</p>
@@ -250,25 +228,15 @@ $filterOptions = $data['filterOptions'] ?? [];
                     <?php if (!empty($tourFinancials)): ?>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="3" class="text-end ps-3">TỔNG CỘNG</td>
-                                <td class="text-end"><?= number_format(array_sum(array_column($tourFinancials, 'booking_count'))) ?></td>
-                                <td class="text-end text-success"><?= number_format(array_sum(array_column($tourFinancials, 'revenue')), 0, ',', '.') ?> ₫</td>
-                                <td class="text-end text-danger"><?= number_format(array_sum(array_column($tourFinancials, 'expense')), 0, ',', '.') ?> ₫</td>
-                                <td class="text-end text-primary"><?= number_format(array_sum(array_column($tourFinancials, 'profit')), 0, ',', '.') ?> ₫</td>
-                                <td class="text-end pe-3">
-                                    <?php
-                                    $totalRevenue = array_sum(array_column($tourFinancials, 'revenue'));
-                                    $totalProfit = array_sum(array_column($tourFinancials, 'profit'));
-                                    $avgMargin = $totalRevenue > 0 ? ($totalProfit / $totalRevenue) * 100 : 0;
-                                    echo number_format($avgMargin, 1) . '%';
-                                    ?>
-                                </td>
+                                <td colspan="2" class="text-end ps-3">TỔNG CỘNG</td>
+                                <td class="text-end pe-3 text-success"><?= number_format(array_sum(array_column($tourFinancials, 'revenue')), 0, ',', '.') ?> ₫</td>
                             </tr>
                         </tfoot>
                     <?php endif; ?>
                 </table>
             </div>
         </div>
+    </div>
     </div>
 </main>
 
@@ -332,7 +300,15 @@ $filterOptions = $data['filterOptions'] ?? [];
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20 } },
+                        legend: { 
+                            position: 'top', 
+                            labels: { 
+                                usePointStyle: true, 
+                                pointStyle: 'circle', 
+                                padding: 25,
+                                font: { size: 11, weight: '600' }
+                            } 
+                        },
                         tooltip: {
                             backgroundColor: '#0f172a',
                             padding: 12,
@@ -382,7 +358,15 @@ $filterOptions = $data['filterOptions'] ?? [];
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 15, font: { size: 10 } } },
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                usePointStyle: true, 
+                                pointStyle: 'circle', 
+                                padding: 20, 
+                                font: { size: 11, weight: '500' } 
+                            } 
+                        },
                         tooltip: {
                             backgroundColor: '#0f172a',
                             padding: 12,

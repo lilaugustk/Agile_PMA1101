@@ -17,7 +17,19 @@ class BookingCustomer extends BaseModel
      */
     public function getByBooking($booking_id)
     {
-        return $this->select('*', 'booking_id = :booking_id', ['booking_id' => $booking_id], 'id ASC');
+        $sql = "SELECT 
+                    bc.*,
+                    COALESCE(u.full_name, bc.full_name) as full_name,
+                    COALESCE(u.email, bc.email) as email,
+                    COALESCE(u.phone, bc.phone) as phone
+                FROM {$this->table} bc
+                LEFT JOIN users u ON bc.user_id = u.user_id
+                WHERE bc.booking_id = :booking_id
+                ORDER BY bc.id ASC";
+        
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute(['booking_id' => $booking_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -45,9 +57,10 @@ class BookingCustomer extends BaseModel
         // Set timezone to Vietnam
         date_default_timezone_set('Asia/Ho_Chi_Minh');
 
+        $checkinTime = ($status === 'checked_in') ? date('Y-m-d H:i:s') : null;
         $data = [
             'checkin_status' => $status,
-            'checkin_time' => date('Y-m-d H:i:s'),
+            'checkin_time' => $checkinTime,
             'checked_by' => $userId
         ];
 
@@ -205,5 +218,26 @@ class BookingCustomer extends BaseModel
     {
         $priceModel = new TourVersionPrice();
         return $priceModel->getPriceByType($tourId, $versionId, $passengerType);
+    }
+
+    /**
+     * Lấy toàn bộ danh sách khách hàng tham gia một đoàn (Departure)
+     * Gom tất cả khách từ các booking của đoàn đó.
+     */
+    public function getCustomersByDeparture($departureId)
+    {
+        $sql = "SELECT bc.*, 
+                       b.id as booking_id,
+                       COALESCE(u_booker.full_name, b.contact_name) as booker_name
+                FROM {$this->table} bc
+                INNER JOIN bookings b ON bc.booking_id = b.id
+                LEFT JOIN users u_booker ON b.customer_id = u_booker.user_id
+                WHERE b.departure_id = :did
+                  AND b.status IN ('cho_xac_nhan', 'da_coc', 'da_thanh_toan', 'hoan_tat')
+                ORDER BY b.id ASC, bc.id ASC";
+
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute(['did' => $departureId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

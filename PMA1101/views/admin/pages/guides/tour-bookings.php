@@ -90,7 +90,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                     <th>Ngày đặt</th>
                                     <th>Số khách</th>
                                     <th>Tổng tiền</th>
-                                    <th>Trạng thái</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
@@ -117,23 +116,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                             <strong class="text-success">
                                                 <?= number_format($booking['final_price'] ?? $booking['total_price'] ?? 0, 0, ',', '.') ?> ₫
                                             </strong>
-                                        </td>
-                                        <td>
-                                            <?php
-                                            $statusText = 'Chờ Xác Nhận';
-                                            $statusClass = 'warning';
-                                            $statusIcon = 'clock';
-
-                                            if ($booking['status'] === 'da_coc') {
-                                                $statusText = 'Đã Cọc';
-                                                $statusClass = 'info';
-                                                $statusIcon = 'money-bill-wave';
-                                            }
-                                            ?>
-                                            <span class="badge bg-<?= $statusClass ?>">
-                                                <i class="fas fa-<?= $statusIcon ?> me-1"></i>
-                                                <?= $statusText ?>
-                                            </span>
                                         </td>
                                         <td>
                                             <button type="button"

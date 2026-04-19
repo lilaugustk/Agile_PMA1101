@@ -82,7 +82,14 @@ class TourCategoryController
         // Get tour counts for each category
         $categoriesWithCounts = [];
         foreach ($categories as $category) {
-            $category['tour_count'] = $this->tourModel->select('COUNT(*) as count', 'category_id = :category_id', ['category_id' => $category['id']])[0]['count'] ?? 0;
+            $tourStats = $this->tourModel->select(
+                'COUNT(*) as count, AVG(base_price) as avg_price',
+                'category_id = :category_id',
+                ['category_id' => $category['id']]
+            )[0] ?? [];
+
+            $category['tour_count'] = (int)($tourStats['count'] ?? 0);
+            $category['avg_price'] = (float)($tourStats['avg_price'] ?? 0);
             $categoriesWithCounts[] = $category;
         }
         $categories = $categoriesWithCounts;

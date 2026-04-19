@@ -573,7 +573,7 @@ class TourController
         $id = $_GET['id'] ?? null;
         if (!$id) {
             header('Location:' . BASE_URL_ADMIN . '&action=tours');
-            return;
+            exit;
         }
 
         try {
@@ -583,18 +583,21 @@ class TourController
             if ($bookingCount > 0) {
                 $_SESSION['error'] = 'Không thể xóa tour này vì đã có ' . $bookingCount . ' booking còn hiệu lực liên quan. Vui lòng hủy các booking trước.';
                 header('Location:' . BASE_URL_ADMIN . '&action=tours');
-                return;
+                exit;
             }
 
             $result = $this->model->softDelete($id);
             if ($result) {
                 $_SESSION['success'] = 'Tour đã được chuyển vào Thùng rác thành công!';
+                header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+                exit;
             } else {
                 throw new Exception('Không thể xóa tour');
             }
         } catch (Exception $e) {
             $_SESSION['error'] = 'Có lỗi xảy ra: ' . $e->getMessage();
             header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+            exit;
         }
     }
 
@@ -612,6 +615,8 @@ class TourController
         try {
             if ($this->model->restore($id)) {
                 $_SESSION['success'] = 'Khôi phục tour thành công!';
+                header('Location: ' . BASE_URL_ADMIN . '&action=tours');
+                exit;
             } else {
                 throw new Exception('Không thể khôi phục tour.');
             }
@@ -1004,6 +1009,47 @@ class TourController
             echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
         }
     }
+
+    public function updateDeparture()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
+
+        $id = $_POST['id'] ?? null;
+        $maxSeats = $_POST['max_seats'] ?? null;
+        $status = $_POST['status'] ?? null;
+
+        if (!$id || !$maxSeats || !$status) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Thiếu thông tin bắt buộc.']);
+            return;
+        }
+
+        try {
+            $departureModel = new class extends BaseModel {
+                protected $table = 'tour_departures';
+            };
+
+            $result = $departureModel->update(['max_seats' => $maxSeats, 'status' => $status], 'id = :id', ['id' => $id]);
+
+            if ($result) {
+                $updatedDep = $departureModel->find('*', 'id = :id', ['id' => $id]);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Cập nhật thành công',
+                    'data' => $updatedDep
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Không thể cập nhật hoặc không có thay đổi.']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
     /**
      * Sao chép Tour (Clone Tour)
      */
@@ -1091,7 +1137,6 @@ class TourController
         $filters = [
             'tour_id'   => $_GET['tour_id'] ?? null,
             'keyword'   => isset($_GET['keyword']) ? trim($_GET['keyword']) : '',
-            'status'    => isset($_GET['status']) ? trim($_GET['status']) : '',
             'date_from' => $_GET['date_from'] ?? '',
             'date_to'   => $_GET['date_to'] ?? '',
         ];

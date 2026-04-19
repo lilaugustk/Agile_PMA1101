@@ -4,7 +4,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 
 // Defensive check for $tour
 if (empty($tour)) {
-    echo "<main class='content'><div class='alert alert-danger'>Không tìm thấy thông tin tour.</div></main>";
+    echo "<main class='dashboard'><div class='dashboard-container'><div class='alert alert-danger'>Không tìm thấy thông tin tour.</div></div></main>";
     include_once PATH_VIEW_ADMIN . 'default/footer.php';
     exit;
 }
@@ -29,7 +29,8 @@ $statusColors = [
   'absent' => 'danger'
 ];
 ?>
-<main class="content">
+<main class="dashboard guide-tour-detail-page">
+  <div class="dashboard-container">
     <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
         <div>
             <nav aria-label="breadcrumb">
@@ -39,17 +40,16 @@ $statusColors = [
                     <li class="breadcrumb-item active" aria-current="page">Chi tiết tour</li>
                 </ol>
             </nav>
-            <h4 class="fw-bold mb-0 mt-1" style="font-size: 1.25rem; letter-spacing: -0.5px;"><?= htmlspecialchars($tour['name'] ?? 'N/A') ?></h4>
+            <div class="fw-bold text-dark mt-1" style="font-size: 1.1rem; line-height: 1.35; letter-spacing: -0.2px; max-width: 900px;"><?= htmlspecialchars($tour['name'] ?? 'N/A') ?></div>
             <div class="text-muted small mt-1">
                 <i class="ph ph-calendar-blank me-1"></i> <?= htmlspecialchars(is_array($assignment) ? ($assignment['start_date'] ?? 'N/A') : 'N/A') ?> - <?= htmlspecialchars(is_array($assignment) ? ($assignment['end_date'] ?? 'N/A') : 'N/A') ?>
             </div>
         </div>
         <div class="d-flex gap-2">
             <?php if (!empty($allCustomers)): ?>
-                <a href="<?= BASE_URL_ADMIN . '&action=bookings/print-group-list&id=' . (is_array($bookings) && isset($bookings[0]['id']) ? $bookings[0]['id'] : '') ?>"
-                  class="btn btn-outline-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);"
-                  target="_blank">
-                  <i class="ph ph-printer" style="font-size: 1.1rem;"></i> In danh sách
+                <a href="<?= BASE_URL_ADMIN . '&action=bookings/group-checkin&id=' . (is_array($bookings) && isset($bookings[0]['id']) ? $bookings[0]['id'] : '') ?>"
+                  class="btn btn-outline-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);">
+                  <i class="ph ph-users-three" style="font-size: 1.1rem;"></i> Danh sách đoàn
                 </a>
             <?php endif; ?>
             <a href="<?= BASE_URL_ADMIN . '&action=guide/schedule' ?>" class="btn btn-light d-flex align-items-center gap-2 px-3 py-2 border shadow-sm" style="border-radius: var(--radius-md);">
@@ -169,13 +169,6 @@ $statusColors = [
                     </button>
                   </div>
                 </div>
-                <div class="d-flex align-items-center gap-3 mt-3">
-                    <div class="bg-light rounded p-2 text-primary"><i class="ph ph-steering-wheel"></i></div>
-                    <div>
-                        <div class="text-muted small fw-medium">Tài xế</div>
-                        <div class="fw-bold text-dark"><?= htmlspecialchars(is_array($assignment) ? ($assignment['driver_name'] ?? 'Chưa phân công') : 'Chưa phân công') ?></div>
-                    </div>
-                </div>
               <?php endif; ?>
             </div>
           </div>
@@ -204,8 +197,8 @@ $statusColors = [
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
-                <thead class="bg-light text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase;">
+              <table class="table table-hover align-middle mb-0" style="font-size: 0.84rem;">
+                <thead class="bg-light text-muted fw-semibold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px;">
                   <tr>
                     <th width="40" class="ps-4">
                       <input type="checkbox" class="form-check-input shadow-none" id="checkbox-all" style="cursor: pointer;">
@@ -345,6 +338,8 @@ $statusColors = [
           <?php endif; ?>
         </div>
       </div>
+  </div>
+</main>
 
 <?php if (!empty($allCustomers)): ?>
   <script>

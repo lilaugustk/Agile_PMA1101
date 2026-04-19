@@ -32,3 +32,10 @@ define('DB_OPTIONS', [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ]);
+
+// --- BOOKING CONFIGURATIONS ---
+// Thời gian giữ chỗ (phút) - Mặc định 30 phút
+define('BOOKING_HOLD_TIME', 30); 
+
+// Thư mục lưu minh chứng thanh toán
+define('UPLOAD_DIR_PAYMENTS', 'payments');

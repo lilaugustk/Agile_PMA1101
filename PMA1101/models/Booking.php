@@ -3,6 +3,15 @@
 
 class Booking extends BaseModel
 {
+    const STATUS_PENDING       = 'pending';
+    const STATUS_WAITING       = 'cho_xac_nhan';
+    const STATUS_DEPOSITED     = 'da_coc';
+    const STATUS_PAID          = 'da_thanh_toan';
+    const STATUS_COMPLETED     = 'hoan_tat';
+    const STATUS_CANCELLED     = 'da_huy';
+    const STATUS_EXPIRED       = 'expired';
+    const STATUS_OPERATING     = 'dang_dien_ra';
+
     protected $table = 'bookings';
     protected $columns = [
         'id',
@@ -24,6 +33,7 @@ class Booking extends BaseModel
         'notes',
         'discount_note',
         'expires_at',
+        'payment_proof',
         'created_by',
         'created_at',
         'updated_at'
@@ -32,6 +42,25 @@ class Booking extends BaseModel
     public function __construct()
     {
         parent::__construct();
+    }
+
+    public function applyOperationalStatus(array $booking): array
+    {
+        $baseStatus = $booking['status'] ?? '';
+        $booking['operational_status'] = $baseStatus;
+
+        // Trạng thái vận hành "Đang diễn ra" dựa trên ngày khởi hành và gán HDV
+        if (in_array($baseStatus, [self::STATUS_DEPOSITED, self::STATUS_PAID], true) && !empty($booking['departure_date'])) {
+            $startDate = $booking['assignment_start_date'] ?? $booking['departure_date'];
+            $endDate = $booking['assignment_end_date'] ?? $startDate;
+            $today = date('Y-m-d');
+
+            if ($today >= $startDate && $today <= $endDate) {
+                $booking['operational_status'] = self::STATUS_OPERATING;
+            }
+        }
+
+        return $booking;
     }
 
     /**
@@ -51,8 +80,19 @@ class Booking extends BaseModel
 
         // Bộ lọc trạng thái
         if (!empty($filters['status'])) {
-            $whereConditions[] = "B.status = :status";
-            $params[':status'] = $filters['status'];
+            if ($filters['status'] === self::STATUS_OPERATING) {
+                $whereConditions[] = "B.status IN ('" . self::STATUS_DEPOSITED . "', '" . self::STATUS_PAID . "')";
+                $whereConditions[] = "DATE(CURDATE()) >= DATE(B.departure_date)";
+                $whereConditions[] = "DATE(CURDATE()) <= DATE(COALESCE((
+                    SELECT MAX(TA2.end_date)
+                    FROM tour_assignments TA2
+                    WHERE TA2.tour_id = B.tour_id
+                      AND TA2.start_date = B.departure_date
+                ), B.departure_date))";
+            } else {
+                $whereConditions[] = "B.status = :status";
+                $params[':status'] = $filters['status'];
+            }
         }
 
         // Bộ lọc ngày đặt (Từ ngày)
@@ -125,10 +165,15 @@ class Booking extends BaseModel
         $sql = "SELECT 
                     B.*, 
                     T.name AS tour_name, 
-                    COALESCE(U.full_name, B.contact_name) AS customer_name
+                    COALESCE(U.full_name, B.contact_name) AS customer_name,
+                    TA.start_date AS assignment_start_date,
+                    TA.end_date AS assignment_end_date
                 FROM bookings AS B 
                 LEFT JOIN tours AS T ON B.tour_id = T.id
                 LEFT JOIN users AS U ON B.customer_id = U.user_id
+                LEFT JOIN tour_assignments AS TA 
+                    ON TA.tour_id = B.tour_id 
+                    AND TA.start_date = B.departure_date
                 WHERE $whereClause
                 ORDER BY $orderBy
                 LIMIT :limit OFFSET :offset";
@@ -141,8 +186,13 @@ class Booking extends BaseModel
         $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         $stmt->execute();
         
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            $row = $this->applyOperationalStatus($row);
+        }
+
         return [
-            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'data' => $rows,
             'total' => $totalItems,
             'page' => $page,
             'per_page' => $perPage,
@@ -181,26 +231,27 @@ class Booking extends BaseModel
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $mapping = [
-            'pending' => 'cho_xac_nhan',
-            'cho_xac_nhan' => 'cho_xac_nhan',
-            'da_coc' => 'da_coc',
-            'confirmed' => 'da_coc',
-            'hoan_tat' => 'hoan_tat',
-            'completed' => 'hoan_tat',
-            'paid' => 'hoan_tat',
-            'da_thanh_toan' => 'hoan_tat',
-            'da_huy' => 'da_huy',
-            'cancelled' => 'da_huy',
-            'hoan_huy' => 'da_huy',
-            'expired' => 'expired'
+            self::STATUS_PENDING      => self::STATUS_PENDING,
+            self::STATUS_WAITING      => self::STATUS_WAITING,
+            self::STATUS_DEPOSITED    => self::STATUS_DEPOSITED,
+            self::STATUS_PAID         => self::STATUS_PAID,
+            self::STATUS_COMPLETED    => self::STATUS_COMPLETED,
+            self::STATUS_CANCELLED    => self::STATUS_CANCELLED,
+            self::STATUS_EXPIRED      => self::STATUS_EXPIRED,
+            'confirmed'               => self::STATUS_DEPOSITED,
+            'paid'                    => self::STATUS_PAID,
+            'completed'               => self::STATUS_COMPLETED,
+            'cancelled'               => self::STATUS_CANCELLED
         ];
 
         $statusLabels = [
-            'cho_xac_nhan' => 'Chờ xác nhận',
-            'da_coc' => 'Đã cọc',
-            'hoan_tat' => 'Hoàn tất',
-            'da_huy' => 'Đã hủy',
-            'expired' => 'Hết hạn'
+            self::STATUS_PENDING      => 'Chờ thanh toán',
+            self::STATUS_WAITING      => 'Chờ xác nhận',
+            self::STATUS_DEPOSITED    => 'Đã cọc',
+            self::STATUS_PAID         => 'Đã thanh toán',
+            self::STATUS_COMPLETED    => 'Hoàn tất',
+            self::STATUS_CANCELLED    => 'Đã hủy',
+            self::STATUS_EXPIRED      => 'Hết hạn'
         ];
 
         $unifiedStats = [];
@@ -331,38 +382,34 @@ class Booking extends BaseModel
     }
 
     /**
-     * Giải phóng booked_seats cho các booking pending đã hết hạn
-     * Gọi mỗi lần trước khi check availability
+     * Chuyển booking pending hết hạn sang expired.
+     * booked_seats được tính qua sync theo trạng thái, không trừ thủ công tại đây.
      */
     public function cleanupExpiredPending()
     {
         try {
             // Lấy danh sách booking hết hạn
-            $sql = "SELECT id, departure_id, (adults + children + infants) AS total_seats
+            $sql = "SELECT id, departure_id 
                     FROM bookings
-                    WHERE status = 'pending'
+                    WHERE status = :pending
                     AND expires_at IS NOT NULL
                     AND expires_at < NOW()";
             $stmt = self::$pdo->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([':pending' => self::STATUS_PENDING]);
             $expired = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if (empty($expired)) return;
 
             foreach ($expired as $row) {
-                // Giải phóng chỗ
-                $releaseSql = "UPDATE tour_departures 
-                               SET booked_seats = GREATEST(0, booked_seats - :seats)
-                               WHERE id = :dep_id";
-                $stmtR = self::$pdo->prepare($releaseSql);
-                $stmtR->execute(['seats' => $row['total_seats'], 'dep_id' => $row['departure_id']]);
-
                 // Cập nhật booking thành expired
                 $this->update(
-                    ['status' => 'expired', 'expires_at' => null],
+                    ['status' => self::STATUS_EXPIRED, 'expires_at' => null],
                     'id = :id',
                     ['id' => $row['id']]
                 );
+                
+                // Nếu là đơn đã xác nhận/đã giữ chỗ mà bị hết hạn (trường hợp admin set expires_at)
+                // Thì sync lại chỗ ngồi. Ở đây pending -> expired thì không cần sync vì pending chưa được tính.
             }
         } catch (Exception $e) {
             error_log('cleanupExpiredPending error: ' . $e->getMessage());
@@ -397,15 +444,28 @@ class Booking extends BaseModel
      */
     public function getByCustomerId($customerId)
     {
-        $sql = "SELECT B.*, T.name AS tour_name, T.base_price AS tour_base_price
+        $sql = "SELECT B.*, 
+                       T.name AS tour_name, 
+                       T.base_price AS tour_base_price,
+                       TA.start_date AS assignment_start_date,
+                       TA.end_date AS assignment_end_date
                 FROM {$this->table} AS B
                 LEFT JOIN tours AS T ON B.tour_id = T.id
+                LEFT JOIN tour_assignments AS TA
+                    ON TA.tour_id = B.tour_id
+                    AND TA.start_date = B.departure_date
                 WHERE B.customer_id = :customer_id
                 ORDER BY B.booking_date DESC, B.id DESC";
 
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute(['customer_id' => $customerId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            $row = $this->applyOperationalStatus($row);
+        }
+        unset($row);
+
+        return $rows;
     }
 
     /**
@@ -421,14 +481,23 @@ class Booking extends BaseModel
                     T.base_price AS tour_base_price,
                     COALESCE(U.full_name, B.contact_name) AS customer_name,
                     COALESCE(U.email, B.contact_email) AS customer_email,
-                    COALESCE(U.phone, B.contact_phone) AS customer_phone
+                    COALESCE(U.phone, B.contact_phone) AS customer_phone,
+                    TA.start_date AS assignment_start_date,
+                    TA.end_date AS assignment_end_date
                 FROM bookings AS B 
                 LEFT JOIN tours AS T ON B.tour_id = T.id
                 LEFT JOIN users AS U ON B.customer_id = U.user_id
+                LEFT JOIN tour_assignments AS TA
+                    ON TA.tour_id = B.tour_id
+                    AND TA.start_date = B.departure_date
                 WHERE B.id = :id";
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($booking) {
+            $booking = $this->applyOperationalStatus($booking);
+        }
+        return $booking;
     }
 
     /**
@@ -537,7 +606,7 @@ class Booking extends BaseModel
     {
         try {
             // Validate status
-            $validStatuses = ['pending', 'cho_xac_nhan', 'da_coc', 'hoan_tat', 'da_huy', 'expired'];
+            $validStatuses = ['pending', 'cho_xac_nhan', 'da_coc', 'da_thanh_toan', 'hoan_tat', 'da_huy', 'expired'];
             if (!in_array($newStatus, $validStatuses)) {
                 return false;
             }
@@ -667,17 +736,27 @@ class Booking extends BaseModel
                     T.name AS tour_name,
                     TC.name AS category_name,
                     COALESCE(U.full_name, B.contact_name) AS customer_name,
-                    COALESCE(U.phone, B.contact_phone) AS customer_phone
+                    COALESCE(U.email, B.contact_email) AS customer_email,
+                    COALESCE(U.phone, B.contact_phone) AS customer_phone,
+                    TA.start_date AS assignment_start_date,
+                    TA.end_date AS assignment_end_date
                 FROM bookings B
                 LEFT JOIN tours T ON B.tour_id = T.id
                 LEFT JOIN tour_categories TC ON T.category_id = TC.id
                 LEFT JOIN users U ON B.customer_id = U.user_id
+                LEFT JOIN tour_assignments TA 
+                    ON TA.tour_id = B.tour_id 
+                    AND TA.start_date = B.departure_date
                 $whereClause
                 ORDER BY B.booking_date DESC, B.id DESC";
 
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            $row = $this->applyOperationalStatus($row);
+        }
+        return $rows;
     }
 
     /**
@@ -724,14 +803,19 @@ class Booking extends BaseModel
         $dateTo = $dateTo ?? date('Y-m-d');
 
         $sql = "SELECT 
-                    B.source,
+                    COALESCE(
+                        NULLIF(B.source, ''),
+                        CASE
+                            WHEN B.customer_id IS NULL THEN 'admin'
+                            ELSE 'website'
+                        END
+                    ) AS source,
                     COUNT(B.id) AS booking_count,
                     SUM(CASE WHEN B.status IN ('completed', 'hoan_tat') THEN 1 ELSE 0 END) AS successful_bookings,
                     COALESCE(SUM(B.final_price), 0) AS revenue
                 FROM bookings B
                 WHERE B.booking_date BETWEEN :date_from AND :date_to
-                AND B.source IS NOT NULL
-                GROUP BY B.source
+                GROUP BY source
                 ORDER BY booking_count DESC";
 
         try {
@@ -744,6 +828,15 @@ class Booking extends BaseModel
                 $totalBookings = $result['booking_count'];
                 $successfulBookings = $result['successful_bookings'];
                 $result['conversion_rate'] = $totalBookings > 0 ? ($successfulBookings / $totalBookings) * 100 : 0;
+                $result['source'] = match (strtolower((string)$result['source'])) {
+                    'website' => 'Website',
+                    'admin' => 'Admin',
+                    'walkin' => 'Tại quầy',
+                    'hotline' => 'Hotline',
+                    'facebook' => 'Facebook',
+                    'zalo' => 'Zalo',
+                    default => ucfirst((string)$result['source'])
+                };
             }
 
             return $results;
@@ -848,17 +941,25 @@ class Booking extends BaseModel
     {
         $sql = "SELECT 
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as soft_pending,
-                    SUM(CASE WHEN status = 'cho_xac_nhan' THEN 1 ELSE 0 END) as pending,
-                    SUM(CASE WHEN status = 'da_coc' THEN 1 ELSE 0 END) as deposited,
-                    SUM(CASE WHEN status = 'hoan_tat' THEN 1 ELSE 0 END) as completed,
-                    SUM(CASE WHEN status = 'da_huy' THEN 1 ELSE 0 END) as cancelled,
-                    SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expired,
-                    SUM(CASE WHEN status IN ('da_coc', 'hoan_tat') THEN final_price ELSE 0 END) as total_revenue
+                    SUM(CASE WHEN status = :pending THEN 1 ELSE 0 END) as soft_pending,
+                    SUM(CASE WHEN status = :waiting THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN status = :deposited THEN 1 ELSE 0 END) as deposited,
+                    SUM(CASE WHEN status = :completed THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = :cancelled THEN 1 ELSE 0 END) as cancelled,
+                    SUM(CASE WHEN status = :expired THEN 1 ELSE 0 END) as expired,
+                    SUM(CASE WHEN status IN (:deposited, :paid, :completed) THEN final_price ELSE 0 END) as total_revenue
                 FROM bookings";
 
         $stmt = self::$pdo->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            ':pending'   => self::STATUS_PENDING,
+            ':waiting'   => self::STATUS_WAITING,
+            ':deposited' => self::STATUS_DEPOSITED,
+            ':paid'      => self::STATUS_PAID,
+            ':completed' => self::STATUS_COMPLETED,
+            ':cancelled' => self::STATUS_CANCELLED,
+            ':expired'   => self::STATUS_EXPIRED
+        ]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -878,6 +979,62 @@ class Booking extends BaseModel
                 ORDER BY td.departure_date DESC";
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Đồng bộ số lượng chỗ đã đặt cho một lịch khởi hành
+     * Quy tắc:
+     * - Chờ xác nhận (Hold): Tính vào số lượng khách dự kiến.
+     * - Đã cọc/Thanh toán/Hoàn tất: Tính vào số lượng khách chính thức.
+     */
+    public function syncBookedSeats($departureId)
+    {
+        if (!$departureId) return false;
+
+        $sql = "SELECT SUM(adults + children) as total_seats 
+                FROM bookings 
+                WHERE departure_id = :departure_id 
+                AND status IN (:waiting, :deposited, :paid, :completed)";
+        
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute([
+            ':departure_id' => $departureId,
+            ':waiting'     => self::STATUS_WAITING,
+            ':deposited'   => self::STATUS_DEPOSITED,
+            ':paid'        => self::STATUS_PAID,
+            ':completed'   => self::STATUS_COMPLETED
+        ]);
+        
+        $totalSeats = (int)$stmt->fetchColumn();
+
+        $updateSql = "UPDATE tour_departures SET booked_seats = :total WHERE id = :id";
+        $updateStmt = self::$pdo->prepare($updateSql);
+        return $updateStmt->execute([':total' => $totalSeats, ':id' => $departureId]);
+    }
+
+    /**
+     * Lấy danh sách bookings cho một departure cụ thể (cho Manifest)
+     */
+    public function getBookingsByDeparture($departureId)
+    {
+        $sql = "SELECT b.*, 
+                       COALESCE(u.full_name, b.contact_name) as customer_name,
+                       COALESCE(u.phone, b.contact_phone) as customer_phone
+                FROM {$this->table} b
+                LEFT JOIN users u ON b.customer_id = u.user_id
+                WHERE b.departure_id = :did
+                AND b.status IN (:waiting, :deposited, :paid, :completed)
+                ORDER BY b.id ASC";
+
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute([
+            'did' => $departureId,
+            'waiting' => self::STATUS_WAITING,
+            'deposited' => self::STATUS_DEPOSITED,
+            'paid' => self::STATUS_PAID,
+            'completed' => self::STATUS_COMPLETED
+        ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

@@ -6,7 +6,8 @@ $customerDebts = $data['customerDebts'] ?? [];
 $totalCustomerDebt = array_sum(array_map(function($d) { return ($d['final_price'] ?? 0) - ($d['paid_amount'] ?? 0); }, $customerDebts));
 ?>
 
-<main class="content">
+<main class="dashboard">
+    <div class="dashboard-container">
     <!-- Breadcrumb & Header -->
     <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
         <div>
@@ -17,7 +18,6 @@ $totalCustomerDebt = array_sum(array_map(function($d) { return ($d['final_price'
                     <li class="breadcrumb-item active" aria-current="page">Quản lý Công nợ</li>
                 </ol>
             </nav>
-            <h4 class="fw-bold mt-2 mb-0">Báo cáo Công nợ Khách hàng</h4>
         </div>
         <div class="d-flex gap-2">
             <button onclick="window.print()" class="btn btn-outline-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm">
@@ -103,6 +103,7 @@ $totalCustomerDebt = array_sum(array_map(function($d) { return ($d['final_price'
             </div>
         </div>
     </div>
+    </div>
 </main>
 
 <style>
@@ -111,7 +112,8 @@ $totalCustomerDebt = array_sum(array_map(function($d) { return ($d['final_price'
     
     @media print {
         .sidebar, .navbar-header, .btn-outline-primary { display: none !important; }
-        .content { margin-left: 0 !important; padding: 0 !important; }
+        .dashboard { margin-left: 0 !important; padding: 0 !important; }
+        .dashboard-container { padding: 0 !important; }
         .card-premium { border: 1px solid #ddd !important; box-shadow: none !important; }
     }
 </style>

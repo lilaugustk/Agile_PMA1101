@@ -120,21 +120,6 @@
 
                     <!-- CTAs -->
                     <div class="d-grid gap-2">
-                        <?php if (isset($_SESSION['last_invoice_url'])): ?>
-                        <a href="<?= $_SESSION['last_invoice_url'] ?>" target="_blank" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm mb-2">
-                            <i class="fas fa-file-invoice me-2"></i>Tải Hóa Đơn (PDF/HTML)
-                        </a>
-                        <?php unset($_SESSION['last_invoice_url']); ?>
-                        <?php endif; ?>
-
-                        <?php if (isset($_SESSION['user'])): ?>
-                        <a href="<?= BASE_URL ?>?action=my-bookings" class="btn btn-primary btn-lg rounded-pill fw-bold">
-                            <i class="fas fa-list-alt me-2"></i>Xem Lịch Sử Đặt Tour
-                        </a>
-                        <?php endif; ?>
-                        <a href="<?= BASE_URL ?>?action=tours" class="btn btn-outline-primary btn-lg rounded-pill">
-                            <i class="fas fa-compass me-2"></i>Tiếp Tục Khám Phá Tour
-                        </a>
                         <a href="<?= BASE_URL ?>" class="btn btn-light btn-lg rounded-pill text-muted">
                             <i class="fas fa-home me-2"></i>Về Trang Chủ
                         </a>

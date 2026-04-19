@@ -124,7 +124,7 @@ a:hover {
 .header-content {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -359,35 +359,271 @@ a:hover {
 }
 
 /* ==========================================================================
-   Forms
+   Forms & Dropdowns
    ========================================================================== */
 .form-control,
 .form-select {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  transition:
-    border-color 0.15s ease-in-out,
-    box-shadow 0.15s ease-in-out;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-main);
+  background-color: #ffffff;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 256 256'%3E%3Cpath d='M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80a8,8,0,0,1,11.32-11.32L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 14px;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
 .form-control:focus,
 .form-select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
+  background-color: #fff;
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  transform: translateY(-1px);
 }
+
+/* Premium Dropdown Menus */
+.dropdown-menu {
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  border-radius: 14px !important;
+  padding: 0.5rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 
+              0 8px 10px -6px rgba(0, 0, 0, 0.02) !important;
+  animation: dropdownFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 0.5rem !important;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  border-radius: 8px !important;
+  padding: 0.6rem 0.85rem !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  color: var(--text-muted) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+  transition: all 0.15s ease !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: var(--primary-subtle) !important;
+  color: var(--primary) !important;
+  transform: translateX(4px);
+}
+
+.dropdown-item i {
+  font-size: 1.1rem;
+  opacity: 0.85;
+}
+
+.dropdown-divider {
+  border-top-color: var(--border-light) !important;
+  margin: 0.5rem -0.5rem !important;
+  opacity: 0.6;
+}
+
 .form-label {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-main);
-  margin-bottom: 0.35rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.825rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  opacity: 0.8;
 }
+
+/* ==========================================================================
+   Choices.js Premium Theme Overrides
+   ========================================================================== */
+.choices {
+  margin-bottom: 0;
+  font-family: inherit;
+}
+
+.choices__inner {
+  background-color: #ffffff !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0.25rem 0.75rem !important;
+  min-height: 42px !important;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.choices[data-type*="select-one"] .choices__inner {
+  padding-bottom: 0.25rem !important;
+}
+
+.choices.is-focused .choices__inner {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+}
+
+.choices__list--dropdown {
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+  margin-top: 5px !important;
+  overflow: hidden;
+  z-index: 1050 !important;
+  animation: dropdownFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.choices__list--dropdown .choices__item--selectable {
+  padding: 0.6rem 0.85rem !important;
+  font-size: 0.85rem !important;
+  transition: all 0.15s ease !important;
+}
+
+.choices__list--dropdown .choices__item--selectable.is-highlighted {
+  background-color: var(--primary-subtle) !important;
+  color: var(--primary) !important;
+}
+
+.choices__input {
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.85rem !important;
+}
+
+.choices[data-type*="select-one"]:after {
+  border: none !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: -7px !important;
+  right: 1rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 256 256'%3E%3Cpath d='M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80a8,8,0,0,1,11.32-11.32L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  transition: transform 0.2s ease;
+}
+
+.choices.is-open[data-type*="select-one"]:after {
+  transform: rotate(180deg);
+}
+
+.choices__placeholder {
+  opacity: 1 !important;
+  color: #64748b !important;
+}
+
+/* form-floating support for Choices.js */
+.form-floating > .choices {
+  padding: 0 !important;
+  min-height: 58px;
+  background: transparent;
+}
+
+.form-floating > .choices .choices__inner {
+  min-height: 58px !important;
+  padding-top: 1.625rem !important;
+  padding-bottom: 0.4rem !important;
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border-light) !important;
+  color: #1e293b !important; /* Darker text for better contrast */
+}
+
+.form-floating > .choices.is-focused .choices__inner {
+  border-color: var(--primary) !important;
+}
+
+.form-floating > .choices + label {
+  z-index: 5;
+  transform: scale(0.85) translateY(-0.85rem) translateX(0.15rem);
+  opacity: 1 !important;
+  color: var(--primary) !important;
+  font-weight: 700 !important;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+/* Ensure original select hidden by Choices doesn't interfere */
+.choices__input--cloned {
+  opacity: 0 !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+/* Fix dropdown clipping and z-index issues */
+.choices {
+  position: relative;
+  z-index: 1;
+}
+
+.choices.is-open {
+  z-index: 1050 !important; /* Higher than Bootstrap sticky-top and other cards */
+}
+
+.choices__list--dropdown {
+  z-index: 1050 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border-light) !important;
+  margin-top: 5px !important;
+}
+
+.companion-card-premium {
+  overflow: visible !important; /* Critical: allow dropdowns to pop out of the card */
+}
+
 /* ==========================================================================
    Booking Module Specific Styles (Premium)
    ========================================================================== */
 
-/* Stat Cards Premium */
-.stat-card-premium {
+/* Footer Actions Premium */
+.footer-actions-container {
+    background-color: var(--light);
+    margin-top: 3rem;
+    padding: 2rem 0;
+}
+
+.quick-summary-bar {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+.quick-summary-bar:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm) !important;
+}
+
+#next-btn, #submit-btn {
+    min-width: 180px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#next-btn:hover, #submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(var(--primary-rgb), 0.25);
+}
   padding: 1.5rem;
   background: #fff;
   border-radius: var(--radius-lg);

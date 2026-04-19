@@ -1,100 +1,245 @@
 <?php include_once PATH_VIEW_CLIENT . 'default/header.php'; ?>
 
-<div class="container-fluid p-0">
-    <div class="row g-0 auth-wrapper min-vh-100 flex-row-reverse">
-        <!-- Split Layout Image (Reversed for Register) -->
-        <div class="col-lg-6 d-none d-lg-block position-relative">
-            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Travel Banner">
-            <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
-            <div class="position-absolute top-50 start-50 translate-middle text-center w-75 z-2" data-aos="fade-up">
-                <h2 class="display-5 fw-bold text-white mb-3 tracking-tight">Gia Nhập Cộng Đồng Bay Xa</h2>
-                <p class="lead text-white-50">Hàng ngàn ưu đãi du lịch đặc quyền đang chờ đón bạn.</p>
+<style>
+    /* Ẩn Navbar và Footer mặc định */
+    #mainNav, .premium-footer, .navbar-spacer, .scroll-top-btn { 
+        display: none !important; 
+    }
+    
+    body {
+        background-color: #f0f2f5;
+        overflow-x: hidden;
+    }
+
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        flex-direction: row-reverse; /* Đảo ngược để ảnh bên phải, form bên trái */
+    }
+
+    /* Phía ảnh nền */
+    .auth-bg-section {
+        flex: 1;
+        position: relative;
+        background-image: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        display: none;
+    }
+
+    @media (min-width: 992px) {
+        .auth-bg-section {
+            display: block;
+        }
+    }
+
+    .auth-bg-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.7) 100%);
+        z-index: 1;
+    }
+
+    .auth-bg-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 4rem;
+        color: white;
+        text-align: right;
+    }
+
+    /* Phía Form */
+    .auth-form-section {
+        width: 100%;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: white;
+    }
+
+    @media (min-width: 992px) {
+        .auth-form-section {
+            width: 550px;
+            max-width: 550px;
+        }
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .form-control {
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1px solid #e1e5eb;
+        background-color: #f8f9fa;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        background-color: #fff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 140, 114, 0.1);
+    }
+
+    .btn-auth {
+        padding: 0.8rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .brand-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Animation */
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="auth-page">
+    <!-- Phía Ảnh nền -->
+    <div class="auth-bg-section">
+        <div class="auth-bg-overlay"></div>
+        <div class="auth-bg-content">
+            <h1 class="display-5 fw-bold text-white mb-4" style="text-shadow: 0 2px 10px rgba(0,0,0,0.3);">Mở cửa thế giới cùng chúng tôi</h1>
+            <p class="lead opacity-85">Gia nhập cộng đồng hơn 10,000 khách du lịch thông thái và nhận ngay các ưu đãi đặc quyền.</p>
+            <div class="mt-5 d-flex flex-column align-items-end gap-3 text-white-50">
+                <div class="d-flex align-items-center gap-2">
+                    <span>Cập nhật xu hướng du lịch mới nhất</span>
+                    <i class="ph ph-trend-up fs-4"></i>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span>Tích lũy điểm thưởng khi đặt tour</span>
+                    <i class="ph ph-gift fs-4"></i>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span>Ưu tiên hỗ trợ từ chuyên gia</span>
+                    <i class="ph ph-headset fs-4"></i>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Form Layout -->
-        <div class="col-lg-6 d-flex align-items-center justify-content-center bg-white py-5">
-            <div class="auth-form-container w-100 px-4 px-md-5" style="max-width: 550px;" data-aos="fade-up" data-aos-delay="100">
-                <div class="text-center mb-4">
-                    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                        <i class="ph-fill ph-user-plus fs-1"></i>
-                    </div>
-                    <h2 class="fw-bold text-dark tracking-tight">Tạo Tài Khoản Mới</h2>
-                    <p class="text-muted">Chỉ mất 1 phút để trở thành một phần của AgileTravel</p>
+    <!-- Phía Form đăng ký -->
+    <div class="auth-form-section">
+        <div class="auth-card fade-in-up">
+            <a href="<?= BASE_URL ?>" class="brand-logo">
+                <i class="ph-fill ph-paper-plane-tilt"></i>
+                <span>AgileTravel</span>
+            </a>
+
+            <div class="mb-4">
+                <h2 class="fw-bold text-dark">Tạo tài khoản mới</h2>
+                <p class="text-muted">Chỉ mất vài giây để bắt đầu hành trình của bạn.</p>
+            </div>
+
+            <?php if (isset($error)): ?>
+                <div class="alert alert-danger border-0 rounded-3 small py-2 mb-4">
+                    <i class="ph-bold ph-warning-circle me-2"></i> <?= htmlspecialchars($error) ?>
+                </div>
+            <?php endif; ?>
+
+            <form action="<?= BASE_URL ?>?action=register-submit" method="POST" id="registerForm">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-dark">Họ và tên</label>
+                    <input type="text" name="full_name" class="form-control" placeholder="Nguyễn Văn A" required>
                 </div>
 
-                <?php if (isset($error)): ?>
-                    <div class="alert alert-danger border-0 bg-danger-subtle text-danger rounded-3 p-3 mb-4 d-flex align-items-center">
-                        <i class="ph-fill ph-warning-circle fs-4 me-2"></i> <?= htmlspecialchars($error) ?>
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold text-dark">Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
                     </div>
-                <?php endif; ?>
-
-                <form action="<?= BASE_URL ?>?action=register-submit" method="POST" id="registerForm">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control focus-ring-primary bg-light border-0" id="full_name" name="full_name" placeholder="Họ và tên" required>
-                        <label for="full_name" class="text-muted"><i class="ph-fill ph-user me-1"></i> Họ và tên</label>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold text-dark">Số điện thoại</label>
+                        <input type="tel" name="phone" class="form-control" placeholder="0123 456 789" required>
                     </div>
-                    
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control focus-ring-primary bg-light border-0" id="email" name="email" placeholder="name@example.com" required>
-                        <label for="email" class="text-muted"><i class="ph-fill ph-envelope-simple me-1"></i> Email</label>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-dark">Mật khẩu</label>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required minlength="6">
                     </div>
-
-                    <div class="form-floating mb-3">
-                        <input type="tel" class="form-control focus-ring-primary bg-light border-0" id="phone" name="phone" placeholder="Số điện thoại" required>
-                        <label for="phone" class="text-muted"><i class="ph-fill ph-phone me-1"></i> Số điện thoại</label>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-dark">Xác nhận</label>
+                        <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="••••••••" required minlength="6">
                     </div>
+                </div>
 
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <input type="password" class="form-control focus-ring-primary bg-light border-0" id="password" name="password" placeholder="Mật khẩu" required minlength="6">
-                                <label for="password" class="text-muted"><i class="ph-fill ph-lock-key me-1"></i> Mật khẩu</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <input type="password" class="form-control focus-ring-primary bg-light border-0" id="password_confirm" name="password_confirm" placeholder="Xác nhận MK" required minlength="6">
-                                <label for="password_confirm" class="text-muted"><i class="ph-fill ph-shield-check me-1"></i> Xác nhận MK</label>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <label class="form-check-label small text-muted" for="terms">
+                        Tôi đồng ý với các <a href="#" class="text-primary text-decoration-none">điều khoản và chính sách</a>.
+                    </label>
+                </div>
 
-                    <div class="mb-4 text-center">
-                        <div class="form-check custom-checkbox d-inline-block text-start">
-                            <input class="form-check-input focus-ring-primary" type="checkbox" value="" id="terms" required>
-                            <label class="form-check-label text-muted small" for="terms">Tôi đồng ý với <a href="#" class="text-primary hover-text-dark">Điều khoản & Chính sách bảo mật</a></label>
-                        </div>
-                    </div>
+                <button type="submit" class="btn btn-primary btn-auth w-100 mb-4 shadow-none">
+                    Đăng Ký Tài Khoản
+                </button>
 
-                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold hover-lift mb-3 shadow-sm">
-                        Đăng Ký Tài Khoản <i class="ph-bold ph-paper-plane-right ms-1"></i>
-                    </button>
-
-                    <p class="text-center text-muted mt-4 mb-0">
-                        Đã có tài khoản? <a href="<?= BASE_URL ?>?action=login" class="text-primary text-decoration-none fw-bold hover-text-dark transition-all">Đăng nhập</a>
+                <div class="text-center">
+                    <p class="small text-muted">
+                        Đã có tài khoản? 
+                        <a href="<?= BASE_URL ?>?action=login" class="text-primary fw-bold text-decoration-none">Đăng nhập</a>
                     </p>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    // Simple password match validation
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-        const pwd = document.getElementById('password').value;
-        const confirm = document.getElementById('password_confirm').value;
-        if(pwd !== confirm) {
+    // Kiểm tra mật khẩu khớp trực quan
+    const form = document.getElementById('registerForm');
+    const pwd = document.getElementById('password');
+    const confirm = document.getElementById('password_confirm');
+
+    form.addEventListener('submit', function(e) {
+        if (pwd.value !== confirm.value) {
             e.preventDefault();
             alert('Mật khẩu xác nhận không khớp! Vui lòng kiểm tra lại.');
+            confirm.classList.add('is-invalid');
         }
     });
-</script>
 
-<style>
-    header, footer { display: none !important; } /* Hide layout components in auth view */
-    .navbar-spacer { display: none !important; }
-</style>
+    [pwd, confirm].forEach(el => {
+        el.addEventListener('input', () => {
+            confirm.classList.remove('is-invalid');
+        });
+    });
+</script>
 
 <?php // include_once PATH_VIEW_CLIENT . 'default/footer.php'; ?>

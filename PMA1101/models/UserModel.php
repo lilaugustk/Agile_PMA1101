@@ -70,7 +70,23 @@ class UserModel extends BaseModel
             ':end_date' => $endDate
         ]);
 
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int)($result['count'] ?? 0);
+    }
+    
+    /**
+     * Lấy danh sách khách hàng kèm thông tin hồ sơ chi tiết.
+     * @return array
+     */
+    public function getAllWithProfiles()
+    {
+        $sql = "SELECT u.user_id, u.full_name, u.email, u.phone, u.role, 
+                       cp.gender, cp.birth_date, cp.id_card, cp.address, cp.special_request, cp.passenger_type
+                FROM {$this->table} u
+                LEFT JOIN customer_profiles cp ON u.user_id = cp.user_id
+                WHERE u.role = 'customer'
+                ORDER BY u.full_name ASC";
+        
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

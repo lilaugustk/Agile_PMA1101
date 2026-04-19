@@ -2,7 +2,8 @@
 include_once PATH_VIEW_ADMIN . 'default/header.php';
 include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 ?>
-<main class="content">
+<main class="dashboard">
+    <div class="dashboard-container">
     <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
         <div>
             <nav aria-label="breadcrumb">
@@ -12,10 +13,9 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                     <li class="breadcrumb-item active" aria-current="page">Lịch của tôi</li>
                 </ol>
             </nav>
-            <h4 class="fw-bold mb-0 mt-1" style="font-size: 1.25rem; letter-spacing: -0.5px;">Lịch làm việc của tôi</h4>
         </div>
         <div>
-            <a href="<?= BASE_URL_ADMIN ?>&action=guide/schedule_all" class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);">
+            <a href="<?= BASE_URL_ADMIN ?>&action=guide/schedule_all" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="border-radius: var(--radius-md);">
                 <i class="ph ph-users" style="font-size: 1.1rem;"></i> Xem tất cả Guide
             </a>
         </div>
@@ -78,7 +78,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
-                        <thead class="bg-light text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase;">
+                        <thead class="bg-light text-muted fw-semibold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px;">
                             <tr>
                                 <th class="ps-4 border-0 py-3">Tour / Thời gian</th>
                                 <th class="border-0 py-3 text-center">Trạng thái</th>

@@ -3,7 +3,8 @@ include_once PATH_VIEW_ADMIN . 'default/header.php';
 include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 ?>
 
-<main class="content">
+<main class="dashboard">
+    <div class="dashboard-container">
     <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
         <div>
             <nav aria-label="breadcrumb">
@@ -12,9 +13,7 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                     <li class="breadcrumb-item active" aria-current="page">Tour Khả Dụng</li>
                 </ol>
             </nav>
-            <h3 class="fw-bold mb-0 mt-1" style="letter-spacing: -0.5px;">Tour Khả Dụng</h3>
         </div>
-        <p class="text-muted small mb-0 d-none d-md-block">Danh sách tour chưa có Guide phụ trách - Bạn có thể nhận tour để quản lý</p>
     </div>
 
     <!-- Alert Messages -->
@@ -59,31 +58,32 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                 <div class="col-md-6 col-lg-4">
                     <div class="card card-premium h-100 border-0 shadow-sm overflow-hidden d-flex flex-column">
                         <div class="card-body p-4 d-flex flex-column flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h5 class="fw-bold text-dark mb-0 title-clamp" style="font-size: 1.1rem; line-height: 1.4;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="fw-bold text-dark mb-0 title-clamp" style="font-size: 1.15rem; line-height: 1.4; letter-spacing: -0.01em;">
                                     <?= htmlspecialchars($tour['name']) ?>
                                 </h5>
                             </div>
 
-                            <p class="text-muted small mb-4 description-clamp" style="line-height: 1.6;">
-                                <?= htmlspecialchars(substr($tour['description'] ?? 'Không có mô tả', 0, 100)) ?>
-                                <?php if (strlen($tour['description'] ?? '') > 100): ?>...<?php endif; ?>
+                            <p class="text-muted small mb-4 description-clamp" style="line-height: 1.6; opacity: 0.8;">
+                                <?= htmlspecialchars(substr($tour['description'] ?? 'Không có mô tả', 0, 120)) ?>
+                                <?php if (strlen($tour['description'] ?? '') > 120): ?>...<?php endif; ?>
                             </p>
 
-                            <div class="vstack gap-2 mb-4">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="d-flex align-items-center justify-content-center bg-info-subtle text-info rounded" style="width: 24px; height: 24px;">
-                                        <i class="ph-fill ph-calendar-blank" style="font-size: 0.85rem;"></i>
-                                    </div>
-                                    <span class="text-muted small">Khởi hành:</span>
-                                    <span class="fw-semibold text-dark small">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="d-flex align-items-center justify-content-center bg-light text-primary rounded-circle" style="width: 32px; height: 32px;">
+                                    <i class="ph-fill ph-calendar-blank" style="font-size: 1rem;"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted" style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Khởi hành</div>
+                                    <div class="fw-bold text-dark">
                                         <?php if ($tour['departure_date']): ?>
                                             <?= date('d/m/Y', strtotime($tour['departure_date'])) ?>
                                         <?php else: ?>
                                             <span class="text-warning">Chưa có lịch</span>
                                         <?php endif; ?>
-                                    </span>
+                                    </div>
                                 </div>
+                            </div>
                                 <?php if (isset($tour['available_seats'])): ?>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="d-flex align-items-center justify-content-center bg-success-subtle text-success rounded" style="width: 24px; height: 24px;">
@@ -99,17 +99,19 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                 <?= $statusBadge ?>
                             </div>
 
-                            <div class="d-flex flex-wrap gap-2 mb-4">
-                                <div class="badge bg-primary-subtle text-primary border-0 fw-bold d-flex align-items-center gap-1.5 py-1.5 px-3" style="border-radius: 8px;">
-                                    <i class="ph-fill ph-users"></i>
+                            <div class="d-flex flex-wrap gap-2 mb-4" style="background: #f8fafc; padding: 12px; border-radius: 12px;">
+                                <div class="d-flex align-items-center gap-1.5 fw-bold text-primary" style="font-size: 0.85rem;">
+                                    <i class="ph-fill ph-users fs-5"></i>
                                     <?= $totalCustomers ?> người
                                 </div>
-                                <div class="badge bg-info-subtle text-info border-0 fw-bold d-flex align-items-center gap-1.5 py-1.5 px-3" style="border-radius: 8px;">
-                                    <i class="ph-fill ph-calendar-check"></i>
+                                <div class="vr mx-1 opacity-25"></div>
+                                <div class="d-flex align-items-center gap-1.5 fw-bold text-info" style="font-size: 0.85rem;">
+                                    <i class="ph-fill ph-calendar-check fs-5"></i>
                                     <?= $tour['booking_count'] ?> bkg
                                 </div>
-                                <div class="badge bg-success-subtle text-success border-0 fw-bold d-flex align-items-center gap-1.5 py-1.5 px-3" style="border-radius: 8px;">
-                                    <i class="ph-fill ph-currency-circle-dollar"></i>
+                                <div class="vr mx-1 opacity-25"></div>
+                                <div class="d-flex align-items-center gap-1.5 fw-bold text-success" style="font-size: 0.85rem;">
+                                    <i class="ph-fill ph-currency-circle-dollar fs-5"></i>
                                     <?= number_format($tour['base_price'], 0, ',', '.') ?>đ
                                 </div>
                             </div>
@@ -151,9 +153,9 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                 if ($userRole === 'admin' && !empty($guides)):
                                 ?>
                                     <!-- Admin: Guide Assignment Dropdown -->
-                                    <div class="p-3 bg-light rounded-3 mb-3 border border-light">
-                                        <label class="form-label small text-muted fw-bold text-uppercase mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">Phân công Guide</label>
-                                        <select class="form-select form-select-sm border-0 shadow-sm mb-3" id="guide-select-<?= $tour['id'] ?>" style="min-height: 38px; border-radius: 8px;">
+                                    <div class="p-3 bg-light rounded-4 mb-3 border border-light">
+                                        <label class="form-label small text-muted fw-bold text-uppercase mb-2 px-1" style="font-size: 0.65rem; letter-spacing: 1px;">Phân công Guide</label>
+                                        <select class="form-select border-0 shadow-sm mb-3 bg-white" id="guide-select-<?= $tour['id'] ?>" style="height: 48px; border-radius: 12px; font-size: 0.9rem;">
                                             <option value="">-- Chọn Guide --</option>
                                             <?php foreach ($guides as $guide): ?>
                                                 <option value="<?= $guide['id'] ?>">
@@ -162,12 +164,12 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <button class="btn btn-success w-100 admin-assign-guide-btn d-flex align-items-center justify-content-center gap-2 shadow-sm py-2"
+                                        <button class="btn btn-success w-100 admin-assign-guide-btn d-flex align-items-center justify-content-center gap-2 shadow-sm py-2 fw-bold"
                                             data-tour-id="<?= $tour['id'] ?>"
                                             data-departure-id="<?= $tour['departure_id'] ?>"
                                             data-tour-name="<?= htmlspecialchars($tour['name']) ?>"
-                                            style="border-radius: 8px;">
-                                            <i class="ph-fill ph-user-check"></i> Phân công ngay
+                                            style="height: 48px; border-radius: 12px;">
+                                            <i class="ph-fill ph-user-check fs-5"></i> Phân công ngay
                                         </button>
                                     </div>
                                 <?php elseif ($isEligible): ?>

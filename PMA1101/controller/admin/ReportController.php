@@ -127,7 +127,9 @@ class ReportController
         // Chuẩn bị dữ liệu cho biểu đồ
         $monthlyLabels = array_column($monthlyData, 'month_name');
         $monthlyRevenue = array_column($monthlyData, 'revenue');
-        $monthlyProfit = array_column($monthlyData, 'revenue'); // Profit = Revenue
+        $monthlyEstimatedExpense = array_column($monthlyData, 'estimated_expense');
+        $monthlyActualExpense = array_column($monthlyData, 'actual_expense');
+        $monthlyProfit = array_column($monthlyData, 'profit');
 
         // Dữ liệu cho biểu đồ tròn lợi nhuận theo tour
         $topTours = array_slice($tourFinancials, 0, 5); // Top 5 tours
@@ -156,6 +158,8 @@ class ReportController
             'tourFinancials' => $tourFinancials,
             'monthlyLabels' => $monthlyLabels,
             'monthlyRevenue' => $monthlyRevenue,
+            'monthlyEstimatedExpense' => $monthlyEstimatedExpense,
+            'monthlyActualExpense' => $monthlyActualExpense,
             'monthlyProfit' => $monthlyProfit,
             'tourNames' => $tourNames,
             'tourProfits' => $tourProfits,
@@ -878,7 +882,7 @@ class ReportController
         $sql = "SELECT 
                     rating,
                     COUNT(*) as count
-                FROM feedbacks
+                FROM tour_feedbacks
                 WHERE created_at BETWEEN :date_from AND :date_to
                 GROUP BY rating
                 ORDER BY rating DESC";
@@ -911,7 +915,7 @@ class ReportController
         // Recent bookings
         $sql = "SELECT 
                    B.id,
-                   B.customer_name,
+                   COALESCE(U.full_name, B.contact_name) AS customer_name,
                    T.name as tour_name,
                    B.booking_date,
                    'booking' as type,
@@ -919,6 +923,7 @@ class ReportController
                    'success' as color
                 FROM bookings B
                 LEFT JOIN tours T ON B.tour_id = T.id
+                LEFT JOIN users U ON B.customer_id = U.user_id
                 ORDER BY B.booking_date DESC
                 LIMIT 3";
 
@@ -939,15 +944,16 @@ class ReportController
         // Recent feedbacks
         $sql = "SELECT 
                    F.id,
-                   F.customer_name,
+                   COALESCE(U.full_name, 'Khách hàng') AS customer_name,
                    T.name as tour_name,
                    F.rating,
                    F.created_at,
                    'feedback' as type,
                    'fa-star' as icon,
                    'warning' as color
-                FROM feedbacks F
+                FROM tour_feedbacks F
                 LEFT JOIN tours T ON F.tour_id = T.id
+                LEFT JOIN users U ON F.user_id = U.user_id
                 ORDER BY F.created_at DESC
                 LIMIT 2";
 
@@ -1112,7 +1118,10 @@ class ReportController
         $bookingModel = new Booking();
         
         $customerDebts = $bookingModel->getUnpaidBookings();
-        
+        $data = [
+            'customerDebts' => $customerDebts
+        ];
+
         require_once PATH_VIEW_ADMIN . 'pages/reports/debt.php';
     }
 }

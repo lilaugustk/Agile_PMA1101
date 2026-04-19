@@ -13,7 +13,9 @@ class ClientTourController
         // 1. Fetch featured/hot tours (limit 6)
         $pdo = BaseModel::getPdo();
         $stmt = $pdo->prepare("
-            SELECT t.*, tc.name as category_name 
+            SELECT t.*, tc.name as category_name,
+                (SELECT AVG(rating) FROM tour_feedbacks WHERE tour_id = t.id) as avg_rating,
+                (SELECT COUNT(*) FROM tour_feedbacks WHERE tour_id = t.id) as review_count
             FROM tours t 
             LEFT JOIN tour_categories tc ON t.category_id = tc.id 
             WHERE t.status = 'active'
@@ -227,9 +229,12 @@ class ClientTourController
             }
         }
 
-        // Departures
+        // Departures - đồng bộ số ghế trước khi hiển thị
+        $bookingModel = new Booking();
+        $bookingModel->cleanupExpiredPending(); // Giải phóng chỗ cho booking hết hạn
         $departureModel = new TourDeparture();
-        $departures = $departureModel->select('*', 'tour_id = :tid', ['tid' => $id], 'departure_date ASC');
+        $departureModel->syncBookedSeats(); // Đồng bộ booked_seats với thực tế DB
+        $departures = $departureModel->getByTourId($id);
 
         // Reviews and Rating stats (US51, 52)
         $reviewModel = new TourReview();
@@ -262,6 +267,7 @@ class ClientTourController
         $comment = trim($_POST['comment'] ?? '');
         $fullName = trim($_POST['full_name'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $currentUserId = $_SESSION['user']['user_id'] ?? null;
 
         if (!$tourId || empty($comment) || empty($fullName)) {
             $_SESSION['error_review'] = 'Vui lòng điền đầy đủ thông tin và nội dung đánh giá.';
@@ -269,10 +275,33 @@ class ClientTourController
             exit;
         }
 
+        // Chỉ cho phép khách đã hoàn thành chuyến đi gửi đánh giá
+        if (empty($currentUserId)) {
+            $_SESSION['error_review'] = 'Vui lòng đăng nhập tài khoản khách hàng để gửi đánh giá.';
+            header('Location: ' . BASE_URL . '?action=tour-detail&id=' . $tourId . '#reviews');
+            exit;
+        }
+
+        $pdo = BaseModel::getPdo();
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM bookings
+            WHERE customer_id = :customer_id
+              AND tour_id = :tour_id
+              AND status = 'hoan_tat'");
+        $stmt->execute([
+            'customer_id' => $currentUserId,
+            'tour_id' => $tourId
+        ]);
+        $canReview = (int)$stmt->fetchColumn() > 0;
+        if (!$canReview) {
+            $_SESSION['error_review'] = 'Bạn chỉ có thể đánh giá sau khi hoàn thành chuyến đi này.';
+            header('Location: ' . BASE_URL . '?action=tour-detail&id=' . $tourId . '#reviews');
+            exit;
+        }
+
         $reviewModel = new TourReview();
         $data = [
             'tour_id' => $tourId,
-            'user_id' => $_SESSION['user']['user_id'] ?? null,
+            'user_id' => $currentUserId,
             'full_name' => $fullName,
             'email' => $email,
             'rating' => $rating,

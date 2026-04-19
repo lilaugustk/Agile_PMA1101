@@ -74,40 +74,30 @@ $isGuide = $userRole === 'guide';
                                 <i class="ph ph-file-text" style="font-size: 1.1rem;"></i> Chính sách
                             </a>
                         </li>
-                        <li class="menu-item">
-                            <a class="menu-link py-2 <?= isActive('tours/departures') ?>" href="<?= BASE_URL_ADMIN ?>&action=tours/departures">
-                                <i class="ph ph-truck" style="font-size: 1.1rem;"></i> Vận hành đoàn
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </li>
         <?php endif; ?>
 
-        <li class="menu-item">
-            <a class="menu-link dropdown-toggles d-flex justify-content-between align-items-center <?= isParentActive(['bookings', 'guides/available-tours']) ?>"
-                href="#" data-bs-toggle="collapse" data-bs-target="#bookingMenu"
-                aria-expanded="<?= (isCollapseShow('bookings') || isCollapseShow('guides/available-tours')) ? 'true' : 'false' ?>">
-                <div class="d-flex align-items-center gap-2"><i class="ph ph-calendar-check"></i> Booking</div>
-                <i class="ph ph-caret-down" style="font-size: 0.9rem;"></i>
-            </a>
-            <div class="collapse <?= (isCollapseShow('bookings') || isCollapseShow('guides/available-tours')) ? 'show' : '' ?>" id="bookingMenu">
-                <ul class="sidebar-menu pb-0 pt-2 ps-3 m-0" style="border-left: 1px solid var(--border-light); margin-left: 0.8rem !important; padding-right: 0;">
-                    <li class="menu-item">
-                        <a class="menu-link py-2 <?= isActive('bookings') ?>" href="<?= BASE_URL_ADMIN ?>&action=bookings">
-                            <i class="ph ph-list-numbers" style="font-size: 1.1rem;"></i> Quản lý Booking
-                        </a>
-                    </li>
-                    <?php if (in_array($_SESSION['user']['role'] ?? '', ['guide', 'admin'])): ?>
+        <?php if ($isAdmin): ?>
+            <li class="menu-item">
+                <a class="menu-link dropdown-toggles d-flex justify-content-between align-items-center <?= isParentActive(['bookings']) ?>"
+                    href="#" data-bs-toggle="collapse" data-bs-target="#bookingMenu"
+                    aria-expanded="<?= isCollapseShow('bookings') ? 'true' : 'false' ?>">
+                    <div class="d-flex align-items-center gap-2"><i class="ph ph-calendar-check"></i> Booking</div>
+                    <i class="ph ph-caret-down" style="font-size: 0.9rem;"></i>
+                </a>
+                <div class="collapse <?= isCollapseShow('bookings') ? 'show' : '' ?>" id="bookingMenu">
+                    <ul class="sidebar-menu pb-0 pt-2 ps-3 m-0" style="border-left: 1px solid var(--border-light); margin-left: 0.8rem !important; padding-right: 0;">
                         <li class="menu-item">
-                            <a class="menu-link py-2 <?= isActive('available-tours') ?>" href="<?= BASE_URL_ADMIN ?>&action=available-tours">
-                                <i class="ph ph-ticket" style="font-size: 1.1rem;"></i> Tour Khả Dụng
+                            <a class="menu-link py-2 <?= isActive('bookings') ?>" href="<?= BASE_URL_ADMIN ?>&action=bookings">
+                                <i class="ph ph-list-numbers" style="font-size: 1.1rem;"></i> Quản lý Booking
                             </a>
                         </li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-        </li>
+                    </ul>
+                </div>
+            </li>
+<?php endif; ?>
 
         <?php if ($isAdmin): ?>
             <li class="menu-item">
@@ -123,28 +113,14 @@ $isGuide = $userRole === 'guide';
             </li>
         <?php endif; ?>
 
-        <li class="menu-item">
-            <a class="menu-link dropdown-toggles d-flex justify-content-between align-items-center <?= isParentActive(['tours_logs', 'guide/schedule']) ?>"
-                href="#" data-bs-toggle="collapse" data-bs-target="#workMenu"
-                aria-expanded="<?= isCollapseShow(['tours_logs', 'guide/schedule']) ? 'true' : 'false' ?>">
-                <div class="d-flex align-items-center gap-2"><i class="ph ph-briefcase"></i> Công việc</div>
-                <i class="ph ph-caret-down" style="font-size: 0.9rem;"></i>
-            </a>
-            <div class="collapse <?= isCollapseShow(['tours_logs', 'guide/schedule']) ?>" id="workMenu">
-                <ul class="sidebar-menu pb-0 pt-2 ps-3 m-0" style="border-left: 1px solid var(--border-light); margin-left: 0.8rem !important; padding-right: 0;">
-                    <li class="menu-item">
-                        <a class="menu-link py-2 <?= isActive('tours_logs') ?>" href="<?= BASE_URL_ADMIN ?>&action=tours_logs">
-                            <i class="ph ph-book-open" style="font-size: 1.1rem;"></i> Nhật ký Tour
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a class="menu-link py-2 <?= isActive('guide/schedule') ?>" href="<?= BASE_URL_ADMIN ?>&action=guide/schedule">
-                            <i class="ph ph-calendar-blank" style="font-size: 1.1rem;"></i> Lịch làm việc
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
+
+        <?php if ($isAdmin): ?>
+            <li class="menu-item">
+                <a class="menu-link <?= isActive('blogs') ?>" href="<?= BASE_URL_ADMIN ?>&action=blogs">
+                    <i class="ph ph-newspaper"></i> Quản lý bài viết
+                </a>
+            </li>
+        <?php endif; ?>
 
         <?php if ($isAdmin): ?>
             <li class="menu-item" style="margin-top: 24px;">

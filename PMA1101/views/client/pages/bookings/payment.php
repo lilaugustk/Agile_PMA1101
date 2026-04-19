@@ -69,6 +69,31 @@ $qrUrl       = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-compact2.jpg?
 
 /* ── Order Summary ───────────────────────── */
 .order-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: .9rem; }
+
+/* ── Upload Zone ─────────────────────────── */
+.upload-zone {
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #f8f9fa;
+}
+.upload-zone:hover {
+    border-color: #0d6efd;
+    background: #f0f7ff;
+}
+.upload-zone i {
+    font-size: 2rem;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+.upload-zone.has-file {
+    border-color: #198754;
+    background: #f0fff4;
+}
+.upload-zone.has-file i { color: #198754; }
 </style>
 
 <div class="container" style="padding-top: 40px; padding-bottom: 60px;">
@@ -173,12 +198,23 @@ $qrUrl       = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-compact2.jpg?
                     <div class="border-top pt-4 mt-4">
                         <p class="text-muted small mb-3">
                             <i class="fas fa-info-circle text-info me-1"></i>
-                            Sau khi chuyển khoản thành công, nhấn nút bên dưới để xác nhận. Chúng tôi sẽ kiểm tra và liên hệ với bạn trong vòng <strong>24h</strong>.
+                            Để xác nhận nhanh hơn, vui lòng tải lên ảnh chụp màn hình chuyển khoản thành công.
                         </p>
-                        <form action="<?= BASE_URL ?>?action=booking-confirm" method="POST" id="confirmForm">
+                        
+                        <form action="<?= BASE_URL ?>?action=booking-confirm" method="POST" id="confirmForm" enctype="multipart/form-data">
                             <input type="hidden" name="booking_id" value="<?= $booking['id'] ?>">
+                            
+                            <div class="mb-4">
+                                <label for="payment_proof" class="upload-zone w-100 mb-0" id="uploadZone">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <div class="fw-bold text-dark">Tải ảnh minh chứng</div>
+                                    <p class="small text-muted mb-0" id="fileName">Nhấn để chọn ảnh hoặc kéo thả vào đây</p>
+                                    <input type="file" name="payment_proof" id="payment_proof" class="d-none" accept="image/*" onchange="handleFileSelect(this)">
+                                </label>
+                            </div>
+
                             <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm"
-                                    onclick="return confirm('Bạn xác nhận đã chuyển khoản thành công?')">
+                                    id="confirmBtn">
                                 <i class="fas fa-check-circle me-2"></i>Tôi Đã Chuyển Khoản
                             </button>
                         </form>
@@ -307,6 +343,28 @@ function updateCountdown() {
 updateCountdown();
 setInterval(updateCountdown, 1000);
 <?php endif; ?>
+// ── File Upload Handling ──────────────────
+function handleFileSelect(input) {
+    const zone = document.getElementById('uploadZone');
+    const fileNameDisplay = document.getElementById('fileName');
+    
+    if (input.files && input.files[0]) {
+        zone.classList.add('has-file');
+        fileNameDisplay.textContent = 'Đã chọn: ' + input.files[0].name;
+    } else {
+        zone.classList.remove('has-file');
+        fileNameDisplay.textContent = 'Nhấn để chọn ảnh hoặc kéo thả vào đây';
+    }
+}
+
+// ── Confirm Form ──────────────────────────
+document.getElementById('confirmForm').addEventListener('submit', function(e) {
+    if (!document.getElementById('payment_proof').files.length) {
+        if (!confirm('Bạn chưa tải ảnh minh chứng chuyển khoản. Bạn có chắc chắn muốn xác nhận đã thanh toán không?')) {
+            e.preventDefault();
+        }
+    }
+});
 </script>
 
 <?php include_once PATH_VIEW_CLIENT . 'default/footer.php'; ?>

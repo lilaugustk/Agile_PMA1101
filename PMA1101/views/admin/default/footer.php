@@ -11,7 +11,7 @@
 <script src="<?= BASE_ASSETS_ADMIN ?>/js/admin-dashboard.js"></script>
 <script src="<?= BASE_ASSETS_ADMIN ?>/js/sidebar.js"></script>
 <script src="<?= BASE_ASSETS_ADMIN ?>/js/main.js"></script>
-<script src="<?= BASE_ASSETS_ADMIN ?>/js/booking.js"></script>
+<script src="<?= BASE_ASSETS_ADMIN ?>/js/booking.js?v=20260413-status"></script>
 <script src="<?= BASE_ASSETS_ADMIN ?>/js/tours-create.js"></script>
 </body>
 

@@ -11,7 +11,9 @@ class TourDeparture extends BaseModel
         'max_seats',
         'price_adult',
         'price_child',
+        'price_infant',
         'status',
+        'operational_status',
         'created_at'
     ];
 
@@ -23,7 +25,7 @@ class TourDeparture extends BaseModel
     /**
      * Get departures by tour ID
      */
-    public function getByTourId($tourId)
+    public function getByTourId($tourId, $includeId = null)
     {
         $sql = "SELECT 
                     td.id,
@@ -33,17 +35,23 @@ class TourDeparture extends BaseModel
                     td.booked_seats,
                     td.price_adult,
                     td.price_child,
+                    td.price_infant,
                     td.status,
                     td.notes,
                     (td.max_seats - td.booked_seats) as available_seats
                 FROM tour_departures td
                 WHERE td.tour_id = :tour_id
-                    AND td.status = 'open'
-                    AND td.departure_date >= CURDATE()
+                    AND (
+                        (td.status IN ('open', 'guaranteed') AND td.departure_date >= CURDATE())
+                        OR td.id = :include_id
+                    )
                 ORDER BY td.departure_date ASC";
 
         $stmt = self::$pdo->prepare($sql);
-        $stmt->execute(['tour_id' => $tourId]);
+        $stmt->execute([
+            'tour_id' => $tourId,
+            'include_id' => $includeId
+        ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -106,7 +114,8 @@ class TourDeparture extends BaseModel
     {
         $offset = ($page - 1) * $perPage;
         $params = [];
-        $whereConditions = ["1=1"];
+        // Vận hành đoàn chỉ xử lý các chuyến từ hôm nay trở đi.
+        $whereConditions = ["td.departure_date >= CURDATE()"];
 
         // Lọc theo Tour cụ thể
         if (!empty($filters['tour_id'])) {
@@ -118,12 +127,6 @@ class TourDeparture extends BaseModel
         if (!empty($filters['keyword'])) {
             $whereConditions[] = "t.name LIKE :keyword";
             $params[':keyword'] = '%' . $filters['keyword'] . '%';
-        }
-
-        // Lọc theo trạng thái
-        if (!empty($filters['status'])) {
-            $whereConditions[] = "td.status = :status";
-            $params[':status'] = $filters['status'];
         }
 
         // Lọc theo khoảng ngày khởi hành
@@ -152,12 +155,14 @@ class TourDeparture extends BaseModel
 
         // Truy vấn chính
         $sql = "SELECT td.*, t.name as tour_name, 
-                       (SELECT COUNT(*) FROM bookings WHERE departure_id = td.id AND status != 'cancelled') as booking_count,
-                       (SELECT SUM(final_price) FROM bookings WHERE departure_id = td.id AND status IN ('paid', 'completed')) as revenue
+                       (SELECT COUNT(*) FROM bookings WHERE departure_id = td.id AND status NOT IN ('cancelled','da_huy','expired','hoan_huy')) as booking_count,
+                       (SELECT COALESCE(SUM(final_price),0) FROM bookings WHERE departure_id = td.id AND status IN ('hoan_tat','da_coc','da_thanh_toan','paid','completed')) as revenue
                 FROM {$this->table} td
                 JOIN tours t ON td.tour_id = t.id
                 WHERE $whereClause
-                ORDER BY td.departure_date DESC
+                ORDER BY ABS(DATEDIFF(td.departure_date, CURDATE())) ASC,
+                         td.departure_date ASC,
+                         td.id DESC
                 LIMIT :limit OFFSET :offset";
 
         $stmt = self::$pdo->prepare($sql);
@@ -177,10 +182,6 @@ class TourDeparture extends BaseModel
         ];
     }
 
-    /**
-     * Đồng bộ số ghế đã đặt với dữ liệu booking thực tế
-     * @param int|null $departureId Nếu null sẽ đồng bộ tất cả các chuyến trong 1 tháng vừa qua và tương lai
-     */
     public function syncBookedSeats($departureId = null)
     {
         $condition = $departureId ? "WHERE id = :id" : "WHERE departure_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
@@ -191,11 +192,45 @@ class TourDeparture extends BaseModel
                     SELECT COALESCE(SUM(b.adults + b.children), 0)
                     FROM bookings b
                     WHERE b.departure_id = td.id
-                    AND b.status NOT IN ('cancelled', 'da_huy', 'expired', 'cancelled')
+                      AND b.status IN ('cho_xac_nhan', 'da_coc', 'da_thanh_toan', 'hoan_tat')
                 )
                 $condition";
         
         $stmt = self::$pdo->prepare($sql);
         return $stmt->execute($params);
+    }
+
+    /**
+     * Gộp hai lịch khởi hành lại làm một
+     * @param int $sourceId ID đoàn bị gộp (sẽ bị xóa)
+     * @param int $targetId ID đoàn nhận (sẽ giữ lại)
+     * @return bool
+     */
+    public function mergeDepartures($sourceId, $targetId)
+    {
+        $this->beginTransaction();
+        try {
+            // 1. Cập nhật tất cả Booking từ nguồn sang đích
+            $sqlBooking = "UPDATE bookings SET departure_id = :target_id WHERE departure_id = :source_id";
+            $stmtBooking = self::$pdo->prepare($sqlBooking);
+            $stmtBooking->execute(['target_id' => $targetId, 'source_id' => $sourceId]);
+
+            // 2. Đồng bộ lại số ghế của đoàn đích
+            $this->syncBookedSeats($targetId);
+
+            // 3. Xóa các phân công (Assignment) của đoàn cũ
+            $sqlAssignment = "DELETE FROM tour_assignments WHERE departure_id = :source_id";
+            $stmtAssignment = self::$pdo->prepare($sqlAssignment);
+            $stmtAssignment->execute(['source_id' => $sourceId]);
+
+            // 4. Xóa đoàn cũ
+            $this->delete('id = :id', ['id' => $sourceId]);
+
+            $this->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->rollBack();
+            throw $e;
+        }
     }
 }

@@ -3,18 +3,24 @@ require_once 'models/Tour.php';
 require_once 'models/TourDeparture.php';
 require_once 'models/Booking.php';
 require_once 'models/BookingCustomer.php';
+require_once 'models/CustomerProfileModel.php';
+require_once 'models/User.php';
 
 class ClientBookingController
 {
     private $tourModel;
     private $departureModel;
     private $bookingModel;
+    private $profileModel;
+    private $userModel;
 
     public function __construct()
     {
         $this->tourModel      = new Tour();
         $this->departureModel = new TourDeparture();
         $this->bookingModel   = new Booking();
+        $this->profileModel   = new CustomerProfileModel();
+        $this->userModel      = new User();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -39,15 +45,33 @@ class ClientBookingController
             exit;
         }
 
+        // Kiểm tra trạng thái departure: chỉ cho phép 'open' hoặc 'guaranteed'
+        $allowedStatuses = ['open', 'guaranteed'];
+        if (!in_array($departure['status'] ?? '', $allowedStatuses)) {
+            $_SESSION['error'] = 'Chuyến khởi hành này hiện đã đóng hoặc bị hủy. Vui lòng chọn ngày khác!';
+            header('Location: ' . BASE_URL . '?action=tour-detail&id=' . $tourId);
+            exit;
+        }
+
         // Dọn dẹp booking pending hết hạn trước khi kiểm tra
         $this->bookingModel->cleanupExpiredPending();
 
         // Kiểm tra chỗ trống
         $availableSeats = $departure['max_seats'] - ($departure['booked_seats'] ?? 0);
         if ($availableSeats <= 0) {
-            $_SESSION['error'] = 'Chuyến đi này đã hết chỗ!';
             header('Location: ' . BASE_URL . '?action=tour-detail&id=' . $tourId);
             exit;
+        }
+        
+        $userProfile = null;
+        if (isset($_SESSION['user'])) {
+            $userId = $_SESSION['user']['user_id'];
+            $userProfile = $this->profileModel->getByUserId($userId);
+            // Optionally merge with user table data if needed
+            $userData = $this->userModel->getById($userId);
+            if ($userData) {
+                $userProfile = array_merge($userData, $userProfile ?: []);
+            }
         }
 
         // Tính số ngày từ itinerary nếu cần
@@ -113,6 +137,14 @@ class ClientBookingController
             exit;
         }
 
+        // Kiểm tra trạng thái departure: chỉ cho phép 'open' hoặc 'guaranteed'
+        $allowedStatuses = ['open', 'guaranteed'];
+        if (!in_array($departure['status'] ?? '', $allowedStatuses)) {
+            $_SESSION['error'] = 'Chuyến khởi hành này hiện đã đóng hoặc bị hủy!';
+            header('Location: ' . BASE_URL . '?action=tour-detail&id=' . $tourId);
+            exit;
+        }
+
         $availableSeats = $departure['max_seats'] - ($departure['booked_seats'] ?? 0);
         if ($availableSeats < $totalSeats) {
             $_SESSION['error'] = "Số chỗ còn lại không đủ! Chỉ còn <strong>{$availableSeats}</strong> chỗ.";
@@ -149,59 +181,72 @@ class ClientBookingController
                 'original_price'  => $finalPrice,
                 'final_price'     => $finalPrice,
                 'total_price'     => $finalPrice,
-                'status'          => 'pending',
-                'expires_at'      => date('Y-m-d H:i:s', strtotime('+30 minutes')),
+                'status'          => Booking::STATUS_PENDING,
+                'expires_at'      => date('Y-m-d H:i:s', strtotime('+' . BOOKING_HOLD_TIME . ' minutes')),
                 'created_by'      => (isset($_SESSION['user'])) ? $_SESSION['user']['user_id'] : 0,
                 'created_at'      => date('Y-m-d H:i:s'),
             ];
 
             $bookingId = $this->bookingModel->insert($bookingData);
 
-            // 2. Insert booking_customers (1 row/người lớn + 1 row/trẻ em)
+            // 2. Insert booking_customers từ mảng dữ liệu động
             $bookingCustomerModel = new BookingCustomer();
 
-            // Người đại diện (adult đầu tiên)
-            $bookingCustomerModel->insert([
-                'booking_id'     => $bookingId,
-                'full_name'      => $contactName,
-                'phone'          => $contactPhone,
-                'passenger_type' => 'adult',
-            ]);
+            $names      = $_POST['companion_name']       ?? [];
+            $genders    = $_POST['companion_gender']     ?? [];
+            $birthDates = $_POST['companion_birth_date']  ?? [];
+            $idCards    = $_POST['companion_id_card']     ?? [];
+            $phones     = $_POST['companion_phone']      ?? [];
+            $emails     = $_POST['companion_email']      ?? [];
+            $addresses  = $_POST['companion_address']    ?? [];
+            $notes      = $_POST['companion_note']       ?? [];
 
-            // Thêm các adult còn lại (placeholder)
-            for ($i = 2; $i <= $adults; $i++) {
-                $bookingCustomerModel->insert([
+            // Tính toán index để phân loại (đã render theo thứ tự: Adult -> Child -> Infant)
+            for ($i = 0; $i < count($names); $i++) {
+                if (empty(trim($names[$i]))) continue;
+
+                $type = 'adult';
+                if ($i >= $adults && $i < ($adults + $children)) {
+                    $type = 'child';
+                } elseif ($i >= ($adults + $children)) {
+                    $type = 'infant';
+                }
+
+                $bDate = $birthDates[$i] ?? null;
+                if ($bDate && strpos($bDate, '/') !== false) {
+                    $parts = explode('/', $bDate);
+                    if (count($parts) === 3) {
+                        $bDate = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+                    }
+                }
+
+                $customerData = [
                     'booking_id'     => $bookingId,
-                    'full_name'      => "Người lớn $i",
-                    'passenger_type' => 'adult',
-                ]);
+                    'full_name'      => trim($names[$i]),
+                    'gender'         => $genders[$i]    ?? null,
+                    'birth_date'     => $bDate,
+                    'passenger_type' => $type,
+                    'special_request' => $notes[$i]      ?? null
+                ];
+
+                // ID Card, Phone, Email và Address chỉ dành cho Adult
+                if ($type === 'adult') {
+                    $customerData['id_card'] = !empty($idCards[$i]) ? trim($idCards[$i]) : null;
+                    $customerData['phone']   = !empty($phones[$i])  ? trim($phones[$i])  : null;
+                    $customerData['email']   = !empty($emails[$i])  ? trim($emails[$i])  : null;
+                    $customerData['address'] = !empty($addresses[$i]) ? trim($addresses[$i]) : null;
+                } else {
+                    $customerData['id_card'] = null;
+                    $customerData['phone']   = null;
+                    $customerData['email']   = null;
+                    $customerData['address'] = null;
+                }
+
+                $bookingCustomerModel->insert($customerData);
             }
 
-            // Thêm trẻ em (placeholder)
-            for ($i = 1; $i <= $children; $i++) {
-                $bookingCustomerModel->insert([
-                    'booking_id'     => $bookingId,
-                    'full_name'      => "Trẻ em $i",
-                    'passenger_type' => 'child',
-                ]);
-            }
-
-            // Thêm em bé (placeholder)
-            for ($i = 1; $i <= $infants; $i++) {
-                $bookingCustomerModel->insert([
-                    'booking_id'     => $bookingId,
-                    'full_name'      => "Em bé $i",
-                    'passenger_type' => 'infant',
-                ]);
-            }
-
-            // 3. Cập nhật số ghế đã đặt
-            $newBookedSeats = ($departure['booked_seats'] ?? 0) + $totalSeats;
-            $this->departureModel->update(
-                ['booked_seats' => $newBookedSeats],
-                'id = :id',
-                ['id' => $departureId]
-            );
+            // 3. Không cộng booked_seats tại thời điểm tạo đơn pending.
+            // (Đã có logic dọn dẹp và syncBookedSeats trong detail() và create() của admin/client)
 
             $this->bookingModel->commit();
 
@@ -266,32 +311,46 @@ class ClientBookingController
 
         $booking = $this->bookingModel->getById($bookingId);
 
-        if (!$booking || $booking['status'] === 'expired') {
+        if (!$booking || $booking['status'] === Booking::STATUS_EXPIRED) {
             $_SESSION['error'] = 'Đơn đặt tour đã hết hạn!';
             header('Location: ' . BASE_URL);
             exit;
         }
 
-        // Cập nhật: pending → cho_xac_nhan, xóa expires_at
+        // Xử lý upload minh chứng thanh toán
+        require_once 'services/FileService.php';
+        $paymentProof = null;
+        if (isset($_FILES['payment_proof'])) {
+            $paymentProof = FileService::upload($_FILES['payment_proof'], UPLOAD_DIR_PAYMENTS);
+        }
+
+        // Cập nhật: pending -> cho_xac_nhan, xóa expires_at, lưu minh chứng
+        $updateData = [
+            'status'     => Booking::STATUS_WAITING,
+            'expires_at' => null
+        ];
+        if ($paymentProof) {
+            $updateData['payment_proof'] = $paymentProof;
+        }
+
         $this->bookingModel->update(
-            ['status' => 'cho_xac_nhan', 'expires_at' => null],
+            $updateData,
             'id = :id',
             ['id' => $bookingId]
         );
+
+        // Đồng bộ chỗ ngồi (Giữ chỗ)
+        if (!empty($booking['departure_id'])) {
+            $this->bookingModel->syncBookedSeats((int)$booking['departure_id']);
+        }
 
         // 1. Lấy dữ liệu đầy đủ để gửi mail & tạo PDF
         $fullBooking = $this->bookingModel->getById($bookingId);
         $tour = $this->tourModel->findById($fullBooking['tour_id']);
 
-        // 2. Gửi Email (Simulation)
+        // 2. Gửi Email thông báo đã nhận yêu cầu xác nhận thanh toán
+        require_once 'services/EmailService.php';
         EmailService::sendBookingConfirmation($fullBooking, $tour);
-
-        // 3. Tạo Hóa đơn / Biên nhận (Simulation)
-        $invoiceHtml = PDFService::generateBookingInvoiceHtml($fullBooking, $tour);
-        $invoiceUrl = PDFService::exportToPDF($invoiceHtml, 'invoice_' . $bookingId . '.pdf');
-        
-        // Lưu URL hóa đơn vào session để hiển thị ở trang success
-        $_SESSION['last_invoice_url'] = $invoiceUrl;
 
         $bookingCode = 'BK' . str_pad($bookingId, 6, '0', STR_PAD_LEFT);
         header('Location: ' . BASE_URL . '?action=booking-success&code=' . $bookingCode);
@@ -334,15 +393,30 @@ class ClientBookingController
             die(json_encode(['RspCode' => '01', 'Message' => 'Order not found']));
         }
 
-        if ($booking['status'] !== 'pending' && $booking['status'] !== 'cho_xac_nhan') {
+        if ($booking['status'] !== Booking::STATUS_PENDING && $booking['status'] !== Booking::STATUS_WAITING) {
             die(json_encode(['RspCode' => '02', 'Message' => 'Order already confirmed']));
         }
 
-        // Cập nhật lên trạng thái Đã Cọc hoặc Hoàn Tất tùy số tiền
+        // 1. Cập nhật trạng thái Booking
         $this->bookingModel->update(
-            ['status' => 'da_coc', 'expires_at' => null],
+            ['status' => Booking::STATUS_DEPOSITED, 'expires_at' => null],
             'id = :id',
             ['id' => $bookingId]
+        );
+
+        // 2. Đồng bộ chỗ ngồi
+        if (!empty($booking['departure_id'])) {
+            $this->bookingModel->syncBookedSeats((int)$booking['departure_id']);
+        }
+
+        // 3. Ghi nhận giao dịch tài chính
+        require_once 'models/Transaction.php';
+        $transactionModel = new Transaction();
+        $transactionModel->recordBookingPayment(
+            $bookingId, 
+            $booking['total_price'], 
+            'online_gateway', 
+            "Thanh toán trực tuyến cho đơn hàng BK" . str_pad($bookingId, 6, '0', STR_PAD_LEFT)
         );
 
         // Notify staff (Simulation)

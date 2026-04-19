@@ -51,9 +51,10 @@
                 <div class="d-flex align-items-center gap-3 auth-buttons">
                     <?php if (isset($_SESSION['user'])): ?>
                         <div class="dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 fw-medium text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link d-flex align-items-center gap-2 fw-medium text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="<?= !empty($_SESSION['user']['avatar']) ? BASE_ASSETS_UPLOADS . $_SESSION['user']['avatar'] : 'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['user']['full_name'] ?? 'User') . '&background=008C72&color=fff' ?>" alt="Avatar" class="rounded-circle" width="36" height="36" style="object-fit: cover;">
                                 <span class="d-none d-lg-block"><?= htmlspecialchars($_SESSION['user']['full_name']) ?></span>
+                                <i class="ph ph-caret-down fs-7 ms-1 text-muted"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3">
                                 <li><a class="dropdown-item py-2" href="<?= BASE_URL ?>?action=account-profile">

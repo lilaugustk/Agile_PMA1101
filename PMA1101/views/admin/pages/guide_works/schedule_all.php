@@ -89,10 +89,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                                    class="btn btn-icon-sm btn-light-primary" title="Chi tiết">
                                                     <i class="ph ph-eye"></i>
                                                 </a>
-                                                <a href="<?= BASE_URL_ADMIN ?>&action=tour_vehicles&assignment_id=<?= $a['id'] ?>" 
-                                                   class="btn btn-icon-sm btn-light-warning" title="Phân công xe">
-                                                    <i class="ph ph-bus"></i>
-                                                </a>
                                                 <button class="btn btn-icon-sm btn-light-danger remove-assignment-btn"
                                                     data-assignment-id="<?= $a['id'] ?>"
                                                     data-tour-name="<?= htmlspecialchars($a['tour_name'] ?? '') ?>"
@@ -116,48 +112,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle status change
-        document.querySelectorAll('.status-select').forEach(select => {
-            select.addEventListener('change', function() {
-                const assignmentId = this.dataset.assignmentId;
-                const newStatus = this.value;
-                const originalValue = this.querySelector('option[selected]')?.value || 'pending';
-
-                if (!confirm('Bạn có chắc muốn cập nhật trạng thái?')) {
-                    this.value = originalValue;
-                    return;
-                }
-
-                // Disable select
-                this.disabled = true;
-
-                fetch('<?= BASE_URL_ADMIN ?>&action=guide/updateStatus', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: `assignment_id=${assignmentId}&status=${newStatus}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('✅ ' + data.message);
-                            location.reload();
-                        } else {
-                            alert('❌ ' + data.message);
-                            this.value = originalValue;
-                            this.disabled = false;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Có lỗi xảy ra khi cập nhật trạng thái');
-                        this.value = originalValue;
-                        this.disabled = false;
-                    });
-            });
-        });
-
         // Handle remove assignment buttons
         document.querySelectorAll('.remove-assignment-btn').forEach(btn => {
             btn.addEventListener('click', function() {

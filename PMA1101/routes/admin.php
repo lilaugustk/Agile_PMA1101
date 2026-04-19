@@ -11,9 +11,6 @@ require_once 'controller/admin/ReportController.php';
 require_once 'controller/admin/PolicyController.php';
 require_once 'controller/admin/TourCategoryController.php';
 require_once 'controller/admin/ItineraryController.php';
-require_once 'controller/admin/TourLogController.php';
-require_once 'controller/admin/TourAssignmentController.php';
-require_once 'controller/admin/GuideWorkController.php';
 require_once 'controller/admin/TourVehicleController.php';
 require_once 'controller/admin/AvailableToursController.php'; // Add missing controller
 require_once 'controller/admin/AdminBlogController.php';
@@ -26,6 +23,7 @@ $action = $_GET['action'] ?? '/';
 match ($action) {
     // Dashboard
     '/'                                     => (new DashboardController)->index(),
+    'dashboard/getChartData'                => (new DashboardController)->getChartData(), // AJAX
 
     // Auth
     'login'                                 => (new AuthorController)->login(),
@@ -44,6 +42,8 @@ match ($action) {
     'tours/update'                          => (new TourController)->update(),
     'tours/clone'                           => (new TourController)->cloneTour(),
     'tours/delete'                          => (new TourController)->delete(),
+    'tours/restore'                         => (new TourController)->restore(),
+    'tours/force-delete'                    => (new TourController)->forceDelete(),
     'tours/detail'                          => (new TourController)->detail(),
     'tours/toggle-status'                   => (new TourController)->toggleStatus(),
     'tours/toggle-featured'                 => (new TourController)->toggleFeatured(),
@@ -51,11 +51,8 @@ match ($action) {
     'tours/bulk-delete'                     => (new TourController)->bulkDelete(),
     'tours/search'                          => (new TourController)->search(),
     'tours/by-status'                       => (new TourController)->getByStatus(),
-    'tours/add-departure'                   => (new TourController)->addDeparture(),
-    'tours/departures'                       => (new TourController)->listDepartures(),
-    'tours/sync-departures'                 => (new TourController)->syncDepartures(),
     'tours/departure-resources'             => (new TourController)->manageDepartureResources(),
-    'tours/save-departure-resources'         => (new TourController)->saveDepartureResources(),
+    'tours/save-departure-resources'        => (new TourController)->saveDepartureResources(),
 
     // Tour Category
     'tours_categories'                      => (new TourCategoryController)->index(),
@@ -73,18 +70,6 @@ match ($action) {
     'tours/itineraries/delete'              => (new ItineraryController)->delete(),
 
 
-    // Tour Logs
-    'tours_logs'                            => (new TourLogController)->index(),
-    'tours_logs/create'                     => (new TourLogController)->create(),
-    'tours_logs/store'                      => (new TourLogController)->store(),
-    'tours_logs/edit'                       => (new TourLogController)->edit(),
-    'tours_logs/update'                     => (new TourLogController)->update(),
-    'tours_logs/delete'                     => (new TourLogController)->delete(),
-    'tours_logs/detail'                     => (new TourLogController)->detail(),
-    'tours_logs/tour_detail'                => (new TourLogController)->tourDetail(),
-    'tours_logs/checkin'                    => (new TourLogController)->checkin(),
-    'tours_logs/toggleCheckin'               => (new TourLogController)->toggleCheckin(), // AJAX
-    'tours_logs/mark_request_handled'       => (new TourLogController)->markRequestHandled(), // AJAX
 
     // Bookings
     'bookings'                              => (new BookingController)->index(),
@@ -103,6 +88,7 @@ match ($action) {
     'bookings/update-checkin'               => (new BookingController)->updateCheckin(), // AJAX endpoint
     'bookings/bulk-checkin'                 => (new BookingController)->bulkCheckin(), // AJAX endpoint
     'bookings/print-group-list'             => (new BookingController)->printGroupList(),
+    'bookings/group-checkin'                => (new BookingController)->groupCheckin(),
     'bookings/allocate-rooms'               => (new BookingController)->allocateRooms(),
     'bookings/save-room-allocation'         => (new BookingController)->saveRoomAllocation(), // AJAX
 
@@ -117,31 +103,11 @@ match ($action) {
     'guides/update'                         => (new GuideController)->update(),
     'guides/delete'                         => (new GuideController)->delete(),
 
-    // Tour Assignments (Guide-Tour management)
-    'guides/tour-assignments'               => (new TourAssignmentController)->index(),
-    'guides/assign-tour'                    => (new TourAssignmentController)->assign(),
-    'guides/remove-tour'                    => (new TourAssignmentController)->remove(),
-    'guides/get-tours'                      => (new TourAssignmentController)->getGuideTours(), // AJAX
-
-    // Guides Work
-    'guide/schedule'                        => (new GuideWorkController)->schedule(),
-    'guide/tourDetail'                      => (new GuideWorkController)->tourDetail(),
-    'guide/cancelAssignment'                => (new GuideWorkController)->cancelAssignment(), // AJAX
-    'guide/updateStatus'                    => (new GuideWorkController)->updateStatus(), // AJAX
-
-    // Available Tours (moved from guides/)
-    'available-tours'                       => (new AvailableToursController)->index(),
-    'available-tours/assign-guide'          => (new AvailableToursController)->assignGuide(), // AJAX
-    'available-tours/claim-tour'            => (new AvailableToursController)->claimTour(), // AJAX
-
     // Legacy routes for backward compatibility (will be removed later)
     'guides/available-tours'                => (new AvailableToursController)->index(),
     'guides/admin-assign-guide'             => (new AvailableToursController)->assignGuide(), // AJAX
     'guides/claim-tour'                     => (new AvailableToursController)->claimTour(), // AJAX
 
-    'guides/tour-bookings'                  => (new TourAssignmentController)->tourBookings(),
-    'guides/accept-booking'                 => (new TourAssignmentController)->acceptBooking(), // AJAX
-    'guides/remove-assignment'              => (new TourAssignmentController)->removeAssignmentByAdmin(), // AJAX
 
 
     // Users
@@ -191,4 +157,5 @@ match ($action) {
     'tour_vehicles/edit'        => (new TourVehicleController)->edit(),
     'tour_vehicles/update'      => (new TourVehicleController)->update(),
     'tour_vehicles/delete'      => (new TourVehicleController)->delete(),
+
 };

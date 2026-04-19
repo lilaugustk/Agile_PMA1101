@@ -12,6 +12,10 @@
     
     <!-- Unified Core Action Stylesheet -->
     <link rel="stylesheet" href="<?= BASE_ASSETS_ADMIN ?>css/admin-custom.css">
+    
+    <!-- Choices.js (Premium Dropdown Library) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 
     <style>
@@ -111,17 +115,7 @@
         <div class="main-content">
         <header class="admin-header">
             <div class="header-content">
-                <div class="search-bar d-none d-md-flex" style="background: #fff; border: 1px solid var(--border-light); border-radius: 20px; padding: 8px 16px; width: 300px; align-items: center; gap: 8px;">
-                    <i class="ph ph-magnifying-glass text-muted"></i>
-                    <input type="text" placeholder="Tìm kiếm hệ thống..." style="border: none; background: transparent; outline: none; width: 100%; font-size: 0.9rem;">
-                </div>
-                
                 <div class="header-right d-flex align-items-center gap-3">
-                    <button class="icon-btn border-0 shadow-sm bg-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <i class="ph ph-bell text-muted" style="font-size: 1.2rem;"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="width: 10px; height: 10px;"></span>
-                    </button>
-
                     <div class="user-profile dropdown" style="cursor: pointer; padding: 4px 12px 4px 4px; background: #fff; border: 1px solid var(--border-light); border-radius: 40px; display: flex; align-items: center; gap: 10px;" data-bs-toggle="dropdown" aria-expanded="false">
                         <?php
                         $loggedInUser = $_SESSION['user'] ?? null;

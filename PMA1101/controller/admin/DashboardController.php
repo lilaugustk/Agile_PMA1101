@@ -57,7 +57,7 @@ class DashboardController
             'totalGuides' => $this->guideModel->getTotalActiveGuides(),
 
             // Dữ liệu biểu đồ
-            'revenueData' => $this->getRevenueLast12Months(),
+            'revenueData' => $this->getRevenueDataByPeriod('6m'),
             'bookingStatusData' => $this->bookingModel->getBookingStatusStats(),
             'topTours' => $this->tourModel->getTopToursByRevenue(5),
             'tourCategories' => $this->tourModel->getTourCategoriesStats(),
@@ -79,17 +79,82 @@ class DashboardController
         require_once PATH_VIEW_ADMIN . 'default/footer.php';
     }
 
-    private function getRevenueLast12Months()
+    private function getRevenueDataByPeriod($period = '6m', $customParams = [])
     {
         $revenueData = [];
-        $year = 2025; // Cố định năm 2025
+        $currentMonth = (int)date('m');
+        $currentYear = (int)date('Y');
 
-        for ($month = 1; $month <= 12; $month++) {
-            $revenue = $this->bookingModel->getMonthlyRevenue($month, $year);
-            $revenueData[] = [
-                'month' => $this->getMonthName($month) . ' ' . $year,
-                'revenue' => $revenue
-            ];
+        if ($period === '6m') {
+            for ($i = 5; $i >= 0; $i--) {
+                $month = $currentMonth - $i;
+                $year = $currentYear;
+                if ($month <= 0) {
+                    $month += 12;
+                    $year -= 1;
+                }
+                $revenue = $this->bookingModel->getMonthlyRevenue($month, $year);
+                $revenueData[] = [
+                    'label' => $this->getMonthName($month) . ' ' . $year,
+                    'revenue' => $revenue
+                ];
+            }
+        } elseif ($period === '12m') {
+            for ($i = 11; $i >= 0; $i--) {
+                $month = $currentMonth - $i;
+                $year = $currentYear;
+                if ($month <= 0) {
+                    $month += 12;
+                    $year -= 1;
+                }
+                $revenue = $this->bookingModel->getMonthlyRevenue($month, $year);
+                $revenueData[] = [
+                    'label' => $this->getMonthName($month) . ' ' . $year,
+                    'revenue' => $revenue
+                ];
+            }
+        } elseif ($period === 'cur_year') {
+            for ($month = 1; $month <= $currentMonth; $month++) {
+                $revenue = $this->bookingModel->getMonthlyRevenue($month, $currentYear);
+                $revenueData[] = [
+                    'label' => $this->getMonthName($month) . ' ' . $currentYear,
+                    'revenue' => $revenue
+                ];
+            }
+        } elseif ($period === 'last_year') {
+            $lastYear = $currentYear - 1;
+            for ($month = 1; $month <= 12; $month++) {
+                $revenue = $this->bookingModel->getMonthlyRevenue($month, $lastYear);
+                $revenueData[] = [
+                    'label' => $this->getMonthName($month) . ' ' . $lastYear,
+                    'revenue' => $revenue
+                ];
+            }
+        } elseif ($period === 'custom' && !empty($customParams)) {
+            $mFrom = (int)$customParams['month_from'];
+            $yFrom = (int)$customParams['year_from'];
+            $mTo = (int)$customParams['month_to'];
+            $yTo = (int)$customParams['year_to'];
+
+            $start = new DateTime("$yFrom-$mFrom-01");
+            $end = new DateTime("$yTo-$mTo-01");
+            
+            // Loop through months between start and end
+            $interval = new DateInterval('P1M');
+            $periodObj = new DatePeriod($start, $interval, $end->modify('+1 day'));
+
+            foreach ($periodObj as $dt) {
+                $m = (int)$dt->format('m');
+                $y = (int)$dt->format('Y');
+                $revenue = $this->bookingModel->getMonthlyRevenue($m, $y);
+                $revenueData[] = [
+                    'label' => $this->getMonthName($m) . ' ' . $y,
+                    'revenue' => $revenue
+                ];
+                
+                // Tránh lặp vô tận/quá nhiều (giới hạn 36 tháng)
+                if (count($revenueData) >= 36) break;
+            }
         }
 
         return $revenueData;
@@ -114,18 +179,40 @@ class DashboardController
         return $months[(int)$monthNumber] ?? '';
     }
 
-    // API endpoint cho dữ liệu biểu đồ
     public function getChartData()
     {
         header('Content-Type: application/json');
+        
+        $period = $_GET['period'] ?? '6m';
+        $customParams = [
+            'month_from' => $_GET['month_from'] ?? null,
+            'year_from' => $_GET['year_from'] ?? null,
+            'month_to' => $_GET['month_to'] ?? null,
+            'year_to' => $_GET['year_to'] ?? null,
+        ];
+        
+        $revenueData = $this->getRevenueDataByPeriod($period, $customParams);
 
         $data = [
-            'revenueData' => $this->getRevenueLast12Months(),
+            'success' => true,
+            'periodLabel' => $this->getPeriodLabel($period, $customParams),
+            'revenueData' => $revenueData,
             'bookingStatus' => $this->bookingModel->getBookingStatusStats(),
             'tourCategories' => $this->tourModel->getTourCategoriesStats()
         ];
 
         echo json_encode($data);
         exit;
+    }
+
+    private function getPeriodLabel($period, $params) {
+        if ($period === '6m') return '6 Tháng gần nhất';
+        if ($period === '12m') return '12 Tháng gần nhất';
+        if ($period === 'cur_year') return 'Năm hiện tại (' . date('Y') . ')';
+        if ($period === 'last_year') return 'Năm trước (' . (date('Y') - 1) . ')';
+        if ($period === 'custom') {
+            return "Từ T{$params['month_from']}/{$params['year_from']} đến T{$params['month_to']}/{$params['year_to']}";
+        }
+        return '';
     }
 }

@@ -32,7 +32,7 @@ class Transaction extends BaseModel
                     b.id as booking_id,
                     u.full_name as customer_name
                 FROM {$this->table} t
-                LEFT JOIN bookings b ON t.booking_id = b.id
+                LEFT JOIN bookings b ON t.id = b.id
                 LEFT JOIN users u ON b.customer_id = u.user_id
                 ORDER BY t.date DESC 
                 LIMIT :limit";
@@ -80,5 +80,20 @@ class Transaction extends BaseModel
                 
         $stmt = self::$pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Ghi nhận thanh toán cho một booking
+     */
+    public function recordBookingPayment($bookingId, $amount, $method, $description = '')
+    {
+        return $this->insert([
+            'booking_id'  => $bookingId,
+            'amount'      => $amount,
+            'type'        => 'income',
+            'method'      => $method,
+            'description' => $description,
+            'date'        => date('Y-m-d H:i:s')
+        ]);
     }
 }

@@ -2,21 +2,27 @@
 include_once PATH_VIEW_ADMIN . 'default/header.php';
 include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
 ?>
-<main class="wrapper">
-    <div class="main-content">
-        <div class="page-header mb-4">
-            <h1 class="h3">Lịch làm việc của tôi</h1>
-            <p class="text-muted">Các tour bạn được phân công</p>
+<main class="dashboard">
+    <div class="dashboard-container">
+        <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL_ADMIN ?>&action=/" class="text-muted text-decoration-none"><i class="ph ph-house me-1"></i> Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Lịch làm việc</li>
+                    </ol>
+                </nav>
+            </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
+        <div class="card card-premium border-0 shadow-sm">
+            <div class="card-body p-4">
                 <?php if (empty($assignments)): ?>
                     <p class="text-muted">Bạn chưa có tour nào được phân công.</p>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Tour</th>
                                     <th>Thời gian</th>
@@ -44,9 +50,11 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                             </span>
                                         </td>
                                         <td>
-                                            <div class="btn-group btn-group-sm">
-                                                <a href="<?= BASE_URL_ADMIN ?>&action=guide/tourDetail&id=<?= $a['tour_id'] ?>&guide_id=<?= $a['guide_id'] ?>" class="btn btn-info">
-                                                    <i class="fas fa-eye"></i> Chi tiết
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <a href="<?= BASE_URL_ADMIN ?>&action=guide/tourDetail&id=<?= $a['tour_id'] ?>&guide_id=<?= $a['guide_id'] ?>"
+                                                    class="btn btn-sm bg-white text-info border shadow-sm d-flex align-items-center gap-1 px-2 py-1"
+                                                    style="border-radius: 8px; white-space: nowrap;">
+                                                    <i class="ph ph-eye"></i> Chi tiết
                                                 </a>
                                                 <?php
                                                 // Kiểm tra xem còn >= 3 ngày trước ngày bắt đầu không
@@ -66,15 +74,19 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                                 }
                                                 ?>
                                                 <?php if ($canCancel): ?>
-                                                    <button type="button" class="btn btn-danger btn-cancel-tour"
+                                                    <button type="button" class="btn btn-sm bg-white text-danger border shadow-sm btn-cancel-tour d-flex align-items-center gap-1 px-2 py-1"
                                                         data-assignment-id="<?= $a['id'] ?>"
                                                         data-tour-name="<?= htmlspecialchars($a['tour_name']) ?>"
-                                                        data-days-left="<?= $daysUntilStart ?>">
-                                                        <i class="fas fa-times"></i> Hủy nhận (còn <?= $daysUntilStart ?> ngày)
+                                                        data-days-left="<?= $daysUntilStart ?>"
+                                                        style="border-radius: 8px; white-space: nowrap;">
+                                                        <i class="ph ph-x"></i> Hủy nhận (còn <?= $daysUntilStart ?> ngày)
                                                     </button>
                                                 <?php else: ?>
-                                                    <button type="button" class="btn btn-secondary" disabled title="Không thể hủy (< 3 ngày hoặc đã qua ngày bắt đầu)">
-                                                        <i class="fas fa-ban"></i> Không thể hủy
+                                                    <button type="button" class="btn btn-sm btn-light border text-muted d-flex align-items-center gap-1 px-2 py-1"
+                                                        disabled
+                                                        title="Không thể hủy (< 3 ngày hoặc đã qua ngày bắt đầu)"
+                                                        style="border-radius: 8px; white-space: nowrap;">
+                                                        <i class="ph ph-prohibit"></i> Không thể hủy
                                                     </button>
                                                 <?php endif; ?>
                                             </div>

@@ -11,12 +11,31 @@ class TourAssignment extends BaseModel
     protected $columns = [
         'id',
         'tour_id',
+        'departure_id',
         'guide_id',
         'driver_name',
         'start_date',
         'end_date',
         'status'
     ];
+
+    private static ?bool $hasDurationDaysColumn = null;
+
+    private function hasDurationDaysColumn(): bool
+    {
+        if (self::$hasDurationDaysColumn !== null) {
+            return self::$hasDurationDaysColumn;
+        }
+
+        try {
+            $stmt = self::$pdo->query("SHOW COLUMNS FROM tours LIKE 'duration_days'");
+            self::$hasDurationDaysColumn = (bool)$stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            self::$hasDurationDaysColumn = false;
+        }
+
+        return self::$hasDurationDaysColumn;
+    }
 
     /**
      * Lấy chi tiết assignment theo ID
@@ -200,7 +219,8 @@ class TourAssignment extends BaseModel
     }
 
     /**
-     * Lấy danh sách tour chưa có HDV - theo ngày booking (gộp các booking cùng ngày)
+     * Lấy danh sách tour khả dụng cho HDV/admin nhận phân công.
+     * Chỉ lấy các booking đã xác nhận thanh toán/cọc theo ngày khởi hành.
      * @return array
      */
     public function getAvailableTours()
@@ -212,34 +232,190 @@ class TourAssignment extends BaseModel
             t.description, 
             t.base_price as tour_base_price,
             b.departure_id,
-            DATE(b.booking_date) as departure_date,
+            COALESCE(td.departure_date, b.departure_date) as departure_date,
             COUNT(DISTINCT b.id) as booking_count,
-            COALESCE(SUM(CASE WHEN bc_count.total IS NOT NULL THEN bc_count.total ELSE 0 END), 0) + COUNT(DISTINCT b.id) as total_customers,
+            SUM(b.adults + b.children + b.infants) as total_customers,
             COALESCE(SUM(b.total_price), 0) as total_booking_price,
-            GROUP_CONCAT(DISTINCT b.id ORDER BY b.id) as booking_ids
+            GROUP_CONCAT(DISTINCT b.id ORDER BY b.id) as booking_ids,
+            td.max_seats
         FROM tours t
         INNER JOIN bookings b ON t.id = b.tour_id 
-            AND DATE(b.booking_date) >= CURDATE()
-            AND b.status NOT IN ('hoan_tat', 'da_huy')
-        LEFT JOIN (
-            SELECT booking_id, COUNT(*) as total 
-            FROM booking_customers 
-            GROUP BY booking_id
-        ) bc_count ON b.id = bc_count.booking_id
+            AND b.status IN ('da_coc', 'da_thanh_toan')
+        LEFT JOIN tour_departures td ON td.id = b.departure_id
         WHERE NOT EXISTS (
             SELECT 1 
             FROM tour_assignments ta
             WHERE ta.tour_id = t.id 
-            AND ta.start_date = DATE(b.booking_date)
+            AND ta.start_date = COALESCE(td.departure_date, b.departure_date)
             AND ta.status = 'active'
         )
+        AND COALESCE(td.departure_date, b.departure_date) >= CURDATE()
         AND t.status = 'active'
-        GROUP BY t.id, t.name, t.category_id, t.description, t.base_price, b.departure_id, DATE(b.booking_date)
-        ORDER BY DATE(b.booking_date) ASC, t.name ASC";
+        GROUP BY t.id, t.name, t.category_id, t.description, t.base_price, b.departure_id, COALESCE(td.departure_date, b.departure_date), td.max_seats
+        ORDER BY COALESCE(td.departure_date, b.departure_date) ASC, t.name ASC";
 
         $stmt = self::$pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Danh sách đoàn khởi hành để admin phân công HDV.
+     * Mỗi dòng là 1 departure có booking hợp lệ.
+     * @return array
+     */
+    public function getDepartureAssignmentsForAdmin($departureId = null)
+    {
+        $sql = "SELECT
+                td.id AS departure_id,
+                td.tour_id,
+                td.departure_date,
+                td.max_seats,
+                td.booked_seats,
+                td.status AS departure_status,
+                t.name AS tour_name,
+                t.description,
+                COUNT(DISTINCT b.id) AS booking_count,
+                COALESCE(SUM(b.adults + b.children + b.infants), 0) AS total_customers,
+                COALESCE(SUM(b.adults + b.children + b.infants), 0) AS booked_seats_live,
+                COALESCE(SUM(b.total_price), 0) AS total_booking_price,
+                ta.id AS assignment_id,
+                ta.guide_id AS assigned_guide_id,
+                ta.status AS assignment_status,
+                u.full_name AS assigned_guide_name
+            FROM tour_departures td
+            INNER JOIN tours t ON t.id = td.tour_id AND t.status = 'active'
+            LEFT JOIN bookings b ON b.departure_id = td.id
+                AND b.status IN ('cho_xac_nhan', 'da_coc', 'da_thanh_toan', 'hoan_tat')
+            LEFT JOIN tour_assignments ta ON ta.departure_id = td.id
+                AND ta.status = 'active'
+            LEFT JOIN guides g ON g.id = ta.guide_id
+            LEFT JOIN users u ON u.user_id = g.user_id
+            WHERE td.departure_date >= CURDATE()
+              AND (:departure_id IS NULL OR td.id = :departure_id)
+            GROUP BY
+                td.id, td.tour_id, td.departure_date, td.max_seats, td.booked_seats, td.status,
+                t.name, t.description,
+                ta.id, ta.guide_id, ta.status, u.full_name
+            HAVING (total_customers > 0 OR assignment_id IS NOT NULL)
+            ORDER BY td.departure_date ASC, t.name ASC";
+
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute(['departure_id' => $departureId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Lấy assignment active theo departure bằng map tour_id + start_date.
+     * @param int $departureId
+     * @return array|false
+     */
+    public function getActiveAssignmentByDeparture($departureId)
+    {
+        $sql = "SELECT ta.*, u.full_name as assigned_guide_name
+            FROM {$this->table} ta
+            INNER JOIN tour_departures td
+                ON td.tour_id = ta.tour_id
+                AND td.departure_date = ta.start_date
+            LEFT JOIN guides g ON ta.guide_id = g.id
+            LEFT JOIN users u ON g.user_id = u.user_id
+            WHERE td.id = :departure_id
+              AND ta.status = 'active'
+            ORDER BY ta.id DESC
+            LIMIT 1";
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute(['departure_id' => $departureId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Kiểm tra HDV đã được phân công đoàn khác cùng ngày chưa.
+     * @param int $guideId
+     * @param string $startDate
+     * @param int|null $excludeAssignmentId
+     * @return bool
+     */
+    public function guideHasAssignmentOnDate($guideId, $startDate, $excludeAssignmentId = null)
+    {
+        $sql = "SELECT COUNT(*) AS cnt
+            FROM {$this->table}
+            WHERE guide_id = :guide_id
+              AND start_date = :start_date
+              AND status = 'active'";
+        $params = [
+            'guide_id' => $guideId,
+            'start_date' => $startDate
+        ];
+
+        if ($excludeAssignmentId !== null) {
+            $sql .= " AND id <> :exclude_assignment_id";
+            $params['exclude_assignment_id'] = $excludeAssignmentId;
+        }
+
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return ((int)($result['cnt'] ?? 0)) > 0;
+    }
+
+    /**
+     * Tìm assignment active bị chồng thời gian của HDV.
+     * @param int $guideId
+     * @param string $startDate
+     * @param string $endDate
+     * @param int|null $excludeAssignmentId
+     * @return array|false
+     */
+    public function getGuideOverlappingAssignment($guideId, $startDate, $endDate, $excludeAssignmentId = null)
+    {
+        $durationExpr = $this->hasDurationDaysColumn()
+            ? "GREATEST(COALESCE(NULLIF(t.duration_days, 0), (SELECT COUNT(*) FROM itineraries ti WHERE ti.tour_id = ta.tour_id), 1), 1)"
+            : "GREATEST(COALESCE((SELECT COUNT(*) FROM itineraries ti WHERE ti.tour_id = ta.tour_id), 1), 1)";
+
+        $sql = "SELECT
+                ta.id,
+                ta.tour_id,
+                ta.start_date,
+                COALESCE(
+                    ta.end_date,
+                    DATE_ADD(
+                        ta.start_date,
+                        INTERVAL ({$durationExpr} - 1) DAY
+                    )
+                ) AS end_date,
+                t.name AS tour_name
+            FROM {$this->table} ta
+            LEFT JOIN tours t ON t.id = ta.tour_id
+            WHERE ta.guide_id = :guide_id
+              AND (ta.status = 'active' OR ta.status IS NULL)
+              AND ta.start_date IS NOT NULL
+              AND (
+                    ta.start_date <= :new_end_date
+                    AND COALESCE(
+                        ta.end_date,
+                        DATE_ADD(
+                            ta.start_date,
+                            INTERVAL ({$durationExpr} - 1) DAY
+                        )
+                    ) >= :new_start_date
+              )";
+
+        $params = [
+            'guide_id' => $guideId,
+            'new_start_date' => $startDate,
+            'new_end_date' => $endDate
+        ];
+
+        if ($excludeAssignmentId !== null) {
+            $sql .= " AND ta.id <> :exclude_assignment_id";
+            $params['exclude_assignment_id'] = $excludeAssignmentId;
+        }
+
+        $sql .= " ORDER BY ta.start_date ASC LIMIT 1";
+
+        $stmt = self::$pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**

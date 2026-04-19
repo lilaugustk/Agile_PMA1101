@@ -1,119 +1,292 @@
 <?php include_once PATH_VIEW_CLIENT . 'default/header.php'; ?>
+<?php
+$displayName = $_SESSION['user']['full_name'] ?? 'Khách hàng';
+$displayEmail = $_SESSION['user']['email'] ?? '';
 
-<!-- Breadcrumb -->
-<div class="bg-light pt-5 mt-4">
-    <div class="container py-4">
-        <h2 class="fw-bold text-dark mb-2">Tài Khoản Của Tôi</h2>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?= BASE_URL ?>" class="text-decoration-none">Trang Chủ</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Lịch sử đặt tour</li>
-            </ol>
-        </nav>
+$statusMap = [
+    'pending' => ['class' => 'warning', 'label' => 'Chờ thanh toán', 'icon' => 'ph-clock'],
+    'cho_xac_nhan' => ['class' => 'warning', 'label' => 'Chờ xác nhận', 'icon' => 'ph-hourglass'],
+    'da_coc' => ['class' => 'info', 'label' => 'Đã cọc', 'icon' => 'ph-credit-card'],
+    'da_thanh_toan' => ['class' => 'success', 'label' => 'Đã thanh toán', 'icon' => 'ph-check-circle'],
+    'dang_dien_ra' => ['class' => 'primary', 'label' => 'Đang diễn ra', 'icon' => 'ph-airplane-takeoff'],
+    'hoan_tat' => ['class' => 'success', 'label' => 'Hoàn tất', 'icon' => 'ph-flag-checkered'],
+    'da_huy' => ['class' => 'danger', 'label' => 'Đã hủy', 'icon' => 'ph-x-circle'],
+    'expired' => ['class' => 'secondary', 'label' => 'Hết hạn', 'icon' => 'ph-timer']
+];
+?>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+    :root {
+        --sapphire-blue: #2563eb;
+        --sapphire-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        --sapphire-soft: #f8faff;
+        --sapphire-slate: #1e293b;
+        --sapphire-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.1);
+        --primary-color: #2563eb;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f6f8fc;
+    }
+
+    /* Dashboard Header */
+    .profile-hero {
+        background: var(--sapphire-gradient);
+        padding: 80px 0 100px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-hero::before {
+        content: '';
+        position: absolute;
+        top: -50px; right: -50px;
+        width: 300px; height: 300px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+
+    /* Sidebar */
+    .profile-nav-card {
+        background: #fff;
+        border: none;
+        border-radius: 24px;
+        box-shadow: var(--sapphire-shadow);
+        overflow: hidden;
+        margin-top: -60px;
+    }
+
+    .nav-user-info {
+        padding: 30px;
+        background: #f8faff;
+        border-bottom: 1.5px solid #edf2f7;
+    }
+
+    .nav-link-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 18px 25px;
+        color: #64748b;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        border-left: 4px solid transparent;
+    }
+
+    .nav-link-item i {
+        font-size: 1.4rem;
+    }
+
+    .nav-link-item:hover {
+        background: #f8faff;
+        color: var(--sapphire-blue);
+    }
+
+    .nav-link-item.active {
+        background: #eff6ff;
+        color: var(--sapphire-blue);
+        border-left-color: var(--sapphire-blue);
+    }
+
+    .nav-link-item.logout {
+        color: #ef4444;
+    }
+
+    /* Content Card */
+    .content-card {
+        background: #fff;
+        border: none;
+        border-radius: 24px;
+        box-shadow: var(--sapphire-shadow);
+        margin-top: -60px;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .card-title-box {
+        padding: 2.5rem 2.5rem 1.5rem;
+        border-bottom: 1.5px solid #edf2f7;
+    }
+
+    /* Modern Table */
+    .sapphire-table thead th {
+        background: #f8faff;
+        border-bottom: 2px solid #edf2f7;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        padding: 1.2rem 1.5rem;
+    }
+
+    .sapphire-table tbody td {
+        padding: 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        font-weight: 500;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-action-sm {
+        width: 36px; height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #f1f5f9;
+        color: #475569;
+        transition: all 0.2s;
+    }
+
+    .btn-action-sm:hover {
+        background: var(--sapphire-blue);
+        color: #fff;
+    }
+
+    .badge-premium {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(5px);
+        color: #fff;
+        font-weight: 700;
+        padding: 8px 15px;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+</style>
+
+<div class="profile-hero animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="d-flex align-items-center gap-4 text-white">
+            <div class="position-relative">
+                <img src="https://ui-avatars.com/api/?name=<?= urlencode($displayName) ?>&background=fff&color=2563eb&size=100&bold=true" 
+                     class="rounded-circle shadow-lg border border-4 border-white border-opacity-20" 
+                     width="90" height="90" alt="Avatar">
+                <span class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle" style="width:18px; height:18px"></span>
+            </div>
+            <div>
+                <span class="badge-premium mb-2 d-inline-block">Dữ liệu chuyến đi</span>
+                <h1 class="h2 fw-800 mb-0">Lịch sử đặt tour</h1>
+                <p class="mb-0 opacity-75 small">Xem lại tất cả các hành trình bạn đã từng tham gia.</p>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="container py-5">
+<div class="container pb-5">
     <div class="row g-4">
         <!-- Sidebar Navigation -->
-        <div class="col-lg-3">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 sticky-top transition-all" style="top: 100px;">
-                <div class="bg-primary p-4 text-center text-white">
-                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($_SESSION['user']['full_name']) ?>&background=random" class="rounded-circle border border-3 border-white shadow-sm mb-3" width="90" alt="Avatar">
-                    <h5 class="fw-bold mb-0"><?= htmlspecialchars($_SESSION['user']['full_name']) ?></h5>
-                    <span class="small text-white-50"><?= htmlspecialchars($_SESSION['user']['email']) ?></span>
+        <div class="col-lg-4 col-xl-3">
+            <div class="profile-nav-card animate__animated animate__fadeInLeft">
+                <div class="nav-user-info">
+                    <div class="fw-800 text-dark mb-1 text-truncate">Quản lý tài khoản</div>
+                    <div class="small text-muted">Mã KH: #USER-<?= $_SESSION['user']['id'] ?? '???' ?></div>
                 </div>
-                <div class="list-group list-group-flush">
-                    <a href="<?= BASE_URL ?>?action=profile" class="list-group-item list-group-item-action py-3 px-4 fw-medium text-muted d-flex align-items-center transition-all hover-text-primary">
-                        <i class="ph-bold ph-identification-card fs-5 me-2"></i> Hồ Sơ Cá Nhân
+                <div class="py-2">
+                    <a href="<?= BASE_URL ?>?action=profile" class="nav-link-item">
+                        <i class="ph-bold ph-user-circle"></i> Thông tin tài khoản
                     </a>
-                    <a href="<?= BASE_URL ?>?action=my-bookings" class="list-group-item list-group-item-action py-3 px-4 active fw-medium d-flex align-items-center">
-                        <i class="ph-bold ph-suitcase-rolling fs-5 me-2"></i> Lịch Sử Đặt Tour
+                    <a href="<?= BASE_URL ?>?action=my-bookings" class="nav-link-item active">
+                        <i class="ph-bold ph-suitcase-rolling"></i> Chuyến đi của tôi
                     </a>
-                    <a href="<?= BASE_URL ?>?action=logout" class="list-group-item list-group-item-action py-3 px-4 fw-medium text-danger d-flex align-items-center transition-all">
-                        <i class="ph-bold ph-sign-out fs-5 me-2"></i> Đăng Xuất
+                    <hr class="mx-3 opacity-5">
+                    <a href="<?= BASE_URL ?>?action=logout" class="nav-link-item logout">
+                        <i class="ph-bold ph-sign-out"></i> Đăng xuất
                     </a>
                 </div>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="col-lg-9">
-            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-end mb-4">
-                    <h4 class="fw-bold mb-0 font-outfit text-dark tracking-tight">Danh Sách Chuyến Đi</h4>
-                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-medium border border-primary-subtle">
-                        Tổng cộng: <?= count($bookings) ?> chuyến
-                    </span>
+        <div class="col-lg-8 col-xl-9">
+            <div class="content-card animate__animated animate__fadeInRight">
+                <div class="card-title-box d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="fw-800 text-dark mb-1">Danh sách hành trình</h4>
+                        <p class="text-muted mb-0 small">Theo dõi trạng thái và chi tiết các dịch vụ đã đặt.</p>
+                    </div>
                 </div>
-                <hr class="text-secondary opacity-25 mb-4">
                 
-                <?php if (empty($bookings)): ?>
-                    <div class="text-center py-5">
-                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
-                            <i class="ph-duotone ph-ticket text-muted" style="font-size: 3rem;"></i>
+                <div class="p-0">
+                    <?php if (empty($bookings)): ?>
+                        <div class="text-center py-5">
+                            <i class="ph ph-suitcase-rolling text-primary opacity-20 mb-3" style="font-size: 5rem;"></i>
+                            <h5 class="fw-800 text-dark">Chưa có hành trình nào</h5>
+                            <p class="text-muted small">Mọi chuyến đi tuyệt vời đều bắt đầu bằng một cú click!</p>
+                            <a href="<?= BASE_URL ?>?action=tours" class="btn btn-primary rounded-pill px-4 fw-800 py-3 mt-3">
+                                Khám phá các Tour ngay
+                            </a>
                         </div>
-                        <h4 class="text-dark fw-bold mb-2">Bạn chưa đặt chuyến đi nào</h4>
-                        <p class="text-muted mb-4">Cùng AgileTravel khám phá những địa điểm mới ngay thôi!</p>
-                        <a href="<?= BASE_URL ?>?action=tours" class="btn btn-primary rounded-pill px-4 fw-bold hover-lift shadow-sm">
-                            Xem Các Tour Đang Mở
-                        </a>
-                    </div>
-                <?php else: ?>
-                    <div class="row g-4">
-                        <?php foreach ($bookings as $booking): 
-                            // Determine status styles
-                            $statusMap = [
-                                'cho_xac_nhan' => ['badge' => 'bg-warning-subtle text-warning border-warning border', 'icon' => 'ph-hourglass', 'label' => 'Chờ xác nhận'],
-                                'da_coc' => ['badge' => 'bg-info-subtle text-info border-info border', 'icon' => 'ph-piggy-bank', 'label' => 'Đã cọc'],
-                                'da_thanh_toan' => ['badge' => 'bg-success-subtle text-success border-success border', 'icon' => 'ph-check-circle', 'label' => 'Đã thanh toán'],
-                                'hoan_tat' => ['badge' => 'bg-success text-white', 'icon' => 'ph-flag-checkered', 'label' => 'Hoàn tất'],
-                                'da_huy' => ['badge' => 'bg-danger-subtle text-danger border-danger border', 'icon' => 'ph-x-circle', 'label' => 'Đã hủy']
-                            ];
-                            $statusStyle = $statusMap[$booking['status']] ?? ['badge' => 'bg-secondary', 'icon' => 'ph-dots-three', 'label' => $booking['status']];
-                        ?>
-                        <div class="col-12" data-aos="fade-up">
-                            <div class="card border-0 rounded-4 overflow-hidden" style="box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-                                <div class="card-header bg-light border-bottom-0 py-3 d-flex justify-content-between align-items-center">
-                                    <span class="text-muted small fw-medium">
-                                        <i class="ph-bold ph-hash"></i> Mã Phiếu: <strong>BKG-<?= str_pad($booking['id'], 5, '0', STR_PAD_LEFT) ?></strong>
-                                    </span>
-                                    <span class="badge rounded-pill px-3 py-2 <?= $statusStyle['badge'] ?>">
-                                        <i class="ph-fill <?= $statusStyle['icon'] ?> me-1"></i> <?= $statusStyle['label'] ?>
-                                    </span>
-                                </div>
-                                <div class="card-body p-4">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-7 mb-3 mb-md-0">
-                                            <h5 class="fw-bold mb-2 font-outfit text-dark line-clamp-2">
-                                                <a href="<?= BASE_URL ?>?action=tour-detail&id=<?= $booking['tour_id'] ?>" class="text-decoration-none text-dark hover-text-primary transition-all">
-                                                    <?= htmlspecialchars($booking['tour_name']) ?>
-                                                </a>
-                                            </h5>
-                                            <div class="d-flexflex-wrap gap-3 text-muted small mt-3">
-                                                <div class="d-flex align-items-center gap-1 mb-2">
-                                                    <i class="ph-fill ph-calendar-check text-primary"></i> Đặt ngày: <?= date('d/m/Y H:i', strtotime($booking['booking_date'])) ?>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table sapphire-table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Tour & Khởi hành</th>
+                                        <th class="text-end">Tiền thanh toán</th>
+                                        <th class="text-center">Trạng thái</th>
+                                        <th class="text-end">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($bookings as $booking): ?>
+                                        <?php
+                                            $displayStatus = $booking['operational_status'] ?? ($booking['status'] ?? '');
+                                            $status = $statusMap[$displayStatus] ?? ['class' => 'secondary', 'label' => ($displayStatus ?: 'Không rõ'), 'icon' => 'ph-info'];
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <div class="fw-800 text-primary">#BK<?= str_pad((string)$booking['id'], 6, '0', STR_PAD_LEFT) ?></div>
+                                                <div class="x-small text-muted mt-1"><?= date('H:i d/m/Y', strtotime($booking['booking_date'] ?? 'now')) ?></div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-800 text-dark text-truncate" style="max-width: 250px;"><?= htmlspecialchars($booking['tour_name'] ?? 'N/A') ?></div>
+                                                <div class="small text-muted d-flex align-items-center gap-1">
+                                                    <i class="ph ph-calendar"></i>
+                                                    <?= isset($booking['departure_date']) ? date('d/m/Y', strtotime($booking['departure_date'])) : '--' ?>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-5 text-md-end border-md-start ps-md-4">
-                                            <p class="text-muted small mb-1 text-uppercase fw-bold">Tổng tiền</p>
-                                            <h3 class="fw-bold text-primary mb-3"><?= number_format($booking['final_price'], 0, ',', '.') ?>đ</h3>
-                                            
-                                            <!-- Trạng thái hoặc Nút hành động tương ứng -->
-                                           <?php if (in_array($booking['status'], ['cho_xac_nhan', 'da_coc'])): ?>
-                                                <p class="text-info small mb-0 fw-medium fst-italic"><i class="ph-fill ph-info"></i> Nhân viên sẽ sớm liên hệ để xác nhận khởi hành với bạn.</p>
-                                           <?php elseif ($booking['status'] == 'hoan_tat'): ?>
-                                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3"><i class="ph-fill ph-star me-1"></i> Đánh giá ngay</button>
-                                           <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                            </td>
+                                            <td class="text-end fw-800 text-dark fs-5">
+                                                <?= number_format((float)($booking['final_price'] ?? 0), 0, ',', '.') ?>đ
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="status-badge bg-<?= $status['class'] ?>-subtle text-<?= $status['class'] ?>">
+                                                    <i class="ph-bold <?= $status['icon'] ?>"></i>
+                                                    <?= $status['label'] ?>
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="<?= BASE_URL ?>?action=tour-detail&id=<?= (int)($booking['tour_id'] ?? 0) ?>" 
+                                                   class="btn-action-sm shadow-sm" title="Xem chi tiết tour">
+                                                    <i class="ph-bold ph-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>

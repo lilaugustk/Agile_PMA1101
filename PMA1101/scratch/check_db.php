@@ -1,17 +1,21 @@
 <?php
-require_once 'configs/env.php';
-require_once 'models/BaseModel.php';
-require_once 'models/Booking.php';
+include 'configs/env.php';
+try {
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USERNAME, DB_PASSWORD);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    echo "--- TABLES ---\n";
+    $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+    print_r($tables);
+    
+    echo "\n--- USERS SCHEMA ---\n";
+    $usersSchema = $pdo->query("DESCRIBE users")->fetchAll(PDO::FETCH_ASSOC);
+    print_r($usersSchema);
 
-// Initialize a model to trigger constructor and set up PDO
-$booking = new Booking();
+    echo "\n--- BOOKING_CUSTOMERS SCHEMA ---\n";
+    $bcSchema = $pdo->query("DESCRIBE booking_customers")->fetchAll(PDO::FETCH_ASSOC);
+    print_r($bcSchema);
 
-$pdo = BaseModel::getPdo();
-if ($pdo === null) {
-    die("PDO is null\n");
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
 }
-$sql = "SELECT status, COUNT(*) as count FROM bookings GROUP BY status";
-$stmt = $pdo->query($sql);
-$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-echo json_encode($results, JSON_PRETTY_PRINT);

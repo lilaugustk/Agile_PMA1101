@@ -38,6 +38,9 @@ class ClientBlogController
             exit;
         }
 
+        // Increment view count
+        $this->blogModel->incrementView($blog['id']);
+
         $latestBlogs = $this->blogModel->getLatest(5);
 
         $data = [

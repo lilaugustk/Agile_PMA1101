@@ -78,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     // Xử lý click vào các nút đổi trạng thái
     const statusChangeBtns = document.querySelectorAll('.status-change-btn');
+    const paidAmountWrap = document.getElementById('paid-amount-wrap');
+    const paidAmountValue = document.getElementById('paid-amount-value');
 
     statusChangeBtns.forEach(btn => {
         btn.addEventListener('click', function (e) {
@@ -86,14 +88,42 @@ document.addEventListener('DOMContentLoaded', function () {
             const newStatus = this.dataset.status;
             const bookingId = this.dataset.bookingId;
             const statusNames = {
+                'pending': 'Chờ thanh toán',
                 'cho_xac_nhan': 'Chờ xác nhận',
                 'da_coc': 'Đã cọc',
+                'da_thanh_toan': 'Đã thanh toán',
                 'hoan_tat': 'Hoàn tất',
-                'da_huy': 'Hủy'
+                'da_huy': 'Hủy',
+                'expired': 'Hết hạn'
             };
+            const statusClasses = {
+                'pending': 'warning',
+                'cho_xac_nhan': 'secondary',
+                'da_coc': 'info',
+                'da_thanh_toan': 'success',
+                'hoan_tat': 'success',
+                'da_huy': 'danger',
+                'expired': 'dark'
+            };
+            let paidAmount = '';
+
+            if (newStatus === 'da_coc' || newStatus === 'da_thanh_toan') {
+                const amountInput = prompt('Nhập số tiền đã ghi nhận (VND):', '');
+                if (amountInput === null) {
+                    return;
+                }
+                const normalizedAmount = Number(String(amountInput).replace(/[^\d]/g, ''));
+                if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) {
+                    alert('Số tiền không hợp lệ. Vui lòng nhập số lớn hơn 0.');
+                    return;
+                }
+                paidAmount = String(normalizedAmount);
+            }
+
+            const statusLabel = statusNames[newStatus] || 'Trạng thái mới';
 
             // Xác nhận trước khi đổi
-            if (!confirm(`Bạn có chắc muốn đổi trạng thái sang "${statusNames[newStatus]}"?`)) {
+            if (!confirm(`Bạn có chắc muốn đổi trạng thái sang "${statusLabel}"?`)) {
                 return;
             }
 
@@ -101,6 +131,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData();
             formData.append('booking_id', bookingId);
             formData.append('status', newStatus);
+            if (paidAmount) {
+                formData.append('paid_amount', paidAmount);
+            }
 
             fetch('?mode=admin&action=bookings/update-status', {
                 method: 'POST',
@@ -112,19 +145,23 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Cập nhật badge trạng thái
                         const badge = document.getElementById('status-badge');
                         if (badge) {
-                            // Xóa các class cũ
-                            badge.classList.remove('bg-warning', 'bg-info', 'bg-success', 'bg-danger');
-
-                            // Thêm class mới
-                            const statusClasses = {
-                                'cho_xac_nhan': 'bg-warning',
-                                'da_coc': 'bg-info',
-                                'hoan_tat': 'bg-success',
-                                'da_huy': 'bg-danger'
-                            };
-                            badge.classList.add(statusClasses[newStatus]);
+                            const allStatusClassTokens = ['warning', 'secondary', 'info', 'success', 'danger', 'dark'];
+                            allStatusClassTokens.forEach(token => {
+                                badge.classList.remove(`bg-${token}-subtle`, `text-${token}`);
+                            });
+                            const nextClass = statusClasses[newStatus] || 'secondary';
+                            badge.classList.add(`bg-${nextClass}-subtle`, `text-${nextClass}`);
                             badge.textContent = data.status_text;
                             badge.dataset.status = newStatus;
+                        }
+
+                        // Đồng bộ hiển thị tiền đã ghi nhận
+                        const shouldShowPaidAmount = (newStatus === 'da_coc' || newStatus === 'da_thanh_toan');
+                        if (paidAmountWrap) {
+                            paidAmountWrap.classList.toggle('d-none', !shouldShowPaidAmount);
+                        }
+                        if (shouldShowPaidAmount && paidAmountValue && data.paid_amount_formatted !== undefined) {
+                            paidAmountValue.textContent = data.paid_amount_formatted;
                         }
 
                         // Hiển thị thông báo thành công

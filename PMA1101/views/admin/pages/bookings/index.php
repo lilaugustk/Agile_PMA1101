@@ -44,53 +44,7 @@ $isGuide = $userRole === 'guide';
         </div>
     <?php endif; ?>
 
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
-                <div>
-                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Tổng Booking</p>
-                    <h3 class="fw-bold mb-0" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= number_format($stats['total'] ?? 0) ?></h3>
-                </div>
-                <div class="d-flex align-items-center justify-content-center text-primary border border-primary-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--primary-subtle);">
-                    <i class="ph ph-ticket"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
-                <div>
-                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Chờ Thanh Toán</p>
-                    <h3 class="fw-bold mb-0" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= number_format($stats['soft_pending'] ?? 0) ?></h3>
-                </div>
-                <div class="d-flex align-items-center justify-content-center text-warning border border-warning-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--warning-subtle);">
-                    <i class="ph ph-hourglass-medium"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
-                <div>
-                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Đã Cọc</p>
-                    <h3 class="fw-bold mb-0" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= number_format($stats['deposited'] ?? 0) ?></h3>
-                </div>
-                <div class="d-flex align-items-center justify-content-center text-info border border-info-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--info-subtle);">
-                    <i class="ph ph-wallet"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card-premium p-3 d-flex align-items-center justify-content-between card-stat">
-                <div>
-                    <p class="text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Hoàn Tất</p>
-                    <h3 class="fw-bold mb-0" style="font-size: 1.5rem; letter-spacing: -0.5px;"><?= number_format($stats['completed'] ?? 0) ?></h3>
-                </div>
-                <div class="d-flex align-items-center justify-content-center text-success border border-success-subtle" style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; background: var(--success-subtle);">
-                    <i class="ph ph-check-circle"></i>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Advanced Filters -->
     <div class="card-premium mb-3">
@@ -143,6 +97,8 @@ $isGuide = $userRole === 'guide';
                             <option value="pending" <?= (($_GET['status'] ?? '') == 'pending') ? 'selected' : '' ?>>Chờ Thanh Toán</option>
                             <option value="cho_xac_nhan" <?= (($_GET['status'] ?? '') == 'cho_xac_nhan') ? 'selected' : '' ?>>Chờ Xác Nhận</option>
                             <option value="da_coc" <?= (($_GET['status'] ?? '') == 'da_coc') ? 'selected' : '' ?>>Đã Cọc</option>
+                            <option value="da_thanh_toan" <?= (($_GET['status'] ?? '') == 'da_thanh_toan') ? 'selected' : '' ?>>Đã Thanh Toán</option>
+                            <option value="dang_dien_ra" <?= (($_GET['status'] ?? '') == 'dang_dien_ra') ? 'selected' : '' ?>>Đang Diễn Ra</option>
                             <option value="hoan_tat" <?= (($_GET['status'] ?? '') == 'hoan_tat') ? 'selected' : '' ?>>Hoàn Tất</option>
                             <option value="da_huy" <?= (($_GET['status'] ?? '') == 'da_huy') ? 'selected' : '' ?>>Đã Hủy</option>
                             <option value="expired" <?= (($_GET['status'] ?? '') == 'expired') ? 'selected' : '' ?>>Hết Hạn</option>
@@ -278,6 +234,8 @@ $isGuide = $userRole === 'guide';
                                         'pending' => ['text' => 'Chờ Thanh Toán', 'class' => 'warning'],
                                         'cho_xac_nhan' => ['text' => 'Chờ Xác Nhận', 'class' => 'warning'],
                                         'da_coc' => ['text' => 'Đã Cọc', 'class' => 'info'],
+                                        'da_thanh_toan' => ['text' => 'Đã Thanh Toán', 'class' => 'success'],
+                                        'dang_dien_ra' => ['text' => 'Đang Diễn Ra', 'class' => 'primary'],
                                         'confirmed' => ['text' => 'Đã Xác Nhận', 'class' => 'info'],
                                         'hoan_tat' => ['text' => 'Hoàn Tất', 'class' => 'success'],
                                         'completed' => ['text' => 'Hoàn Tất', 'class' => 'success'],
@@ -286,7 +244,8 @@ $isGuide = $userRole === 'guide';
                                         'cancelled' => ['text' => 'Đã Hủy', 'class' => 'danger'],
                                         'expired' => ['text' => 'Hết Hạn', 'class' => 'secondary']
                                     ];
-                                    $curr = $statusMap[$booking['status']] ?? ['text' => 'Không Rõ', 'class' => 'secondary'];
+                                    $statusKey = $booking['operational_status'] ?? $booking['status'];
+                                    $curr = $statusMap[$statusKey] ?? ['text' => 'Không Rõ', 'class' => 'secondary'];
                                     ?>
                                     <span class="badge badge-soft bg-<?= $curr['class'] ?>-subtle text-<?= $curr['class'] ?>">
                                         <?= $curr['text'] ?>
@@ -300,13 +259,10 @@ $isGuide = $userRole === 'guide';
                                         <a href="<?= BASE_URL_ADMIN . '&action=bookings/invoice&id=' . $booking['id'] ?>" target="_blank" class="btn btn-sm bg-white text-info border shadow-sm" title="In Hóa Đơn">
                                             <i class="ph ph-printer"></i>
                                         </a>
-                                        <?php if ($isAdmin): ?>
+                                        <?php if ($isAdmin && ($booking['status'] ?? '') !== 'hoan_tat'): ?>
                                             <a href="<?= BASE_URL_ADMIN . '&action=bookings/edit&id=' . $booking['id'] ?>" class="btn btn-sm bg-white text-muted border shadow-sm" title="Sửa">
                                                 <i class="ph ph-pencil-simple"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm bg-white text-danger border shadow-sm delete-booking" data-id="<?= $booking['id'] ?>" data-name="<?= htmlspecialchars($booking['customer_name'] ?: ($booking['contact_name'] ?: 'Khách hàng')) ?>" title="Xóa">
-                                                <i class="ph ph-trash"></i>
-                                            </button>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -402,53 +358,8 @@ $isGuide = $userRole === 'guide';
     </div>
 </main>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow" style="border-radius: var(--radius-lg);">
-            <div class="modal-header border-bottom-0 pb-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center pt-0 pb-5 px-4">
-                <div class="mx-auto mb-4 d-flex align-items-center justify-content-center rounded-circle bg-danger-subtle text-danger" style="width: 72px; height: 72px;">
-                    <i class="ph ph-warning" style="font-size: 2.5rem;"></i>
-                </div>
-                <h5 class="fw-bold mb-3">Xác nhận xóa booking</h5>
-                <p class="text-muted mb-4">Bạn có chắc chắn muốn xóa booking của "<strong id="delete-booking-name" class="text-dark"></strong>"?<br> Hành động này tĩnh không thể hoàn tác.</p>
-                <div class="d-flex justify-content-center gap-2">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Hủy bỏ</button>
-                    <form id="delete-form" method="POST" class="m-0">
-                        <input type="hidden" name="id" id="delete-booking-id">
-                        <button type="submit" class="btn btn-danger px-4">Xóa Booking</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Delete booking functionality
-        document.querySelectorAll('.delete-booking').forEach(button => {
-            button.addEventListener('click', function() {
-                const bookingId = this.dataset.id;
-                const bookingName = this.dataset.name;
-
-                document.getElementById('delete-booking-id').value = bookingId;
-                document.getElementById('delete-booking-name').textContent = bookingName;
-
-                const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-                modal.show();
-            });
-        });
-
-        // Handle delete form submission
-        document.getElementById('delete-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const bookingId = document.getElementById('delete-booking-id').value;
-            window.location.href = '<?= BASE_URL_ADMIN ?>&action=bookings/delete&id=' + bookingId;
-        });
     });
 
     function resetFilters() {

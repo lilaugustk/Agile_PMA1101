@@ -8,7 +8,8 @@ $sourceConversion = $data['sourceConversion'] ?? [];
 $filters = $data['filters'] ?? [];
 ?>
 
-<main class="content">
+<main class="dashboard">
+    <div class="dashboard-container">
     <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
         <div>
             <nav aria-label="breadcrumb">
@@ -131,6 +132,7 @@ $filters = $data['filters'] ?? [];
                 </table>
             </div>
         </div>
+    </div>
     </div>
 </main>
 

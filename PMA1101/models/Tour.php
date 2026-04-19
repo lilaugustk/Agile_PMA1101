@@ -377,6 +377,13 @@ class Tour extends BaseModel
             $policyAssignmentModel = new TourPolicyAssignment();
             $bookingModel = new Booking();
             $bookingCustomerModel = new BookingCustomer();
+            $departureModel = new TourDeparture();
+            $assignmentModel = new TourAssignment();
+            $logModel = new TourLog();
+            $reviewModel = new TourReview();
+            $vehicleModel = new TourVehicle();
+            $resourceModel = new DepartureResource();
+            $transactionModel = new Transaction();
 
             // 1. Delete image files from disk
             $images = $imageModel->getByTourId($id);
@@ -388,31 +395,58 @@ class Tour extends BaseModel
             }
 
             // 2. Delete DB records in dependent tables
-            $imageModel->deleteByTourId($id);
-            // $pricingModel đã bị xóa
-            // TODO: version_dynamic_pricing table doesn't have tour_id column
-            // $dynamicPricingModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
-            $itineraryModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
-            $partnerModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
-            // Note: tour_versions table doesn't have tour_id column, so we don't delete versions here
-            // Versions should be deleted separately if needed via their own logic
-            $policyAssignmentModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
-
-
-            // 3. Delete bookings and their customers
-            $bookings = $bookingModel->select('*', 'tour_id = :tour_id', ['tour_id' => $id]);
+            
+            // 2.1 Bookings related (Transactions -> Adjustments -> Customers -> Bookings)
+            $bookings = $bookingModel->select('id', 'tour_id = :tour_id', ['tour_id' => $id]);
             foreach ($bookings as $b) {
+                $transactionModel->delete('booking_id = :booking_id', ['booking_id' => $b['id']]);
+                
+                // Delete price adjustments (Using raw SQL as no model found for this table)
+                $sqlAdjust = "DELETE FROM booking_price_adjustments WHERE booking_id = :booking_id";
+                self::$pdo->prepare($sqlAdjust)->execute(['booking_id' => $b['id']]);
+
                 $bookingCustomerModel->deleteByBooking($b['id']);
                 $bookingModel->delete('id = :id', ['id' => $b['id']]);
             }
 
-            // 4. Finally delete the tour record itself
+            // 2.2 Operational data (Vehicles -> Assignments -> Logs)
+            $assignments = $assignmentModel->select('id', 'tour_id = :tour_id', ['tour_id' => $id]);
+            foreach ($assignments as $a) {
+                $vehicleModel->delete('tour_assignment_id = :assignment_id', ['assignment_id' => $a['id']]);
+                $assignmentModel->delete('id = :id', ['id' => $a['id']]);
+            }
+            $logModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
+
+            // 2.3 Tour metadata (Financial Reports, Feedbacks, Reviews, Images, Itineraries, Policy assignments)
+            // Delete financial reports (Specific table linked to tour_id)
+            $sqlFin = "DELETE FROM financial_reports WHERE tour_id = :tour_id";
+            self::$pdo->prepare($sqlFin)->execute(['tour_id' => $id]);
+            
+            // Delete tour feedbacks (Specific table linked to tour_id)
+            $sqlFeed = "DELETE FROM tour_feedbacks WHERE tour_id = :tour_id";
+            self::$pdo->prepare($sqlFeed)->execute(['tour_id' => $id]);
+
+            $reviewModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
+            $imageModel->deleteByTourId($id);
+            $itineraryModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
+            $policyAssignmentModel->delete('tour_id = :tour_id', ['tour_id' => $id]);
+
+            // 2.4 Departures related (Resources -> Departures)
+            $departures = $departureModel->select('id', 'tour_id = :tour_id', ['tour_id' => $id]);
+            foreach ($departures as $dep) {
+                $resourceModel->delete('departure_id = :departure_id', ['departure_id' => $dep['id']]);
+                $departureModel->delete('id = :id', ['id' => $dep['id']]);
+            }
+
+            // 3. Finally delete the tour record itself
             $this->delete('id = :id', ['id' => $id]);
 
             $this->commit();
             return true;
         } catch (Exception $e) {
-            $this->rollBack();
+            if (self::$pdo->inTransaction()) {
+                $this->rollBack();
+            }
             throw $e;
         }
     }

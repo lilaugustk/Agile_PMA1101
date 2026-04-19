@@ -29,6 +29,7 @@
         <!-- Left Content -->
         <div class="col-lg-8">
             <!-- Description -->
+            <?php if (!empty(trim((string)($tour['description'] ?? '')))): ?>
             <section class="mb-5">
                 <h3 class="mb-4 text-primary">Giới thiệu tour</h3>
                 <div class="bg-white p-4 rounded shadow-soft">
@@ -37,6 +38,7 @@
                     </div>
                 </div>
             </section>
+            <?php endif; ?>
 
             <!-- Gallery -->
             <?php if (!empty($images)): ?>
@@ -118,16 +120,6 @@
                     pointer-events: none;
                     opacity: 0.8;
                 }
-                .day-cell.is-full::after {
-                    content: '';
-                    position: absolute;
-                    top: 50%;
-                    left: 0;
-                    width: 100%;
-                    height: 1px;
-                    background: #cbd5e1;
-                    transform: rotate(-15deg);
-                }
                 .full-label {
                     font-size: 10px;
                     color: #ef4444;
@@ -150,118 +142,132 @@
                     opacity: 0.6;
                     background: #f8fafc;
                 }
+
+                /* Sidebar Selected Date Modern Style */
+                #sidebarSelectedDate {
+                    background-color: #e6f4f1 !important;
+                    border: 1px solid #c2e5de !important;
+                    border-radius: 12px !important;
+                    padding: 1rem !important;
+                    color: #2d4a43 !important;
+                }
+                .selected-date-title {
+                    font-size: 1.1rem;
+                    font-weight: 800;
+                    margin-bottom: 0.25rem;
+                }
+                .selected-date-price {
+                    font-size: 1rem;
+                    color: #059669;
+                    font-weight: 700;
+                }
+                .selected-date-seats {
+                    font-size: 0.85rem;
+                    color: #4b5563;
+                    margin-top: 0.5rem;
+                    align-items: center;
+                    gap: 6px;
+                }
+
             </style>
+            
             <?php endif; ?>
             
-            <!-- Calendar Section (Moved from Sidebar) -->
+            <!-- Calendar Section -->
             <?php if (!empty($departures)): ?>
             <section id="tour-calendar-section" class="mb-5">
-                <h3 class="mb-4 text-primary">Chọn ngày khởi hành</h3>
-                <div class="bg-white p-4 rounded shadow-soft">
-                    <div class="mb-4">
-                        <label class="form-label fw-bold mb-3"><i class="far fa-calendar-alt me-2"></i>Lịch khởi hành</label>
-                        
-                        <!-- Calendar Container -->
-                        <div class="calendar-container shadow-sm border rounded overflow-hidden d-flex flex-column">
-                            <!-- Calendar Grid Area -->
-                            <div class="calendar-content flex-grow-1 p-3 bg-white">
-                                <div class="calendar-header d-flex justify-content-between align-items-center mb-3">
-                                    <button type="button" class="btn btn-sm btn-light rounded-circle" id="prevMonthBtn"><i class="fas fa-chevron-left"></i></button>
-                                    <h5 class="mb-0 text-primary fw-bold text-uppercase" id="currentMonthLabel">THÁNG --/----</h5>
-                                    <button type="button" class="btn btn-sm btn-light rounded-circle" id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
-                                </div>
-                                
-                                <div class="calendar-weekdays d-grid mb-2">
-                                    <div>CN</div><div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div>
-                                </div>
-
-                                <div class="calendar-days d-grid" id="calendarDays">
-                                    <!-- Days will be generated here -->
-                                </div>
-                            </div>
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h3 class="mb-0 text-sapphire fw-bold">Chọn ngày khởi hành</h3>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-2 small text-muted">
+                            <span class="rounded-circle bg-success" style="width:8px; height:8px;"></span> Còn chỗ
                         </div>
-                        <div id="selectedDateDisplay" class="mt-2 text-success fw-bold small"></div>
+                        <div class="d-flex align-items-center gap-2 small text-muted">
+                            <span class="rounded-circle bg-danger" style="width:8px; height:8px;"></span> Sắp hết/Hết
+                        </div>
                     </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-4 shadow-sm border border-light">
+                    <!-- Calendar Control -->
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button type="button" class="nav-btn shadow-sm" id="prevMonthBtn">
+                                <i class="ph-bold ph-caret-left"></i>
+                            </button>
+                            <h5 class="month-label mb-0" id="currentMonthLabel">THÁNG -- / ----</h5>
+                            <button type="button" class="nav-btn shadow-sm" id="nextMonthBtn">
+                                <i class="ph-bold ph-caret-right"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Generated via JS -->
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
+            <input type="hidden" id="departureSelect" name="departure_id" value="">
+
             <style>
-                .calendar-container {
-                    background: #fff;
+                .bg-sapphire-light { background-color: #f0f7ff; }
+                .bg-primary-gradient { background: linear-gradient(135deg, #0d6efd 0%, #0056d2 100%); }
+                .calendar-container { background: #fff; border-radius: 12px; overflow: hidden; }
+                .calendar-header { padding: 15px 0; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+                .month-label { font-size: 1.1rem; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 1px; }
+                .nav-btn {
+                    width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+                    background: #fff; color: #64748b; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
                 }
-                .calendar-content {
-                    min-width: 0;
-                    overflow: hidden;
+                .nav-btn:hover:not(:disabled) { background: #f8fafc; border-color: #0d6efd; color: #0d6efd; transform: translateY(-2px); }
+                .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+                .calendar-grid {
+                    display: grid; grid-template-columns: repeat(7, 1fr);
+                    background-color: #f1f5f9; gap: 1px; border: 1px solid #f1f5f9; border-radius: 12px; overflow: hidden;
+                    width: 100%;
                 }
-                .calendar-weekdays {
-                    grid-template-columns: repeat(7, 1fr);
-                    text-align: center;
-                    font-weight: 700;
-                    font-size: 0.75rem;
-                    color: #333;
-                    margin-bottom: 0.5rem;
-                }
-                .calendar-days {
-                    grid-template-columns: repeat(7, 1fr);
-                    gap: 4px;
+                .weekday-header {
+                    background-color: #f8fafc; padding: 15px 0; text-align: center;
+                    font-weight: 800; font-size: 0.75rem; color: #64748b; text-transform: uppercase;
                 }
                 .day-cell {
-                    aspect-ratio: 1; /* Keep square */
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 6px;
-                    font-size: 0.85rem;
-                    color: #333;
-                    cursor: default;
+                    min-height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                    padding: 8px 4px; background-color: #fff; position: relative; transition: all 0.2s;
+                    border: 1px solid transparent;
                 }
-                .day-cell.inactive {
-                    color: #e9ecef;
+                .day-num { font-weight: 700; color: #94a3b8; font-size: 1.05rem; }
+                
+                .day-cell.has-departure { 
+                    cursor: pointer; 
+                    background-color: #fcfdfe;
                 }
-                .day-cell.has-departure {
-                    cursor: pointer;
-                    background-color: #fff;
-                    border: 1px solid #dee2e6;
-                    font-weight: 600;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                .day-cell.has-departure:hover { background-color: #f8faff; z-index: 1; border-color: #0d6efd !important; }
+                .day-cell.has-departure .day-num { color: #1e293b; }
+
+                /* Status Borders */
+                .day-cell.border-status-success { border: 1.5px solid rgba(25, 135, 84, 0.3) !important; }
+                .day-cell.border-status-danger { border: 1.5px solid rgba(220, 53, 69, 0.3) !important; }
+                .day-cell.border-status-gray { border: 1.5px solid rgba(100, 116, 139, 0.2) !important; }
+
+                .day-cell.selected { background-color: #eff6ff !important; border-color: #0d6efd !important; z-index: 2; border-width: 2px !important; }
+                .day-cell.selected .day-num { color: #0d6efd; font-weight: 800; }
+
+                .occ-label { font-size: 0.65rem; color: #64748b; font-weight: 700; margin-top: 2px; }
+
+                .hot-label {
+                    font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+                    text-transform: uppercase; margin-top: 6px; letter-spacing: 0.3px;
                 }
-                .day-cell.has-departure:hover {
-                    border-color: #0d6efd;
-                    background-color: #e7f1ff;
-                    z-index: 1;
-                }
-                .day-cell.selected {
-                    background-color: #0d6efd !important;
-                    color: white !important;
-                    border-color: #0d6efd !important;
-                    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
-                }
-                .day-price {
-                    font-size: 0.6rem;
-                    margin-top: 2px;
-                    color: #dc3545;
-                    font-weight: 500;
-                    line-height: 1;
-                }
-                .day-cell.selected .day-price {
-                    color: #ffdede;
-                }
-                .day-cell.disabled-too-soon {
-                    background-color: #f8f9fa;
-                    border: 1px dashed #dee2e6;
-                    opacity: 0.7;
-                    cursor: not-allowed;
-                    color: #adb5bd;
-                }
-                .day-cell.disabled-too-soon .day-price {
-                    color: #adb5bd;
-                    text-decoration: line-through;
-                }
-                .day-cell.disabled-too-soon:hover {
-                    border-color: #dee2e6;
-                    background-color: #f8f9fa;
-                }
+                .bg-danger.hot-label { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
+                .bg-secondary.hot-label { background: #475569; color: #ffffff; border: 1px solid #334155; }
+                
+                .day-cell.disabled-too-soon { background-color: #fcfcfc; cursor: not-allowed; }
+                .day-cell.disabled-too-soon .day-num, .day-cell.disabled-too-soon .day-price { opacity: 0.4; }
+                .day-cell.is-full { background-color: #fff1f2; }
+                .inactive-pad { background-color: #f8fafc; opacity: 0.5; }
             </style>
 
             <script>
@@ -269,191 +275,179 @@
                 const departures = <?= json_encode(array_map(function($d) use ($tour) {
                     return [
                         'id' => $d['id'],
-                        'date' => $d['departure_date'],
-                        'price' => $d['price_adult'] > 0 ? $d['price_adult'] : $tour['base_price'],
-                        'seats_available' => $d['max_seats'] - ($d['booked_seats'] ?? 0)
+                        'date' => substr($d['departure_date'], 0, 10),
+                        'price' => $d['price_adult'] > 0 ? (float)$d['price_adult'] : (float)$tour['base_price'],
+                        'max_seats' => (int)$d['max_seats'],
+                        'booked_seats' => (int)($d['booked_seats'] ?? 0),
+                        'available_seats' => (int)$d['max_seats'] - (int)($d['booked_seats'] ?? 0)
                     ];
                 }, $departures)) ?>;
                 
-                document.addEventListener('DOMContentLoaded', function() {
-                    initCalendar();
-                });
-
                 let currentMonth = new Date();
                 currentMonth.setDate(1); 
-                
                 const now = new Date();
-                now.setDate(1);
                 now.setHours(0,0,0,0);
 
-                if (departures.length > 0) {
-                    const firstFutureDep = departures.find(d => new Date(d.date) >= now);
-                    if (firstFutureDep) {
-                         const firstDepDate = new Date(firstFutureDep.date);
-                         firstDepDate.setDate(1);
-                         if (firstDepDate > now) {
-                            currentMonth = firstDepDate;
-                         }
+                document.addEventListener('DOMContentLoaded', function() {
+                    const futureDeps = departures.filter(d => new Date(d.date) >= now);
+                    if (futureDeps.length > 0) {
+                        const firstDate = new Date(futureDeps[0].date);
+                        currentMonth = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1);
                     }
-                }
-
-                function initCalendar() {
                     renderCalendar(currentMonth);
-                    updateNavButtons();
-                }
-
-                function updateNavButtons() {
-                    const prevBtn = document.getElementById('prevMonthBtn');
-                    if (currentMonth <= now) {
-                        prevBtn.disabled = true;
-                        prevBtn.style.opacity = '0.3';
-                        prevBtn.style.cursor = 'not-allowed';
-                    } else {
-                        prevBtn.disabled = false;
-                        prevBtn.style.opacity = '1';
-                        prevBtn.style.cursor = 'pointer';
-                    }
-                }
+                });
 
                 function renderCalendar(date) {
+                    const gridEl = document.getElementById('calendarGrid');
+                    const labelEl = document.getElementById('currentMonthLabel');
+                    if (!gridEl || !labelEl) return;
+
                     const year = date.getFullYear();
                     const month = date.getMonth();
+                    const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
+                    labelEl.innerText = `${monthNames[month]} / ${year}`;
                     
-                    document.getElementById('currentMonthLabel').innerText = `THÁNG ${month + 1}/${year}`;
-                    
-                    const firstDay = new Date(year, month, 1);
-                    const lastDay = new Date(year, month + 1, 0);
-                    const daysInMonth = lastDay.getDate();
-                    const startDayOfWeek = firstDay.getDay(); // 0 is Sunday
-                    
-                    const calendarDaysEl = document.getElementById('calendarDays');
-                    calendarDaysEl.innerHTML = '';
-                    
-                    document.getElementById('prevMonthBtn').onclick = () => {
-                        const prevDate = new Date(currentMonth);
-                        prevDate.setMonth(prevDate.getMonth() - 1);
-                        
-                        if (prevDate >= now) {
-                            currentMonth.setMonth(currentMonth.getMonth() - 1);
-                            renderCalendar(currentMonth);
-                            updateNavButtons();
-                        }
-                    };
+                    gridEl.innerHTML = '';
+                    ["CN","T2","T3","T4","T5","T6","T7"].forEach((day, i) => {
+                        const h = document.createElement('div');
+                        h.className = 'weekday-header';
+                        if (i === 0 || i === 6) h.classList.add('text-danger');
+                        h.innerText = day;
+                        gridEl.appendChild(h);
+                    });
 
-                    document.getElementById('nextMonthBtn').onclick = () => {
-                        currentMonth.setMonth(currentMonth.getMonth() + 1);
-                        renderCalendar(currentMonth);
-                        updateNavButtons();
-                    };
-
-                    for (let i = 0; i < startDayOfWeek; i++) {
-                        const div = document.createElement('div');
-                        div.className = 'day-cell inactive';
-                        calendarDaysEl.appendChild(div);
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    for (let i = 0; i < firstDay; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'day-cell inactive-pad';
+                        gridEl.appendChild(p);
                     }
+
+                    const selectedId = document.getElementById('departureSelect').value;
+                    const minBookDate = new Date();
+                    minBookDate.setDate(minBookDate.getDate() + 7);
 
                     for (let day = 1; day <= daysInMonth; day++) {
-                        const currentDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                        
+                        const dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                         const div = document.createElement('div');
                         div.className = 'day-cell';
-                        div.innerText = day;
+                        const num = document.createElement('span');
+                        num.className = 'day-num';
+                        num.innerText = day;
+                        div.appendChild(num);
 
-                        const departure = departures.find(d => d.date === currentDateStr);
+                        const departure = departures.find(d => d.date === dStr);
                         if (departure) {
-                            // Check capacity
-                            const maxSeats = parseInt(departure.max_seats) || 0;
-                            const bookedSeats = parseInt(departure.booked_seats) || 0;
-                            const availableSeats = maxSeats - bookedSeats;
-                            const isFull = availableSeats <= 0;
+                            const isFull = departure.available_seats <= 0;
+                            const isTooSoon = new Date(dStr) < minBookDate;
+                            const isPast = new Date(dStr) < now;
 
-                            // Check 7-day restriction
-                            const depDate = new Date(departure.date);
-                            depDate.setHours(0,0,0,0);
-                            
-                            const minDate = new Date();
-                            minDate.setHours(0,0,0,0);
-                            minDate.setDate(minDate.getDate() + 7);
-
-                            const priceDiv = document.createElement('div');
-                            priceDiv.className = 'day-price';
-                            priceDiv.innerText = formatCompactPrice(departure.price);
-                            div.appendChild(priceDiv);
-
-                            if (isFull) {
-                                div.classList.add('has-departure', 'is-full');
-                                div.title = "Đã hết chỗ";
-                                const fullLabel = document.createElement('div');
-                                fullLabel.className = 'full-label';
-                                fullLabel.innerText = 'Hết chỗ';
-                                div.appendChild(fullLabel);
-                            } else if (depDate < minDate) {
-                                div.classList.add('has-departure', 'disabled-too-soon');
-                                div.title = "Đã quá hạn đăng ký (Yêu cầu đặt trước 7 ngày)";
+                            if (isPast) {
+                                div.classList.add('inactive-pad');
+                            } else if (isFull) {
+                                div.classList.add('is-full', 'border-status-danger');
+                                div.title = "Tour này đã đủ số lượng khách. Vui lòng chọn ngày khác.";
+                                const lbl = document.createElement('div');
+                                lbl.className = 'hot-label bg-danger';
+                                lbl.innerText = 'Hết chỗ';
+                                div.appendChild(lbl);
+                            } else if (isTooSoon) {
+                                div.classList.add('disabled-too-soon', 'border-status-gray');
+                                div.title = "Hệ thống chỉ nhận đặt tour trực tuyến tối thiểu 7 ngày trước khi khởi hành. Vui lòng liên hệ Hotline để được hỗ trợ đặt gấp.";
+                                const lbl = document.createElement('div');
+                                lbl.className = 'hot-label bg-secondary';
+                                lbl.innerText = 'Đóng nhận';
+                                div.appendChild(lbl);
                             } else {
                                 div.classList.add('has-departure');
-                                div.onclick = function() {
-                                    selectDeparture(departure, div);
-                                };
-                                
-                                const selectedId = document.getElementById('departureSelect').value;
-                                if (selectedId == departure.id) {
-                                    div.classList.add('selected');
+                                if (selectedId == departure.id) div.classList.add('selected');
+
+                                // Quy tắc viền: Còn ít (<=5) -> Đỏ, Còn nhiều -> Xanh
+                                if (departure.available_seats <= 5) {
+                                    div.classList.add('border-status-danger');
+                                } else {
+                                    div.classList.add('border-status-success');
                                 }
 
-                                if (availableSeats <= 5) {
-                                    const hotLabel = document.createElement('div');
-                                    hotLabel.className = 'hot-label';
-                                    hotLabel.innerText = `Còn ${availableSeats} chỗ`;
-                                    div.appendChild(hotLabel);
+                                // Show occupancy
+                                const occ = document.createElement('div');
+                                occ.className = 'occ-label';
+                                occ.innerHTML = `<i class="ph ph-users me-1 small"></i>${departure.booked_seats}/${departure.max_seats}`;
+                                div.appendChild(occ);
+
+                                if (departure.available_seats <= 5) {
+                                    const hot = document.createElement('div');
+                                    hot.className = 'hot-label bg-danger';
+                                    hot.innerText = 'Sắp hết';
+                                    div.appendChild(hot);
                                 }
+                                div.onclick = () => selectDeparture(departure, div);
                             }
-                        } else {
-                            div.classList.add('inactive'); // Disable non-departure days
                         }
-
-                        calendarDaysEl.appendChild(div);
+                        gridEl.appendChild(div);
                     }
+                    document.getElementById('prevMonthBtn').disabled = (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth());
                 }
 
                 function selectDeparture(departure, element) {
                     document.getElementById('departureSelect').value = departure.id;
-                    
                     document.querySelectorAll('.day-cell').forEach(el => el.classList.remove('selected'));
                     element.classList.add('selected');
 
-                    const dateFn = new Date(departure.date);
-                    const formattedDate = `${dateFn.getDate()}/${dateFn.getMonth()+1}/${dateFn.getFullYear()}`;
-                    const fullPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(departure.price);
-                    document.getElementById('selectedDateDisplay').innerText = `Bạn chọn ngày: ${formattedDate} - Giá: ${fullPrice}`;
+                    const d = new Date(departure.date);
+                    const formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
-                    // Sidebar remaining seats display
-                    const sidebarSelectedDate = document.getElementById('sidebarSelectedDate');
-                    const sidebarDateText = document.getElementById('sidebarDateText');
-                    const maxSeats = parseInt(departure.max_seats) || 0;
-                    const bookedSeats = parseInt(departure.booked_seats) || 0;
-                    const availableSeats = maxSeats - bookedSeats;
+                    let statusText = 'Còn chỗ';
+                    let badgeClass = 'bg-success';
+                    if (departure.available_seats <= 5) {
+                        statusText = 'Sắp hết';
+                        badgeClass = 'bg-warning text-dark';
+                    }
 
-                    sidebarDateText.innerHTML = `
-                        <div class="fw-bold fs-6">Ngày: ${formattedDate}</div>
-                        <div class="text-primary fw-bold">Giá: ${fullPrice}</div>
-                        <div class="mt-1 small ${availableSeats <= 5 ? 'text-danger fw-bold' : 'text-muted'}">
-                            <i class="fas fa-user-friends me-1"></i> Còn trống ${availableSeats} chỗ
-                        </div>
-                    `;
-                    sidebarSelectedDate.classList.remove('d-none');
+                    // Cập nhật giá tour trong sidebar
+                    const priceDisplay = document.getElementById('main-tour-price');
+                    if (priceDisplay) {
+                        priceDisplay.innerText = new Intl.NumberFormat('vi-VN').format(departure.price);
+                        priceDisplay.style.color = '#ef4444';
+                        setTimeout(() => { priceDisplay.style.color = ''; }, 500);
+                    }
+                    
+                    // Cập nhật thẻ tóm tắt Sidebar (Sapphire Blue Style)
+                    const sidebarPreview = document.getElementById('sidebarSelectedDate');
+                    const sidebarText = document.getElementById('sidebarDateText');
+                    if (sidebarPreview && sidebarText) {
+                        sidebarText.innerHTML = `
+                            <div class="p-3 bg-sapphire-soft rounded-4 mb-3 border-0 shadow-sm animate__animated animate__fadeIn">
+                                <div class="small text-primary fw-bold uppercase ls-1 mb-1" style="font-size: 0.65rem;">NGÀY KHỞI HÀNH ĐÃ CHỌN</div>
+                                <div class="fw-bold text-dark fs-5 mb-2">${formattedDate}</div>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="badge ${badgeClass} rounded-pill px-2 py-1">${statusText}</span>
+                                    <span class="small text-muted fw-bold"><i class="ph ph-users me-1"></i> ${departure.booked_seats}/${departure.max_seats}</span>
+                                </div>
+                            </div>
+                        `;
+                        sidebarPreview.classList.remove('d-none');
+                    }
+                    
+                    const btnBooking = document.getElementById('btn-submit-booking');
+                    if (btnBooking) btnBooking.disabled = false;
                 }
 
                 function formatCompactPrice(price) {
-                    if (price >= 1000000000) {
-                        return (price / 1000000000).toFixed(1).replace(/\.0$/, '') + ' tỷ';
-                    } else if (price >= 1000000) {
-                        return (price / 1000000).toFixed(1).replace(/\.0$/, '') + 'tr';
-                    } else if (price >= 1000) {
-                        return (price / 1000).toFixed(0) + 'k';
-                    }
+                    if (price >= 1000000) return (price / 1000000).toFixed(1).replace(/\.0$/, '') + 'tr';
+                    if (price >= 1000) return (price / 1000).toFixed(0) + 'k';
                     return price;
                 }
+
+                document.getElementById('prevMonthBtn').onclick = () => {
+                    currentMonth.setMonth(currentMonth.getMonth() - 1);
+                    renderCalendar(currentMonth);
+                };
+                document.getElementById('nextMonthBtn').onclick = () => {
+                    currentMonth.setMonth(currentMonth.getMonth() + 1);
+                    renderCalendar(currentMonth);
+                };
             </script>
             <?php endif; ?>
             
@@ -482,58 +476,51 @@
         <!-- Right Stick Sidebar -->
         <div class="col-lg-4">
             <div class="sticky-top" style="top: 100px; z-index: 10;">
-                <div class="booking-card card shadow-lg mb-4">
-                    <div class="card-header text-center bg-white border-bottom py-3">
-                        <p class="text-muted mb-1 text-uppercase small ls-1">Giá trọn gói chỉ từ</p>
-                        <div class="booking-price">
-                            <?= number_format($tour['base_price'], 0, ',', '.') ?> <span class="fs-5 text-dark">đ</span>
+                <div class="booking-card card border-0 shadow-premium mb-4 overflow-hidden rounded-4">
+                    <div class="card-header text-center bg-white border-0 pt-4 pb-2">
+                        <p class="text-muted mb-1 text-uppercase small fw-bold ls-1 opacity-75">Giá trọn gói chỉ từ</p>
+                        <div class="booking-price text-sapphire d-flex align-items-baseline justify-content-center gap-1">
+                            <span class="fs-1 fw-black" id="main-tour-price"><?= number_format($tour['base_price'], 0, ',', '.') ?></span>
+                            <span class="fs-5 fw-bold">đ</span>
                         </div>
                     </div>
-                    <div class="card-body p-4 booking-form">
+                    <div class="card-body p-4 booking-form pt-0">
+                        <!-- Selected Departure Preview (Sapphire Styled) -->
+                        <div id="sidebarSelectedDate" class="d-none">
+                            <div id="sidebarDateText"></div>
+                        </div>
+
                         <div class="mb-4 text-center">
-                            <p class="text-muted small"><i class="far fa-calendar-alt me-1"></i> Kiểm tra lịch khởi hành bên dưới</p>
-                            <button class="btn btn-outline-primary btn-sm w-100" onclick="document.getElementById('tour-calendar-section').scrollIntoView({behavior: 'smooth'})">
-                                Xem lịch & chọn ngày
+                            <button class="btn btn-premium-outline w-100 rounded-pill mb-2 transition-all" onclick="document.getElementById('tour-calendar-section').scrollIntoView({behavior: 'smooth', block: 'center'})">
+                                <i class="ph ph-calendar-blank me-2"></i>Xem lịch & chọn ngày
                             </button>
                         </div>
                         
-                        <!-- Hidden input for selected departure (synced with calendar) -->
-                        <input type="hidden" id="departureSelect" value="">
-                        <div id="sidebarSelectedDate" class="alert alert-success p-2 small mb-3 d-none">
-                            <i class="fas fa-check-circle me-1"></i> <span id="sidebarDateText"></span>
-                        </div>
-
-                        <div class="d-grid gap-3">
-                            <button class="btn btn-book-now text-white btn-lg shadow-sm" type="button" onclick="bookNow()">
-                                <i class="fas fa-paper-plane me-2"></i> Đặt Tour Ngay
+                        <div class="d-grid">
+                            <button class="btn btn-primary-gradient text-white btn-lg rounded-pill shadow-sapphire py-3 fw-bold transition-all" type="submit" id="btn-submit-booking" onclick="bookNow()" disabled>
+                                <i class="ph ph-paper-plane-tilt me-2 fs-5"></i>ĐẶT TOUR NGAY
                             </button>
-                            <button class="btn btn-outline-primary btn-lg" type="button">
-                                <i class="fas fa-headset me-2"></i> Tư vấn miễn phí
-                            </button>
-                        </div>
-
-                        <hr class="my-4 opacity-10">
-
-                        <div class="d-flex align-items-center bg-light p-3 rounded">
-                            <div class="flex-shrink-0">
-                                <div class="bg-white p-2 rounded-circle shadow-sm text-primary">
-                                    <i class="fas fa-building fa-lg"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <p class="mb-0 text-muted small text-uppercase fw-bold">Đơn vị tổ chức</p>
-                                <span class="fw-bold text-dark"><?= htmlspecialchars($tour['supplier_name'] ?? 'VietTravel') ?></span>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-3 border-top text-center">
-                            <p class="text-muted small mb-2"><i class="fas fa-lock me-1"></i> Cam kết bảo mật thông tin</p>
-                            <p class="text-muted fs-7 mb-0">Hỗ trợ 24/7: <a href="tel:19008888" class="text-primary text-decoration-none fw-bold">1900 8888</a></p>
                         </div>
                     </div>
                 </div>
 
+                <style>
+                    .bg-sapphire-soft { background-color: #f0f7ff; border: 1px solid #d0e7ff; }
+                    .text-sapphire-dark { color: #0056d2; }
+                    .shadow-premium { box-shadow: 0 20px 40px rgba(0,0,0,0.06) !important; }
+                    .text-sapphire { color: #1e293b; }
+                    .fw-black { font-weight: 900; }
+                    .btn-premium-outline { border: 1.5px solid #dee2e6; color: #475569; font-weight: 600; padding: 0.6rem; }
+                    .btn-premium-outline:hover { border-color: #0d6efd; color: #0d6efd; background: #f8faff; }
+                    .btn-primary-gradient { background: linear-gradient(135deg, #0d6efd 0%, #0056d2 100%); border: none; letter-spacing: 0.5px; }
+                    .btn-primary-gradient:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(13, 110, 253, 0.3); }
+                    .btn-primary-gradient:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+                    .shadow-sapphire { box-shadow: 0 8px 16px rgba(13, 110, 253, 0.2); }
+                    .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+                </style>
+
                 <!-- Share & QR Code Card -->
-                <div class="card shadow-sm border-0 rounded-4 overflow-hidden share-card">
+                <div class="card shadow-premium border-0 rounded-4 overflow-hidden share-card">
                     <div class="card-body p-4 text-center">
                         <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-share-alt me-2 text-primary"></i>Chia sẻ Tour này</h6>
                         <div id="tour-qr-code" class="d-flex justify-content-center mb-3 p-2 bg-light rounded-3" style="min-height: 140px;">

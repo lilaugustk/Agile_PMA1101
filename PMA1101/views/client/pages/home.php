@@ -11,50 +11,64 @@
         <p class="lead text-white-50 mb-5 fw-medium" data-aos="fade-up" data-aos-delay="100">Đồng hành cùng bạn trên mọi hành trình - Trải nghiệm đẳng cấp, giá trị đích thực.</p>
         
         <!-- Search Bar -->
-        <div class="search-box bg-white p-3 p-md-4 rounded-4 shadow-lg mx-auto" style="max-width: 900px;" data-aos="fade-up" data-aos-delay="200">
-            <form action="<?= BASE_URL ?>" method="GET" class="row g-3 align-items-center">
+        <div class="search-box bg-white rounded-pill shadow-lg mx-auto overflow-hidden p-2" style="max-width: 950px; border: 1px solid rgba(0,0,0,0.05);" data-aos="fade-up" data-aos-delay="200">
+            <form action="<?= BASE_URL ?>" method="GET" class="row g-0 align-items-center">
                 <input type="hidden" name="action" value="tours">
+                
+                <!-- Destination -->
                 <div class="col-md-4">
-                    <div class="input-group-custom text-start border-end pe-3">
-                        <label class="text-uppercase text-muted small fw-bold mb-1 d-block"><i class="ph-fill ph-map-pin me-1 text-primary"></i> Điểm Đến</label>
-                        <input type="text" name="q" class="form-control border-0 shadow-none p-0 fs-5 fw-medium bg-transparent" placeholder="Bạn muốn đi đâu?">
+                    <div class="px-4 py-2 border-end-md">
+                        <label class="text-uppercase text-muted fw-bold mb-1 d-flex align-items-center gap-2" style="font-size: 0.7rem; letter-spacing: 1px;">
+                            <i class="ph-fill ph-map-pin text-primary" style="font-size: 0.9rem;"></i> ĐIỂM ĐẾN
+                        </label>
+                        <input type="text" name="q" class="form-control border-0 shadow-none p-0 fs-5 fw-bold text-dark placeholder-muted bg-transparent" placeholder="Bạn muốn đi đâu?" style="height: auto;">
                     </div>
                 </div>
+
+                <!-- Category -->
                 <div class="col-md-3">
-                    <div class="input-group-custom text-start border-end pe-3 ps-md-3 position-relative custom-dropdown" id="dropdown-category">
-                        <label class="text-uppercase text-muted small fw-bold mb-1 d-block"><i class="ph-fill ph-calendar-blank me-1 text-primary"></i> Loại hình</label>
+                    <div class="px-4 py-2 border-end-md position-relative custom-dropdown" id="dropdown-category">
+                        <label class="text-uppercase text-muted fw-bold mb-1 d-flex align-items-center gap-2" style="font-size: 0.7rem; letter-spacing: 1px;">
+                            <i class="ph-fill ph-calendar-blank text-primary" style="font-size: 0.9rem;"></i> LOẠI HÌNH
+                        </label>
                         <div class="dropdown-trigger cursor-pointer d-flex align-items-center justify-content-between">
-                            <span class="current-value fs-5 fw-medium">Tất cả</span>
-                            <i class="ph-bold ph-caret-down text-muted" style="font-size: 0.8rem;"></i>
+                            <span class="current-value fs-5 fw-bold text-dark">Tất cả</span>
+                            <i class="ph-bold ph-caret-down text-muted" style="font-size: 0.75rem;"></i>
                         </div>
                         <input type="hidden" name="category" value="">
-                        <div class="dropdown-menu-custom shadow-lg border-0 rounded-3 overflow-hidden">
-                            <div class="dropdown-item-custom py-2 px-3 selected" data-value="">Tất cả</div>
+                        <div class="dropdown-menu-custom shadow-lg border-0 rounded-4 overflow-hidden">
+                            <div class="dropdown-item-custom py-2 px-3 fw-medium selected" data-value="">Tất cả</div>
                             <?php foreach($categories as $cat): ?>
-                                <div class="dropdown-item-custom py-2 px-3" data-value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></div>
+                                <div class="dropdown-item-custom py-2 px-3 fw-medium" data-value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></div>
                             <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
+
+                <!-- Duration -->
                 <div class="col-md-3">
-                    <div class="input-group-custom text-start pe-3 ps-md-3 position-relative custom-dropdown" id="dropdown-duration">
-                        <label class="text-uppercase text-muted small fw-bold mb-1 d-block"><i class="ph-fill ph-clock me-1 text-primary"></i> Thời lượng</label>
+                    <div class="px-4 py-2 position-relative custom-dropdown" id="dropdown-duration">
+                        <label class="text-uppercase text-muted fw-bold mb-1 d-flex align-items-center gap-2" style="font-size: 0.7rem; letter-spacing: 1px;">
+                            <i class="ph-fill ph-clock text-primary" style="font-size: 0.9rem;"></i> THỜI LƯỢNG
+                        </label>
                         <div class="dropdown-trigger cursor-pointer d-flex align-items-center justify-content-between">
-                            <span class="current-value fs-5 fw-medium">Bất kỳ</span>
-                            <i class="ph-bold ph-caret-down text-muted" style="font-size: 0.8rem;"></i>
+                            <span class="current-value fs-5 fw-bold text-dark">Bất kỳ</span>
+                            <i class="ph-bold ph-caret-down text-muted" style="font-size: 0.75rem;"></i>
                         </div>
                         <input type="hidden" name="duration" value="">
-                        <div class="dropdown-menu-custom shadow-lg border-0 rounded-3 overflow-hidden">
-                            <div class="dropdown-item-custom py-2 px-3 selected" data-value="">Bất kỳ</div>
-                            <div class="dropdown-item-custom py-2 px-3" data-value="1-3">1 - 3 ngày</div>
-                            <div class="dropdown-item-custom py-2 px-3" data-value="4-7">4 - 7 ngày</div>
-                            <div class="dropdown-item-custom py-2 px-3" data-value="over-7">Trên 7 ngày</div>
+                        <div class="dropdown-menu-custom shadow-lg border-0 rounded-4 overflow-hidden">
+                            <div class="dropdown-item-custom py-2 px-3 fw-medium selected" data-value="">Bất kỳ</div>
+                            <div class="dropdown-item-custom py-2 px-3 fw-medium" data-value="1-3">1 - 3 ngày</div>
+                            <div class="dropdown-item-custom py-2 px-3 fw-medium" data-value="4-7">4 - 7 ngày</div>
+                            <div class="dropdown-item-custom py-2 px-3 fw-medium" data-value="over-7">Trên 7 ngày</div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-2 mt-4 mt-md-0 d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg rounded-3 py-3 hover-lift">
-                        <i class="ph-bold ph-magnifying-glass fs-5"></i>
+
+                <!-- Search Button -->
+                <div class="col-md-2 p-1">
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill d-flex align-items-center justify-content-center hover-lift" style="height: 56px; background: #008C72; border: none;">
+                        <i class="ph-bold ph-magnifying-glass fs-4"></i>
                     </button>
                 </div>
             </form>
@@ -68,35 +82,6 @@
     </a>
 </section>
 
-<!-- 2. Danh Mục Các Loại Tour -->
-<section id="discover" class="py-5 bg-light">
-    <div class="container py-5">
-        <div class="text-center mb-5" data-aos="fade-up">
-            <h6 class="text-primary fw-bold text-uppercase tracking-tight">Danh Mục Tour</h6>
-            <h2 class="display-6 fw-bold text-dark">Lựa Chọn Theo Sở Thích</h2>
-        </div>
-        
-        <div class="row g-4 justify-content-center">
-            <?php 
-            $icons = ['ph-island', 'ph-mountains', 'ph-buildings', 'ph-camera', 'ph-sun-dim', 'ph-airplane-tilt'];
-            foreach(array_slice($categories, 0, 6) as $index => $cat): 
-                $icon = $icons[$index % count($icons)];
-            ?>
-            <div class="col-6 col-md-4 col-lg-2" data-aos="fade-up" data-aos-delay="<?= $index * 100 ?>">
-                <a href="<?= BASE_URL ?>?action=tours&category=<?= htmlspecialchars($cat['slug']) ?>" class="category-card text-decoration-none">
-                    <div class="card border-0 shadow-sm text-center h-100 p-4 transition-all hover-lift rounded-4">
-                        <div class="icon-circle bg-primary-subtle text-primary mx-auto mb-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                            <i class="<?= $icon ?> fs-1"></i>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-1"><?= htmlspecialchars($cat['name']) ?></h6>
-                        <span class="text-muted small"><?= $cat['tour_count'] ?> tours</span>
-                    </div>
-                </a>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
 
 <!-- 3. Tour Nổi Bật (Featured Tours) -->
 <section class="py-5 py-lg-6">
@@ -139,18 +124,17 @@
                         <!-- Card Body -->
                         <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex align-items-center text-muted small mb-2 gap-3">
-                                <span class="d-flex align-items-center gap-1"><i class="ph-fill ph-clock text-primary"></i> <?= $tour['duration_days'] ?? 'N/A' ?> Ngày</span>
-                                <span class="d-flex align-items-center gap-1"><i class="ph-fill ph-users text-primary"></i> Lên đến <?= $tour['max_participants'] ?? 'N/A' ?></span>
+                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 fw-bold"><?= htmlspecialchars($tour['category_name'] ?? 'Tour') ?></span>
                             </div>
                             
                             <h5 class="card-title fw-bold mb-3 line-clamp-2" style="min-height: 48px;">
                                 <a href="<?= BASE_URL ?>?action=tour-detail&id=<?= $tour['id'] ?>" class="text-dark text-decoration-none hover-text-primary transition-all"><?= htmlspecialchars($tour['name']) ?></a>
                             </h5>
                             
-                            <!-- Rating (Placeholder) -->
                             <div class="mb-3 d-flex align-items-center gap-1 text-warning fs-6">
-                                <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star-half"></i>
-                                <span class="text-muted small ms-1">(128 đánh giá)</span>
+                                <i class="ph-fill ph-star"></i>
+                                <span class="text-dark fw-bold"><?= number_format($tour['avg_rating'] ?: 5.0, 1) ?></span>
+                                <span class="text-muted small ms-1">(<?= $tour['review_count'] ?> đánh giá)</span>
                             </div>
 
                             <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
@@ -230,8 +214,7 @@
                         </h5>
                         
                         <div class="d-flex align-items-center gap-3 text-muted small mb-4">
-                            <span class="d-flex align-items-center gap-1"><i class="ph ph-clock"></i> <?= $tour['duration_days'] ?? '1' ?> ngày</span>
-                            <span class="d-flex align-items-center gap-1"><i class="ph ph-users"></i> Tối đa <?= $tour['max_seats'] ?> kh</span>
+                            <!-- Metadata removed as requested -->
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top">

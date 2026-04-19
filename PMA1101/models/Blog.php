@@ -18,4 +18,11 @@ class Blog extends BaseModel
     {
         return $this->select('*', 'status = "published" AND deleted_at IS NULL', [], 'published_at DESC', $limit);
     }
+
+    public function incrementView($id)
+    {
+        $sql = "UPDATE {$this->table} SET view_count = view_count + 1 WHERE id = :id";
+        $stmt = self::$pdo->prepare($sql);
+        return $stmt->execute(['id' => $id]);
+    }
 }

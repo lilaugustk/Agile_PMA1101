@@ -91,10 +91,10 @@ if (!isset($isAjax)) {
                                     
                                     <!-- Actions -->
                                     <div class="d-flex justify-content-center gap-2 mt-3">
-                                        <a href="<?= BASE_URL_ADMIN . '&action=tours/restore&id=' . $tour['id'] ?>" class="btn btn-sm btn-success flex-grow-1 d-flex align-items-center justify-content-center gap-2" onclick="return confirm('Khôi phục tour này?')">
+                                        <a href="<?= BASE_URL_ADMIN . '&action=tours/restore&id=' . $tour['id'] ?>" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1" style="font-size: 0.75rem; white-space: nowrap;" onclick="return confirm('Khôi phục tour này?')">
                                             <i class="ph ph-arrow-counter-clockwise"></i> Khôi phục
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger btn-force-delete" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>">
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-force-delete d-flex align-items-center gap-1" data-id="<?= $tour['id'] ?>" data-name="<?= htmlspecialchars($tour['name']) ?>" style="font-size: 0.75rem; white-space: nowrap;">
                                             <i class="ph ph-x-circle"></i> Xóa vĩnh viễn
                                         </button>
                                     </div>
@@ -149,15 +149,22 @@ if (!isset($isAjax)) {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const forceDeleteModal = new bootstrap.Modal(document.getElementById('forceDeleteModal'));
-    document.querySelectorAll('.btn-force-delete').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            const name = this.dataset.name;
+    
+    // Sử dụng Event Delegation để xử lý cả các nút được tải qua AJAX
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-force-delete');
+        if (btn) {
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
             document.getElementById('force-delete-tour-name').textContent = name;
-            document.getElementById('force-delete-form').action = '<?= BASE_URL_ADMIN ?>&action=tours/forceDelete&id=' + id;
+            document.getElementById('force-delete-form').action = '<?= BASE_URL_ADMIN ?>&action=tours/force-delete&id=' + id;
             forceDeleteModal.show();
-        });
+        }
     });
 });
 </script>
+<?php endif; ?>
+
+<?php if (!isset($isAjax)): ?>
+    <?php include_once PATH_VIEW_ADMIN . 'default/footer.php'; ?>
 <?php endif; ?>

@@ -397,12 +397,23 @@ if (empty($galleryUrls)) {
                                     el.style.cursor = 'pointer';
                                     el.title = '📅 ' + dateStr + '  |  ' + C.lbl + (dep.max_seats ? '  |  ' + dep.max_seats + ' chỗ' : '');
 
+                                    const occupied = dep.booked_seats || 0;
                                     el.innerHTML =
                                         '<span style="font-size:0.9rem;font-weight:700;color:#1e293b;">' + dayNum + '</span>' +
-                                        '<span style="font-size:0.58rem;font-weight:700;color:' + C.txt + ';margin-top:auto;background:rgba(255,255,255,0.7);border-radius:4px;padding:1px 5px;">' + C.lbl + '</span>';
+                                        '<div class="small fw-bold d-flex align-items-center justify-content-center gap-1" style="font-size: 0.62rem; color:' + C.txt + '; margin-top:auto; background:rgba(255,255,255,0.7); border-radius:4px; padding:1px 4px; width: 100%;">' +
+                                            '<i class="ph ph-users" style="font-size: 0.7rem;"></i> ' + occupied + '/' + (dep.max_seats || 0) +
+                                        '</div>';
 
                                     el.addEventListener('mouseenter', () => el.style.transform = 'translateY(-2px)');
                                     el.addEventListener('mouseleave', () => el.style.transform = '');
+                                    el.addEventListener('click', () => {
+                                        document.getElementById('edit_dep_id').value = dep.id;
+                                        document.getElementById('edit_departureDate').value = dateStr;
+                                        document.getElementById('edit_maxSeats').value = dep.max_seats;
+                                        setCustomDropdownValue('edit-status-dropdown', dep.status);
+                                        
+                                        new bootstrap.Modal(document.getElementById('editDepartureModal')).show();
+                                    });
                                 } else {
                                     el.innerHTML = '<span style="font-size:0.88rem;color:' + (isWeekend ? '#ef4444' : '#374151') + ';">' + dayNum + '</span>';
                                 }
@@ -545,11 +556,7 @@ if (empty($galleryUrls)) {
                 </div>
             </div>
 
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
+
             </div>
         </div> <!-- /row -->
 
@@ -604,10 +611,21 @@ if (empty($galleryUrls)) {
                                 </div>
                                 <div class="col-6">
                                     <label for="status" class="form-label text-muted fw-medium small mb-1">Trạng thái</label>
-                                    <select class="form-select" id="status" name="status">
-                                        <option value="open">Open</option>
-                                        <option value="closed">Closed</option>
-                                    </select>
+                                    <div class="custom-dropdown" id="add-status-dropdown">
+                                        <div class="custom-dropdown-toggle border rounded form-control d-flex justify-content-between align-items-center bg-white cursor-pointer px-3" style="min-height: 2.75rem;">
+                                            <span class="selected-text d-flex align-items-center gap-2"><div class="status-dot bg-success rounded-circle" style="width:8px;height:8px;"></div>Mở bán (Open)</span>
+                                            <i class="ph ph-caret-down text-muted"></i>
+                                        </div>
+                                        <div class="custom-dropdown-menu position-absolute w-100 bg-white border rounded shadow-sm mt-1 py-1" style="display: none; z-index: 1050; max-height: 200px; overflow-y: auto;">
+                                            <div class="custom-dropdown-item px-3 py-2 cursor-pointer hover-bg-light transition-all active d-flex align-items-center gap-2" data-value="open">
+                                                <div class="status-dot bg-success rounded-circle" style="width:8px;height:8px;"></div>Mở bán (Open)
+                                            </div>
+                                            <div class="custom-dropdown-item px-3 py-2 cursor-pointer hover-bg-light transition-all d-flex align-items-center gap-2" data-value="closed">
+                                                <div class="status-dot bg-warning rounded-circle" style="width:8px;height:8px;"></div>Đóng (Closed)
+                                            </div>
+                                        </div>
+                                        <input type="hidden" id="status" name="status" value="open">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -622,8 +640,66 @@ if (empty($galleryUrls)) {
             </div>
         </div>
 
-    </div> <!-- /content -->
-</main>
+        <!-- Edit Departure Modal -->
+        <div class="modal fade" id="editDepartureModal" tabindex="-1" aria-labelledby="editDepartureModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+                    <form id="editDepartureForm">
+                        <div class="modal-header border-bottom border-light px-4 py-3">
+                            <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="editDepartureModalLabel">
+                                <i class="ph-fill ph-pencil-simple text-primary"></i>
+                                Cập nhật trạng thái khởi hành
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body px-4 py-4">
+                            <input type="hidden" name="tour_id" value="<?= $tour['id'] ?>">
+                            <input type="hidden" name="id" id="edit_dep_id">
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted fw-medium small mb-1">Ngày khởi hành</label>
+                                <input type="date" class="form-control bg-light" id="edit_departureDate" readonly>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label for="edit_maxSeats" class="form-label text-muted fw-medium small mb-1">Số chỗ tối đa</label>
+                                    <input type="number" class="form-control" id="edit_maxSeats" name="max_seats" min="1" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="edit_status" class="form-label text-muted fw-medium small mb-1">Trạng thái</label>
+                                    <div class="custom-dropdown" id="edit-status-dropdown">
+                                        <div class="custom-dropdown-toggle border rounded form-control d-flex justify-content-between align-items-center bg-white cursor-pointer px-3" style="min-height: 2.75rem;">
+                                            <span class="selected-text d-flex align-items-center gap-2"><div class="status-dot bg-success rounded-circle" style="width:8px;height:8px;"></div>Mở bán (Open)</span>
+                                            <i class="ph ph-caret-down text-muted"></i>
+                                        </div>
+                                        <div class="custom-dropdown-menu position-absolute w-100 bg-white border rounded shadow-sm mt-1 py-1" style="display: none; z-index: 1050; max-height: 200px; overflow-y: auto;">
+                                            <div class="custom-dropdown-item px-3 py-2 cursor-pointer hover-bg-light transition-all active d-flex align-items-center gap-2" data-value="open">
+                                                <div class="status-dot bg-success rounded-circle" style="width:8px;height:8px;"></div>Mở bán (Open)
+                                            </div>
+                                            <div class="custom-dropdown-item px-3 py-2 cursor-pointer hover-bg-light transition-all d-flex align-items-center gap-2" data-value="full">
+                                                <div class="status-dot bg-danger rounded-circle" style="width:8px;height:8px;"></div>Hết chỗ (Full)
+                                            </div>
+                                            <div class="custom-dropdown-item px-3 py-2 cursor-pointer hover-bg-light transition-all d-flex align-items-center gap-2" data-value="closed">
+                                                <div class="status-dot bg-warning rounded-circle" style="width:8px;height:8px;"></div>Đóng (Closed)
+                                            </div>
+                                        </div>
+                                        <input type="hidden" id="edit_status" name="status" value="open">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top border-light px-4 py-3 bg-light bg-opacity-50" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                            <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+                                <i class="ph ph-floppy-disk"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
 
 <!-- QR Code Modal -->
 <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
@@ -907,6 +983,48 @@ if (empty($galleryUrls)) {
         .lightbox-nav { width: 40px; height: 40px; font-size: 18px; }
         .lightbox-thumbnails { display: none; }
     }
+
+    /* Custom Dropdown Styles */
+    .custom-dropdown {
+        position: relative;
+    }
+    .custom-dropdown-toggle:hover {
+        border-color: var(--bs-primary) !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    }
+    .custom-dropdown.open .custom-dropdown-toggle {
+        border-color: var(--bs-primary) !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    .custom-dropdown.open .ph-caret-down {
+        transform: rotate(180deg);
+        transition: transform 0.2s;
+    }
+    .custom-dropdown-menu {
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.2s, transform 0.2s;
+        display: block;
+        visibility: hidden;
+    }
+    .custom-dropdown.open .custom-dropdown-menu {
+        opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
+    }
+    .custom-dropdown-item {
+        font-size: 0.95rem;
+        color: #334155;
+    }
+    .custom-dropdown-item:hover {
+        background-color: #f1f5f9;
+        color: var(--bs-primary);
+    }
+    .custom-dropdown-item.active {
+        background-color: #e0f2fe;
+        color: #0369a1;
+        font-weight: 600;
+    }
 </style>
 
                 <script>
@@ -1042,6 +1160,75 @@ if (empty($galleryUrls)) {
                         galleryItems.forEach(item => item.style.display = 'block');
                     }
 
+                    // Custom Dropdown Logic
+                    function initCustomDropdowns() {
+                        document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+                            const toggle = dropdown.querySelector('.custom-dropdown-toggle');
+                            const menu = dropdown.querySelector('.custom-dropdown-menu');
+                            const items = dropdown.querySelectorAll('.custom-dropdown-item');
+                            const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+                            const selectedText = dropdown.querySelector('.selected-text');
+
+                            // Toggle menu
+                            toggle.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                const isOpen = dropdown.classList.contains('open');
+                                document.querySelectorAll('.custom-dropdown').forEach(d => {
+                                    d.classList.remove('open');
+                                    d.querySelector('.custom-dropdown-menu').style.display = 'none';
+                                });
+                                if (!isOpen) {
+                                    dropdown.classList.add('open');
+                                    menu.style.display = 'block';
+                                }
+                            });
+
+                            // Select item
+                            items.forEach(item => {
+                                item.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    items.forEach(i => i.classList.remove('active'));
+                                    item.classList.add('active');
+                                    selectedText.innerHTML = item.innerHTML;
+                                    hiddenInput.value = item.dataset.value;
+                                    dropdown.classList.remove('open');
+                                    menu.style.display = 'none';
+                                });
+                            });
+                        });
+
+                        // Close dropdowns when clicking outside
+                        document.addEventListener('click', () => {
+                            document.querySelectorAll('.custom-dropdown').forEach(d => {
+                                d.classList.remove('open');
+                                const menu = d.querySelector('.custom-dropdown-menu');
+                                if(menu) menu.style.display = 'none';
+                            });
+                        });
+                    }
+
+                    // Set custom dropdown value programmatically
+                    function setCustomDropdownValue(dropdownId, value) {
+                        const dropdown = document.getElementById(dropdownId);
+                        if (!dropdown) return;
+                        const items = dropdown.querySelectorAll('.custom-dropdown-item');
+                        const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+                        const selectedText = dropdown.querySelector('.selected-text');
+                        
+                        items.forEach(item => {
+                            if (item.dataset.value === value) {
+                                items.forEach(i => i.classList.remove('active'));
+                                item.classList.add('active');
+                                selectedText.innerHTML = item.innerHTML;
+                                hiddenInput.value = value;
+                            }
+                        });
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => {
+                        initCustomDropdowns();
+                    });
+
                     // Handle add departure form submission
                     const addDepartureForm = document.getElementById('addDepartureForm');
                     if (addDepartureForm) {
@@ -1062,6 +1249,41 @@ if (empty($galleryUrls)) {
                                     const modal = bootstrap.Modal.getInstance(document.getElementById('addDepartureModal'));
                                     if (modal) modal.hide();
                                     addDepartureForm.reset();
+                                    // Toast
+                                    const t = `<div class="position-fixed top-0 end-0 p-3 mt-5" style="z-index:1090"><div class="toast show align-items-center text-bg-success border-0 shadow-lg"><div class="d-flex"><div class="toast-body d-flex align-items-center gap-2 fw-medium"><i class="ph-fill ph-check-circle fs-5"></i>${data.message}</div><button type="button" class="btn-close btn-close-white me-3 m-auto" data-bs-dismiss="toast"></button></div></div></div>`;
+                                    document.body.insertAdjacentHTML('beforeend', t);
+                                    setTimeout(() => document.body.lastElementChild?.remove(), 4000);
+                                } else {
+                                    alert(data.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+                                }
+                            })
+                            .catch(() => alert('Có lỗi mạng hoặc máy chủ. Vui lòng thử lại.'))
+                            .finally(() => { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnContent; });
+                        });
+                    }
+
+                    // Handle edit departure form submission
+                    const editDepartureForm = document.getElementById('editDepartureForm');
+                    if (editDepartureForm) {
+                        editDepartureForm.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(this);
+                            const submitBtn = this.querySelector('button[type="submit"]');
+                            const originalBtnContent = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Đang lưu...';
+                            fetch('<?= BASE_URL_ADMIN ?>&action=tours/update-departure', { method: 'POST', body: formData })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Update the calendar view
+                                    const dateStr = document.getElementById('edit_departureDate').value;
+                                    addDepartureToCalendar(dateStr, data.data);
+                                    
+                                    // Close modal
+                                    const modal = bootstrap.Modal.getInstance(document.getElementById('editDepartureModal'));
+                                    if (modal) modal.hide();
+                                    
                                     // Toast
                                     const t = `<div class="position-fixed top-0 end-0 p-3 mt-5" style="z-index:1090"><div class="toast show align-items-center text-bg-success border-0 shadow-lg"><div class="d-flex"><div class="toast-body d-flex align-items-center gap-2 fw-medium"><i class="ph-fill ph-check-circle fs-5"></i>${data.message}</div><button type="button" class="btn-close btn-close-white me-3 m-auto" data-bs-dismiss="toast"></button></div></div></div>`;
                                     document.body.insertAdjacentHTML('beforeend', t);

@@ -13,7 +13,6 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                     <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa Guide</li>
                 </ol>
             </nav>
-            <h4 class="fw-bold mb-0 mt-1" style="font-size: 1.25rem; letter-spacing: -0.5px;">Chỉnh sửa Guide</h4>
         </div>
         <div class="d-flex gap-2">
             <a href="<?= BASE_URL_ADMIN ?>&action=guides" class="btn btn-light d-flex align-items-center gap-2 px-3 py-2 border shadow-sm" style="border-radius: var(--radius-md);">
@@ -68,6 +67,11 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
         .progress-steps-modern .step.active .step-icon { background: var(--primary-color); color: white; }
         .progress-steps-modern .step.completed .step-icon { background: var(--success-color); color: white; }
         .progress-steps-modern .step.completed .step-icon::after { content: '\eab1'; font-family: "Phosphor"; }
+        .guide-step-btn {
+            min-width: 160px;
+            white-space: nowrap;
+            font-weight: 600;
+        }
     </style>
 
         <!-- Guide Form -->
@@ -244,12 +248,12 @@ include_once PATH_VIEW_ADMIN . 'default/sidebar.php';
                                 </a>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center border-top pt-4">
-                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 px-3 shadow-none border" onclick="previousStep()" id="prev-btn" style="display: none; border-radius: 8px;">
+                            <div class="d-flex justify-content-between align-items-center border-top pt-4 gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-2 px-3 shadow-none border guide-step-btn" onclick="previousStep()" id="prev-btn" style="display: none; border-radius: 10px;">
                                     <i class="ph ph-caret-left"></i> Bước trước
                                 </button>
                                 <div class="flex-grow-1"></div>
-                                <button type="button" class="btn btn-sm btn-dark d-flex align-items-center gap-2 px-3 shadow-sm" onclick="nextStep()" id="next-btn" style="border-radius: 8px;">
+                                <button type="button" class="btn btn-sm btn-dark d-flex align-items-center justify-content-center gap-2 px-3 shadow-sm guide-step-btn" onclick="nextStep()" id="next-btn" style="border-radius: 10px;">
                                     Tiếp theo <i class="ph ph-caret-right"></i>
                                 </button>
                             </div>

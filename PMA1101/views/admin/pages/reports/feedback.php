@@ -9,7 +9,8 @@ $filters = $data['filters'] ?? [];
 $tours = $data['tours'] ?? [];
 ?>
 
-<main class="content">
+<main class="dashboard">
+    <div class="dashboard-container">
     <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
         <div>
             <nav aria-label="breadcrumb">
@@ -27,6 +28,58 @@ $tours = $data['tours'] ?? [];
             <button class="btn btn-sm btn-primary d-flex align-items-center gap-2 px-3 shadow-sm" onclick="window.print()">
                 <i class="ph ph-printer"></i> In báo cáo
             </button>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card card-premium border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form action="" method="GET" class="row g-3 align-items-end">
+                <input type="hidden" name="mode" value="admin">
+                <input type="hidden" name="action" value="reports/feedback">
+                
+                <div class="col-12 col-md-3 col-xl-2">
+                    <label class="form-label mb-1 text-muted fw-bold" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Từ ngày</label>
+                    <div class="input-group input-group-sm shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="ph ph-calendar"></i></span>
+                        <input type="date" name="date_from" class="form-control border-start-0 ps-0" value="<?= $filters['date_from'] ?? date('Y-m-01') ?>" style="border-radius: 0 8px 8px 0;">
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 col-xl-2">
+                    <label class="form-label mb-1 text-muted fw-bold" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Đến ngày</label>
+                    <div class="input-group input-group-sm shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="ph ph-calendar"></i></span>
+                        <input type="date" name="date_to" class="form-control border-start-0 ps-0" value="<?= $filters['date_to'] ?? date('Y-m-d') ?>" style="border-radius: 0 8px 8px 0;">
+                    </div>
+                </div>
+
+                 <div class="col-12 col-md-4 col-xl-6">
+                    <label class="form-label mb-1 text-muted fw-bold" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Lọc phản hồi theo Tour</label>
+                    <div class="input-group input-group-sm shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="ph ph-airplane-tilt"></i></span>
+                        <select name="tour_id" class="form-select no-choices border-start-0 ps-0 shadow-none">
+                            <option value="">Tất cả các tour có đánh giá</option>
+                            <?php if (!empty($tours)): ?>
+                                <?php foreach ($tours as $tour): ?>
+                                    <option value="<?= $tour['id'] ?>" <?= ($filters['tour_id'] ?? '') == $tour['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($tour['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2 col-xl-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary flex-grow-1 shadow-sm d-flex align-items-center justify-content-center gap-2" style="border-radius: 8px; min-height: 38px;">
+                        <i class="ph ph-funnel" style="font-size: 1rem;"></i> Lọc ngay
+                    </button>
+                    <a href="<?= BASE_URL_ADMIN ?>&action=reports/feedback" class="btn btn-sm btn-light border shadow-sm px-3 d-flex align-items-center justify-content-center" title="Đặt lại bộ lọc" style="border-radius: 8px; min-height: 38px;">
+                        <i class="ph ph-arrow-counter-clockwise"></i>
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -187,6 +240,7 @@ $tours = $data['tours'] ?? [];
                 </table>
             </div>
         </div>
+    </div>
     </div>
 </main>
 

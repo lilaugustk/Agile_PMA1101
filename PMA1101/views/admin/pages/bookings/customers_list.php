@@ -1,5 +1,12 @@
 <?php include_once PATH_VIEW_ADMIN . 'default/header.php'; ?>
 <?php include_once PATH_VIEW_ADMIN . 'default/sidebar.php'; ?>
+<?php
+$passengerTypeLabels = [
+  'adult' => 'Người lớn',
+  'child' => 'Trẻ em',
+  'infant' => 'Em bé'
+];
+?>
 <main class="wrapper">
   <div class="main-content">
     <div class="page-header mb-4 d-flex justify-content-between align-items-center">
@@ -45,7 +52,7 @@
                     <td><?= htmlspecialchars($c['id_card']) ?></td>
                     <td><?= nl2br(htmlspecialchars($c['special_request'] ?? '')) ?></td>
                     <td><?= htmlspecialchars($c['room_type']) ?></td>
-                    <td><?= htmlspecialchars($c['passenger_type']) ?></td>
+                    <td><?= htmlspecialchars($passengerTypeLabels[$c['passenger_type'] ?? 'adult'] ?? ($c['passenger_type'] ?? 'Người lớn')) ?></td>
                     <td><?= ((int)$c['is_foc'] === 1) ? '✅' : '' ?></td>
                   </tr>
                 <?php endforeach; ?>
